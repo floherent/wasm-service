@@ -1,0 +1,5 @@
+name: WASM Service
+description: API service to runs WASM files
+service:
+  port: 8080
+  contextPath: /

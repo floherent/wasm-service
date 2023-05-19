@@ -1,9 +1,14 @@
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module';
+import { AppConfig } from './app.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('/');
-  await app.listen(8080);
+  const appConfig = app.get(AppConfig);
+
+  app.setGlobalPrefix(appConfig.config.app.contextPath);
+  await app.listen(appConfig.config.app.port);
+  appConfig.printUsage();
 }
 bootstrap();
