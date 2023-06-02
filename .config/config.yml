@@ -1,4 +1,4 @@
-name: WASM Service
+name: wasm-service
 description: API service to runs WASM files
 service:
   port: 8080
