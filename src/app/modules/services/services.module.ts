@@ -7,7 +7,7 @@ import { WasmMapper, WasmRepo } from '@infra/wasm';
 import { UploadWasmCommandHandler } from '@domain/wasm';
 
 @Module({
-  imports: [CqrsModule, MulterModule.register({ dest: './uploads' })],
+  imports: [CqrsModule, MulterModule.register()],
   controllers: [ServicesController],
   providers: [
     WasmMapper,

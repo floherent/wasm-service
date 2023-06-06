@@ -1,21 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { appendFileSync, existsSync } from 'fs';
 
-import { WasmMapper } from '../mappers/wasm.mapper';
+import { AppConfig } from 'src/app.config';
+import { WasmMapper, WasmModel } from '@infra/wasm';
 import { WasmFile, IWasmRepo } from '@domain/wasm';
-import { DEFAULT_OUTPUT_FILE_PATH } from '@shared/constants';
 import { UnprocessedWasmRecord } from '@shared/errors';
 
 @Injectable()
 export class WasmRepo implements IWasmRepo {
   constructor(private mapper: WasmMapper) {}
 
-  async save(data: WasmFile): Promise<WasmFile> {
+  async save(data: WasmFile): Promise<WasmModel> {
     const model = this.mapper.toModel(data);
+    const path = AppConfig.getInstance().config.app.dataPath;
     try {
-      if (!existsSync(DEFAULT_OUTPUT_FILE_PATH)) appendFileSync(DEFAULT_OUTPUT_FILE_PATH, model.headers + '\n');
-      appendFileSync(DEFAULT_OUTPUT_FILE_PATH, model.toString() + '\n');
-      return data;
+      if (!existsSync(path)) appendFileSync(path, `${model.headers}\n`);
+      appendFileSync(path, `${model.toString()}\n`);
+      return model;
     } catch (_) {
       throw new UnprocessedWasmRecord();
     }

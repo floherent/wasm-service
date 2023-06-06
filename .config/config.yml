@@ -1,5 +1,7 @@
 name: wasm-service
-description: API service to runs WASM files
+description: API service for running WASM files
 service:
   port: 8080
   contextPath: /
+  uploadPath: uploads
+  dataPath: uploads/wasm-data.csv

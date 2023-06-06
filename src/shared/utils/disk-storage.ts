@@ -1,11 +1,10 @@
 import { diskStorage } from 'multer';
-// import { join, extname } from 'path';
+import { AppConfig } from 'src/app.config';
 
-export const dumpOntoDisk = () => {
+export const dumpOntoDisk = (options?: { dest: string }) => {
   return diskStorage({
-    destination: './uploads',
+    destination: options?.dest ?? AppConfig.getInstance().config.app.uploadPath,
     filename: (_, file, callback) => {
-      // const extension = extname(file.originalname);
       const filename = `${Date.now()}_${file.originalname}`;
       callback(null, filename);
     },

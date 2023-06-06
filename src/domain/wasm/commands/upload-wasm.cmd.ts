@@ -3,16 +3,17 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from 'typescript-result';
 
 import { WasmFile, UploadWasmDto, IWasmRepo } from '@domain/wasm';
+import { WasmModel } from '@infra/wasm';
 
 export class UploadWasmCommand {
   constructor(readonly dto: UploadWasmDto, readonly file: Express.Multer.File) {}
 }
 
 @CommandHandler(UploadWasmCommand)
-export class UploadWasmCommandHandler implements ICommandHandler<UploadWasmCommand, Result<Error, WasmFile>> {
+export class UploadWasmCommandHandler implements ICommandHandler<UploadWasmCommand, Result<Error, WasmModel>> {
   constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo) {}
 
-  async execute(cmd: UploadWasmCommand): Promise<Result<Error, WasmFile>> {
+  async execute(cmd: UploadWasmCommand): Promise<Result<Error, WasmModel>> {
     return Result.safe(async () => {
       const { dto, file } = cmd;
       const wasm = new WasmFile(

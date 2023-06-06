@@ -3,26 +3,22 @@ import { readFileSync as read } from 'fs';
 import * as yaml from 'js-yaml';
 
 const configPath: string = process.env['CS_CONFIG_PATH'] ?? '.config/config.yml';
+const contextPath = '/';
+const uploadPath = './uploads';
+const dataPath = './wasm-data.csv';
+const servicePort = 8080;
 
 interface Config {
   app: Partial<BaseConfig>;
-  mongo: Partial<MongoConfig>;
 }
 
 interface BaseConfig {
   name: string;
   description: string;
-  contextPath: string;
   port: number;
-}
-
-interface MongoConfig {
-  uri?: string;
-  database: string;
-  host: string;
-  username: string;
-  password: string;
-  options?: string;
+  contextPath: string;
+  uploadPath: string;
+  dataPath: string;
 }
 
 class AppConfig {
@@ -37,27 +33,14 @@ class AppConfig {
     Logger.log(`Loading config from ${configPath}`);
 
     const config = yaml.load(read(configPath, 'utf-8')) as Record<string, any>;
-    const env = process.env;
-    const mongo: MongoConfig = {
-      uri: env['CS_MONGODB_URI'],
-      database: env['CS_MONGODB_DATABASE'],
-      host: env['CS_MONGODB_HOST'],
-      username: env['CS_MONGODB_USERNAME'],
-      password: env['CS_MONGODB_PASSWORD'],
-      options: env['CS_MONGODB_OPTIONS'],
-    };
-    const mongoUri = mongo.uri ?? `mongodb://${mongo.host}/${mongo.database}/?${mongo.options}`;
-
     this._config = {
       app: {
         name: config?.name,
         description: config?.description,
-        port: parseInt(config?.service?.port, 10) ?? 8080,
-        contextPath: config?.service?.contextPath ?? '/',
-      },
-      mongo: {
-        ...mongo,
-        uri: mongoUri,
+        port: parseInt(config?.service?.port, 10) ?? servicePort,
+        contextPath: config?.service?.contextPath ?? contextPath,
+        uploadPath: config?.service?.uploadPath ?? uploadPath,
+        dataPath: config?.service?.dataPath ?? dataPath,
       },
     };
   }
