@@ -1,17 +1,18 @@
 import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, HttpException, HttpStatus } from '@nestjs/common';
-import { Controller, Put, Body } from '@nestjs/common';
+import { Controller, Post, Put, Body, Param } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus } from '@nestjs/cqrs';
 import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
 import { ValidationError, validateOrReject } from 'class-validator';
 
-import { UploadWasmCommand, UploadWasmDto, WasmFile } from '@domain/wasm';
-import { dumpOntoDisk } from '@shared/utils';
+import { ExecuteWasmDto, UploadWasmCommand, ExecuteWasmCommand, UploadWasmDto, WasmFile } from '@domain/wasm';
+import { ExecResponseData, dumpOntoDisk } from '@shared/utils';
+import { AppConfig } from 'src/app.config';
 
 @Controller({ path: 'services', version: '1' })
 export class ServicesController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly commandBus: CommandBus, private readonly appConfig: AppConfig) {}
 
   @Put('upload')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
@@ -20,7 +21,7 @@ export class ServicesController {
     @UploadedFile(new ParseFilePipeBuilder().addFileTypeValidator({ fileType: 'zip' }).build())
     file: Express.Multer.File,
   ): Promise<WasmFile> {
-    try {
+    return this.safe(async () => {
       const data = plainToInstance(UploadWasmDto, JSON.parse(body?.data));
       await validateOrReject(data);
 
@@ -31,6 +32,23 @@ export class ServicesController {
       const payload = result.getOrThrow();
       Logger.log(`wasm saved with version id: ${payload.id}`);
       return payload;
+    });
+  }
+
+  @Post([':version_id/execute', ':version_id/exec', ':version_id/run'])
+  async execute(@Param('version_id') versionId: string, @Body() body: ExecuteWasmDto): Promise<any> {
+    return this.safe(async () => {
+      const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(
+        new ExecuteWasmCommand(versionId, body),
+      );
+
+      return result.getOrThrow();
+    });
+  }
+
+  private safe(fn: () => any | Promise<any>) {
+    try {
+      return fn();
     } catch (cause) {
       // FIXME: this is a temporary solution to handle errors.
       Logger.error(cause);

@@ -8,17 +8,17 @@ import { WasmModel } from '../models/wasm.model';
 @Injectable()
 export class WasmMapper extends EntityModelMapper<WasmFile, WasmModel> {
   toModel(from: WasmFile): WasmModel {
-    return new WasmModel(
-      from.id,
-      from.fileName,
-      from.path,
-      from.originalName,
-      from.size,
-      from.uploadedAt,
-      from.serviceName,
-      from.revision,
-      from.username,
-    );
+    return new WasmModel({
+      version_id: from.id,
+      file_name: from.fileName,
+      path: from.path,
+      original_name: from.originalName,
+      size: from.size,
+      uploaded_at: from.uploadedAt,
+      service_name: from.serviceName,
+      revision: from.revision,
+      username: from.username,
+    });
   }
 
   toEntity(from: WasmModel): WasmFile {
