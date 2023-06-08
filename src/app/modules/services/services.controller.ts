@@ -6,13 +6,15 @@ import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
 import { ValidationError, validateOrReject } from 'class-validator';
 
-import { ExecuteWasmDto, UploadWasmCommand, ExecuteWasmCommand, UploadWasmDto, WasmFile } from '@domain/wasm';
+import { ExecuteWasmDto, UploadWasmCommand, ExecuteWasmCommand, UploadWasmDto } from '@domain/wasm';
 import { ExecResponseData, dumpOntoDisk } from '@shared/utils';
-import { AppConfig } from 'src/app.config';
+import { WasmModel } from '@infra/wasm';
 
 @Controller({ path: 'services', version: '1' })
 export class ServicesController {
-  constructor(private readonly commandBus: CommandBus, private readonly appConfig: AppConfig) {}
+  private readonly logger = new Logger(ServicesController.name);
+
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Put('upload')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
@@ -20,17 +22,17 @@ export class ServicesController {
     @Body() body: { data?: string },
     @UploadedFile(new ParseFilePipeBuilder().addFileTypeValidator({ fileType: 'zip' }).build())
     file: Express.Multer.File,
-  ): Promise<WasmFile> {
+  ): Promise<WasmModel> {
     return this.safe(async () => {
       const data = plainToInstance(UploadWasmDto, JSON.parse(body?.data));
       await validateOrReject(data);
 
-      const result = await this.commandBus.execute<UploadWasmCommand, Result<Error, WasmFile>>(
+      const result = await this.commandBus.execute<UploadWasmCommand, Result<Error, WasmModel>>(
         new UploadWasmCommand(data, file),
       );
 
       const payload = result.getOrThrow();
-      Logger.log(`wasm saved with version id: ${payload.id}`);
+      this.logger.log(`wasm saved with version_id: ${payload.version_id}`);
       return payload;
     });
   }
@@ -51,7 +53,7 @@ export class ServicesController {
       return fn();
     } catch (cause) {
       // FIXME: this is a temporary solution to handle errors.
-      Logger.error(cause);
+      this.logger.error(cause);
       if (cause instanceof HttpException) throw cause;
       if (cause instanceof Array<ValidationError>) throw new HttpException({ error: cause }, HttpStatus.BAD_REQUEST);
       throw new HttpException({ error: cause?.message ?? cause }, HttpStatus.UNPROCESSABLE_ENTITY);

@@ -28,16 +28,16 @@ export interface ExecRequestData {
 export interface ExecResponseData {
   response_data: {
     outputs: JsonValue;
-    errors: JsonValue;
-    warnings: JsonValue;
-    service_chain: JsonValue;
+    errors?: JsonValue;
+    warnings?: JsonValue;
+    service_chain?: JsonValue;
   };
   response_meta: {
     version_id: string;
-    correlation_id: string;
-    service_category: string;
-    system: string;
-    compiler_version: string;
-    process_time: number;
+    correlation_id?: string;
+    service_category?: string;
+    system?: string;
+    compiler_version?: string;
+    process_time?: number;
   };
 }

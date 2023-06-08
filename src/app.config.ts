@@ -25,7 +25,7 @@ class AppConfig {
   private static _instance: AppConfig;
   private readonly _config: Config;
 
-  get config(): Config {
+  get props(): Config {
     return this._config;
   }
 
@@ -65,6 +65,6 @@ class AppConfig {
  * Loads the configuration from the environment variables.
  * @returns {Config} the app config
  */
-export const loadConfig = (): Config => AppConfig.getInstance().config;
+export const loadConfig = (): Config => AppConfig.getInstance().props;
 
 export { AppConfig, Config };

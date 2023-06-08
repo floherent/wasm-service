@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { WasmFile } from '@domain/wasm';
+import { WasmFileDto } from '@domain/wasm';
 import { EntityModelMapper } from '@shared/mappers';
 
-import { WasmModel } from '../models/wasm.model';
+import { WasmModelHandler, WasmModel } from '../models/wasm.model';
 
 @Injectable()
-export class WasmMapper extends EntityModelMapper<WasmFile, WasmModel> {
-  toModel(from: WasmFile): WasmModel {
-    return new WasmModel({
-      version_id: from.id,
+export class WasmMapper extends EntityModelMapper<WasmFileDto, WasmModelHandler> {
+  toModel(from: WasmFileDto): WasmModelHandler {
+    return new WasmModelHandler({
+      version_id: from.versionId,
       file_name: from.fileName,
       path: from.path,
       original_name: from.originalName,
@@ -21,8 +21,8 @@ export class WasmMapper extends EntityModelMapper<WasmFile, WasmModel> {
     });
   }
 
-  toEntity(from: WasmModel): WasmFile {
-    return new WasmFile(
+  toEntity(from: WasmModel): WasmFileDto {
+    return new WasmFileDto(
       from.version_id,
       from.file_name,
       from.path,

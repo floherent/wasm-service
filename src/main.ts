@@ -11,10 +11,10 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI });
   app.enableCors();
 
-  app.setGlobalPrefix(appConfig.config.app.contextPath);
+  app.setGlobalPrefix(appConfig.props.app.contextPath);
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
-  await app.listen(appConfig.config.app.port);
+  await app.listen(appConfig.props.app.port);
   appConfig.printUsage();
 }
 bootstrap();
