@@ -1,3 +1,4 @@
+export * from './commands/delete-wasm.cmd';
 export * from './commands/execute-wasm.cmd';
 export * from './commands/upload-wasm.cmd';
 export * from './dtos/execute-wasm.dto';

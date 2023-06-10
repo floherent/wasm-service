@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { appendFileSync, existsSync, readFileSync } from 'fs';
+import { appendFileSync, existsSync, readFileSync, unlinkSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
@@ -78,6 +78,14 @@ export class WasmRepo implements IWasmRepo {
     if (parsed.errors.length > 0) return [];
 
     return parsed.data.map((row) => new WasmModelHandler({ ...row }));
+  }
+
+  async delete(versionId: string): Promise<void> {
+    const wasmFilePath = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
+    const historyFilePath = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
+
+    if (existsSync(wasmFilePath)) unlinkSync(wasmFilePath); // delete the WASM file
+    if (existsSync(historyFilePath)) unlinkSync(historyFilePath); // delete the CSV history file
   }
 
   private saveHistory(result: ExecResponseData, dto: ExecuteWasmDto, execTime: number): void {
