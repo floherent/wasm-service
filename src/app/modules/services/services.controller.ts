@@ -6,10 +6,11 @@ import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
 import { ValidationError, validateOrReject } from 'class-validator';
 
-import { ExecuteWasmDto, UploadWasmCommand, ExecuteWasmCommand, UploadWasmDto, GetHistoryQuery } from '@domain/wasm';
+import { UploadWasmDto, ExecuteWasmDto, ExecHistory } from '@domain/wasm';
+import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
-import { ExecHistoryModel, WasmModel } from '@infra/wasm';
+import { WasmModel } from '@infra/wasm';
 
 @Controller({ path: 'services', version: '1' })
 export class ServicesController {
@@ -53,9 +54,9 @@ export class ServicesController {
   async getHistory(
     @Param('version_id') versionId: string,
     @PaginationParams() pagination: PaginationQueryParams,
-  ): Promise<Paginated<ExecHistoryModel>> {
+  ): Promise<Paginated<ExecHistory>> {
     return this.safe(async () => {
-      const result = await this.queryBus.execute<GetHistoryQuery, Result<Error, Paginated<ExecHistoryModel>>>(
+      const result = await this.queryBus.execute<GetHistoryQuery, Result<Error, Paginated<ExecHistory>>>(
         new GetHistoryQuery(versionId, pagination),
       );
 

@@ -5,8 +5,9 @@ import { join } from 'path';
 
 import { AppConfig } from 'src/app.config';
 import { WasmService } from '@app/modules';
-import { WasmModel, WasmModelHandler, WasmMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
-import { WasmFileDto, IWasmRepo, ExecuteWasmDto } from '@domain/wasm';
+import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
+import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
+import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory } from '@domain/wasm';
 import { WasmNotFound, WasmRecordNotSaved, WasmExecutionNotSaved } from '@shared/errors';
 import { ExecResponseData, Paginated, PaginationQueryParams } from '@shared/utils';
 
@@ -14,6 +15,7 @@ import { ExecResponseData, Paginated, PaginationQueryParams } from '@shared/util
 export class WasmRepo implements IWasmRepo {
   constructor(
     private readonly wasmMapper: WasmMapper,
+    private readonly execHistoryMapper: ExecHistoryMapper,
     private readonly appConfig: AppConfig,
     private readonly wasmService: WasmService,
   ) {}
@@ -63,7 +65,7 @@ export class WasmRepo implements IWasmRepo {
     return result;
   }
 
-  async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistoryModel>> {
+  async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistory>> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
     return this.loadCsvHistory(path, params);
   }
@@ -87,7 +89,7 @@ export class WasmRepo implements IWasmRepo {
         version_id,
         inputs: JSON.stringify(dto.inputs),
         outputs: JSON.stringify(result.response_data.outputs),
-        executed_at: Date.now(),
+        executed_at: `${Date.now()}`,
         execution_time: `${execTime.toFixed(2)}ms`,
       });
 
@@ -98,7 +100,7 @@ export class WasmRepo implements IWasmRepo {
     }
   }
 
-  private loadCsvHistory(filePath: string, params: PaginationQueryParams): Paginated<ExecHistoryModel> {
+  private loadCsvHistory(filePath: string, params: PaginationQueryParams): Paginated<ExecHistory> {
     const url = join(process.cwd(), filePath);
     if (!existsSync(url)) return Paginated.empty({ ...params, total: 0 });
 
@@ -107,7 +109,8 @@ export class WasmRepo implements IWasmRepo {
 
     const total = parsed.data.length;
     const [start, end] = Paginated.toIndex(params.page, params.limit);
-    const history = parsed.data.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }).asDto);
+    const models = parsed.data.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }).asDto);
+    const history = this.execHistoryMapper.reverseAll(models);
     return Paginated.from(history, { ...params, total });
   }
 }

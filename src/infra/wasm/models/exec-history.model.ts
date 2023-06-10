@@ -3,7 +3,7 @@ export class ExecHistoryModel {
     readonly version_id: string,
     readonly inputs: string,
     readonly outputs: string,
-    readonly executed_at: number,
+    readonly executed_at: string,
     readonly execution_time: string,
   ) {}
 }
@@ -20,7 +20,7 @@ export class ExecHistoryModelHandler extends ExecHistoryModel {
       version_id: string;
       inputs: string;
       outputs: string;
-      executed_at: number;
+      executed_at: string;
       execution_time: string;
     },
     public sep = '|',
