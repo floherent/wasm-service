@@ -9,4 +9,5 @@ export interface IWasmRepo {
   execute: (versionId: string, dto: ExecuteWasmDto) => Promise<ExecResponseData>;
   getHistory: (versionId: string, params: PaginationQueryParams) => Promise<Paginated<ExecHistory>>;
   delete: (versionId: string) => Promise<void>;
+  download: (versionId: string) => Promise<Buffer>;
 }

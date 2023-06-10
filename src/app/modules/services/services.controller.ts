@@ -1,12 +1,14 @@
-import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, HttpException, HttpStatus } from '@nestjs/common';
+import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder } from '@nestjs/common';
+import { HttpException, HttpStatus, StreamableFile, Res } from '@nestjs/common';
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Response } from 'express';
 import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
 import { ValidationError, validateOrReject } from 'class-validator';
 
-import { UploadWasmDto, ExecuteWasmDto, ExecHistory } from '@domain/wasm';
+import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
@@ -18,7 +20,7 @@ export class ServicesController {
 
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
 
-  @Put('upload/:version_id')
+  @Put(':version_id/upload')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
   async uploadWasmFile(
     @Param('version_id') versionId: string,
@@ -38,6 +40,19 @@ export class ServicesController {
       const payload = result.getOrThrow();
       this.logger.log(`wasm file (${payload.version_id}) has been uploaded.`);
       return payload;
+    });
+  }
+
+  @Get(':version_id/download')
+  downloadWasmFile(@Param('version_id') versionId: string, @Res() response: Response) {
+    return this.safe(async () => {
+      const result = await this.queryBus.execute<DownloadWasmQuery, Result<Error, StreamableFile>>(
+        new DownloadWasmQuery(versionId),
+      );
+
+      const file = result.getOrThrow();
+      response.contentType('application/zip');
+      return response.send(file);
     });
   }
 

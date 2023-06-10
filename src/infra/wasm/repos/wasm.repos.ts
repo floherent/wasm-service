@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { appendFileSync, existsSync, readFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, appendFileSync, unlinkSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
@@ -70,14 +70,11 @@ export class WasmRepo implements IWasmRepo {
     return this.loadCsvHistory(path, params);
   }
 
-  private loadCsvWasm(filePath: string): WasmModelHandler[] {
-    const url = join(process.cwd(), filePath);
-    if (!existsSync(url)) return [];
+  async download(versionId: string): Promise<Buffer> {
+    const path = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
+    if (!existsSync(path)) throw new WasmNotFound(`no wasm file defined for version_id: ${versionId}`);
 
-    const parsed = csvParse<WasmModel>(readFileSync(url, 'utf8'), { header: true });
-    if (parsed.errors.length > 0) return [];
-
-    return parsed.data.map((row) => new WasmModelHandler({ ...row }));
+    return readFileSync(path);
   }
 
   async delete(versionId: string): Promise<void> {
@@ -86,6 +83,16 @@ export class WasmRepo implements IWasmRepo {
 
     if (existsSync(wasmFilePath)) unlinkSync(wasmFilePath); // delete the WASM file
     if (existsSync(historyFilePath)) unlinkSync(historyFilePath); // delete the CSV history file
+  }
+
+  private loadCsvWasm(filePath: string): WasmModelHandler[] {
+    const url = join(process.cwd(), filePath);
+    if (!existsSync(url)) return [];
+
+    const parsed = csvParse<WasmModel>(readFileSync(url, 'utf8'), { header: true });
+    if (parsed.errors.length > 0) return [];
+
+    return parsed.data.map((row) => new WasmModelHandler({ ...row }));
   }
 
   private saveHistory(result: ExecResponseData, dto: ExecuteWasmDto, execTime: number): void {
