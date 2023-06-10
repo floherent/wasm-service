@@ -7,6 +7,7 @@ const contextPath = '/';
 const uploadPath = './uploads';
 const dataPath = './wasm-data.csv';
 const servicePort = 8080;
+const cacheSize = 10;
 
 interface Config {
   app: Partial<BaseConfig>;
@@ -19,6 +20,7 @@ interface BaseConfig {
   contextPath: string;
   uploadPath: string;
   dataPath: string;
+  cacheSize: number;
 }
 
 class AppConfig {
@@ -41,6 +43,7 @@ class AppConfig {
         contextPath: config?.service?.contextPath ?? contextPath,
         uploadPath: config?.service?.uploadPath ?? uploadPath,
         dataPath: config?.service?.dataPath ?? dataPath,
+        cacheSize: parseInt(config?.performance?.cacheSize, 10) ?? cacheSize,
       },
     };
   }

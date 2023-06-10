@@ -1,20 +1,21 @@
 import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, HttpException, HttpStatus } from '@nestjs/common';
-import { Controller, Post, Put, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
 import { ValidationError, validateOrReject } from 'class-validator';
 
-import { ExecuteWasmDto, UploadWasmCommand, ExecuteWasmCommand, UploadWasmDto } from '@domain/wasm';
-import { ExecResponseData, dumpOntoDisk } from '@shared/utils';
-import { WasmModel } from '@infra/wasm';
+import { ExecuteWasmDto, UploadWasmCommand, ExecuteWasmCommand, UploadWasmDto, GetHistoryQuery } from '@domain/wasm';
+import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
+import { dumpOntoDisk } from '@shared/utils';
+import { ExecHistoryModel, WasmModel } from '@infra/wasm';
 
 @Controller({ path: 'services', version: '1' })
 export class ServicesController {
   private readonly logger = new Logger(ServicesController.name);
 
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
 
   @Put('upload')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
@@ -32,13 +33,13 @@ export class ServicesController {
       );
 
       const payload = result.getOrThrow();
-      this.logger.log(`wasm saved with version_id: ${payload.version_id}`);
+      this.logger.log(`wasm file (${payload.version_id}) has been uploaded.`);
       return payload;
     });
   }
 
   @Post([':version_id/execute', ':version_id/exec', ':version_id/run'])
-  async execute(@Param('version_id') versionId: string, @Body() body: ExecuteWasmDto): Promise<any> {
+  async execute(@Param('version_id') versionId: string, @Body() body: ExecuteWasmDto): Promise<ExecResponseData> {
     return this.safe(async () => {
       const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(
         new ExecuteWasmCommand(versionId, body),
@@ -48,9 +49,23 @@ export class ServicesController {
     });
   }
 
-  private safe(fn: () => any | Promise<any>) {
+  @Get(':version_id/history')
+  async getHistory(
+    @Param('version_id') versionId: string,
+    @PaginationParams() pagination: PaginationQueryParams,
+  ): Promise<Paginated<ExecHistoryModel>> {
+    return this.safe(async () => {
+      const result = await this.queryBus.execute<GetHistoryQuery, Result<Error, Paginated<ExecHistoryModel>>>(
+        new GetHistoryQuery(versionId, pagination),
+      );
+
+      return result.getOrThrow();
+    });
+  }
+
+  private safe(func: () => any | Promise<any>) {
     try {
-      return fn();
+      return func();
     } catch (cause) {
       // FIXME: this is a temporary solution to handle errors.
       this.logger.error(cause);

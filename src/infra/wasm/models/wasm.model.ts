@@ -25,6 +25,20 @@ export class WasmModelHandler extends WasmModel {
     'username',
   ];
 
+  get asDto(): WasmModel {
+    return new WasmModel(
+      this.version_id,
+      this.file_name,
+      this.path,
+      this.original_name,
+      this.size,
+      this.uploaded_at,
+      this.service_name,
+      this.revision,
+      this.username,
+    );
+  }
+
   constructor(
     fields: {
       version_id: string;
@@ -68,19 +82,5 @@ export class WasmModelHandler extends WasmModel {
 
   headers(sep?: string): string {
     return this._headers.join(sep ?? this.sep);
-  }
-
-  get asDto(): WasmModel {
-    return new WasmModel(
-      this.version_id,
-      this.file_name,
-      this.path,
-      this.original_name,
-      this.size,
-      this.uploaded_at,
-      this.service_name,
-      this.revision,
-      this.username,
-    );
   }
 }

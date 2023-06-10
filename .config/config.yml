@@ -5,3 +5,5 @@ service:
   contextPath: /
   uploadPath: uploads
   dataPath: uploads/wasm-data.csv
+performance:
+  cacheSize: 10

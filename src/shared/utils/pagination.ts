@@ -12,7 +12,7 @@ export interface PaginationQueryParams {
   order: SortOrder;
 }
 
-export const PaginationParams = createParamDecorator((data: unknown, ctx: ExecutionContext) => {
+export const PaginationParams = createParamDecorator((_, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest();
 
   const page = parseNumber(request?.query?.page, DEFAULT_SKIP_PAGE);
@@ -24,7 +24,7 @@ export const PaginationParams = createParamDecorator((data: unknown, ctx: Execut
 
 const parseNumber = (value: unknown, defaultValue: number): number => {
   try {
-    return Math.abs(Number(value));
+    return Math.abs(Number(value)) || defaultValue;
   } catch (_) {
     return defaultValue;
   }

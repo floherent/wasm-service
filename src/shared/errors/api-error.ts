@@ -4,8 +4,20 @@ export class ApiError extends Error {
   }
 }
 
-export class UnprocessedWasmRecord extends ApiError {
+export class WasmRecordNotSaved extends ApiError {
   constructor(readonly message = 'failed to save wasm file records') {
-    super('UNPROCESSED_WASM', message);
+    super('WASM_RECORD_NOT_SAVED', message);
+  }
+}
+
+export class WasmNotFound extends ApiError {
+  constructor(readonly message = 'wasm not found') {
+    super('WASM_NOT_FOUND', message);
+  }
+}
+
+export class WasmExecutionNotSaved extends ApiError {
+  constructor(readonly message = 'failed to save wasm execution history') {
+    super('WASM_EXECUTION_NOT_SAVED', message);
   }
 }

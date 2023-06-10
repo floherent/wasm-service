@@ -1,4 +1,4 @@
 export * from './disk-storage';
-export * from './paginated-response';
+export * from './paginated';
 export * from './pagination';
 export * from './types';
