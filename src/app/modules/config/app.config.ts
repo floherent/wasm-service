@@ -8,9 +8,17 @@ const uploadPath = './uploads';
 const dataPath = './wasm-data.csv';
 const servicePort = 8080;
 const cacheSize = 10;
+const wasmThreshold = 150; // 150 MB
+const diskThreshold = 512; // 512 MB
+const memoryThreshold = 256; // 256 MB
 
 interface Config {
   app: Partial<BaseConfig>;
+  health: {
+    wasmThreshold: number;
+    diskThreshold: number;
+    memoryThreshold: number;
+  };
 }
 
 interface BaseConfig {
@@ -35,15 +43,22 @@ class AppConfig {
     Logger.log(`Loading config from ${configPath}`);
 
     const config = yaml.load(read(configPath, 'utf-8')) as Record<string, any>;
+    const service = config?.service;
+    const performance = config?.performance;
     this._config = {
       app: {
         name: config?.name,
         description: config?.description,
-        port: parseInt(config?.service?.port, 10) ?? servicePort,
-        contextPath: config?.service?.contextPath ?? contextPath,
-        uploadPath: config?.service?.uploadPath ?? uploadPath,
-        dataPath: config?.service?.dataPath ?? dataPath,
-        cacheSize: parseInt(config?.performance?.cacheSize, 10) ?? cacheSize,
+        port: parseInt(service?.port, 10) ?? servicePort,
+        contextPath: service?.contextPath ?? contextPath,
+        uploadPath: service?.uploadPath ?? uploadPath,
+        dataPath: service?.dataPath ?? dataPath,
+        cacheSize: parseInt(performance?.cacheSize, 10) ?? cacheSize,
+      },
+      health: {
+        wasmThreshold: parseInt(performance?.health?.wasmThreshold, 10) ?? wasmThreshold,
+        diskThreshold: parseInt(performance?.health?.diskThreshold, 10) ?? diskThreshold,
+        memoryThreshold: parseInt(performance?.health?.memoryThreshold, 10) ?? memoryThreshold,
       },
     };
   }

@@ -1,13 +1,51 @@
 import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
-import { HealthCheck, HealthCheckService, HttpHealthIndicator } from '@nestjs/terminus';
+import { HealthCheck, HealthCheckService, DiskHealthIndicator, MemoryHealthIndicator } from '@nestjs/terminus';
+
+import { AppConfig } from '@app/modules/config';
+import { WasmHealthIndicator } from './wasm-data.health';
+import { ONE_MB } from '@shared/constants';
 
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
-  constructor(private health: HealthCheckService, private http: HttpHealthIndicator) {}
+  private readonly PLATFORM_PATH = process.platform === 'win32' ? 'C:\\' : '/';
+  private readonly DISK_THRESHOLD_IN_MB: number;
+  private readonly MEMORY_THRESHOLD_IN_MB: number;
+
+  constructor(
+    private readonly health: HealthCheckService,
+    private readonly disk: DiskHealthIndicator,
+    private readonly memory: MemoryHealthIndicator,
+    private readonly wasm: WasmHealthIndicator,
+    private readonly appConfig: AppConfig,
+  ) {
+    this.DISK_THRESHOLD_IN_MB = this.appConfig.props.health.diskThreshold * ONE_MB;
+    this.MEMORY_THRESHOLD_IN_MB = this.appConfig.props.health.memoryThreshold * ONE_MB;
+  }
 
   @Get()
   @HealthCheck()
   check() {
-    return this.health.check([() => this.http.pingCheck('coherent', 'https://coherent.global')]);
+    return this.health.check([
+      // The used disk storage for wasm should not exceed this threshold.
+      () => this.wasm.isHealthy('wasm data'),
+
+      // The used disk storage should not exceed this threshold.
+      // () =>
+      //   this.disk.checkStorage('disk storage', {
+      //     threshold: this.DISK_THRESHOLD_IN_MB,
+      //     path: this.PLATFORM_PATH,
+      //   }),
+
+      // The used disk storage should not exceed 50% of the full disk size.
+      () =>
+        this.disk.checkStorage('disk storage', {
+          thresholdPercent: 0.5,
+          path: this.PLATFORM_PATH,
+        }),
+
+      // The used memory heap and RSS/RAM should not exceed this threshold.
+      () => this.memory.checkHeap('memory heap', this.MEMORY_THRESHOLD_IN_MB),
+      () => this.memory.checkRSS('memory rss', this.MEMORY_THRESHOLD_IN_MB),
+    ]);
   }
 }

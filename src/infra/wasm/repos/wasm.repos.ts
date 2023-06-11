@@ -3,7 +3,7 @@ import { existsSync, readFileSync, appendFileSync, unlinkSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
-import { AppConfig } from 'src/app.config';
+import { AppConfig } from '@app/modules/config';
 import { WasmService } from '@app/modules';
 import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';

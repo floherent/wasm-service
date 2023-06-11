@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Spark } from '@coherentglobal/spark-execute-sdk';
-import { AppConfig } from 'src/app.config';
+
+import { AppConfig } from '@app/modules/config';
 
 @Injectable()
 export class WasmService {

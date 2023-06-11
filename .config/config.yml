@@ -1,9 +1,15 @@
 name: wasm-service
 description: API service for running WASM files
+
 service:
   port: 8080
   contextPath: /
   uploadPath: uploads
   dataPath: uploads/wasm-data.csv
+
 performance:
   cacheSize: 10
+  health: # size in MB
+    wasmDataThreshold: 150
+    diskThreshold: 512
+    memoryThreshold: 256

@@ -1,6 +1,7 @@
 import { diskStorage } from 'multer';
-import { AppConfig } from 'src/app.config';
 import { extname } from 'path';
+
+import { AppConfig } from '@app/modules/config';
 
 export const dumpOntoDisk = (options?: { dest: string }) => {
   return diskStorage({
