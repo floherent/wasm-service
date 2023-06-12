@@ -8,7 +8,7 @@ const uploadPath = './uploads';
 const dataPath = './wasm-data.csv';
 const servicePort = 8080;
 const cacheSize = 10;
-const wasmThreshold = 150; // 150 MB
+const wasmDataThreshold = 150; // 150 MB
 const diskThreshold = 512; // 512 MB
 const memoryThreshold = 256; // 256 MB
 
@@ -56,7 +56,7 @@ class AppConfig {
         cacheSize: parseInt(performance?.cacheSize, 10) ?? cacheSize,
       },
       health: {
-        wasmThreshold: parseInt(performance?.health?.wasmThreshold, 10) ?? wasmThreshold,
+        wasmThreshold: parseInt(performance?.health?.wasmDataThreshold, 10) ?? wasmDataThreshold,
         diskThreshold: parseInt(performance?.health?.diskThreshold, 10) ?? diskThreshold,
         memoryThreshold: parseInt(performance?.health?.memoryThreshold, 10) ?? memoryThreshold,
       },

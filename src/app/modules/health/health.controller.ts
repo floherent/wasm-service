@@ -2,8 +2,8 @@ import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import { HealthCheck, HealthCheckService, DiskHealthIndicator, MemoryHealthIndicator } from '@nestjs/terminus';
 
 import { AppConfig } from '@app/modules/config';
-import { WasmHealthIndicator } from './wasm-data.health';
 import { ONE_MB } from '@shared/constants';
+import { WasmHealthIndicator } from './wasm-data.health';
 
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
@@ -30,11 +30,11 @@ export class HealthController {
       () => this.wasm.isHealthy('wasm data'),
 
       // The used disk storage should not exceed this threshold.
-      // () =>
-      //   this.disk.checkStorage('disk storage', {
-      //     threshold: this.DISK_THRESHOLD_IN_MB,
-      //     path: this.PLATFORM_PATH,
-      //   }),
+      () =>
+        this.disk.checkStorage('disk storage', {
+          threshold: this.DISK_THRESHOLD_IN_MB,
+          path: this.PLATFORM_PATH,
+        }),
 
       // The used disk storage should not exceed 50% of the full disk size.
       () =>

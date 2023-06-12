@@ -9,7 +9,7 @@ import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
 import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory } from '@domain/wasm';
 import { WasmNotFound, WasmRecordNotSaved, WasmExecutionNotSaved } from '@shared/errors';
-import { ExecResponseData, Paginated, PaginationQueryParams } from '@shared/utils';
+import { ExecResponseData, Paginated, PaginationQueryParams, SortOrder } from '@shared/utils';
 
 @Injectable()
 export class WasmRepo implements IWasmRepo {
@@ -119,12 +119,13 @@ export class WasmRepo implements IWasmRepo {
     const url = join(process.cwd(), filePath);
     if (!existsSync(url)) return Paginated.empty({ ...params, total: 0 });
 
-    const parsed = csvParse<ExecHistoryModel>(readFileSync(url, 'utf8'), { header: true });
+    const parsed = csvParse<ExecHistoryModel>(readFileSync(url, 'utf8'), { header: true, delimiter: '|' });
     if (parsed.errors.length > 0) return Paginated.empty({ ...params, total: 0 });
 
     const total = parsed.data.length;
     const [start, end] = Paginated.toIndex(params.page, params.limit);
-    const models = parsed.data.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }).asDto);
+    const dataset = params.order === SortOrder.ASC ? parsed.data : parsed.data.reverse();
+    const models = dataset.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }).asDto);
     const history = this.execHistoryMapper.reverseAll(models);
     return Paginated.from(history, { ...params, total });
   }
