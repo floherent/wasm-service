@@ -1,10 +1,21 @@
 {
   "name": "wasm-service",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "API service for running WASM files",
-  "author": "Coherent Global Inc",
+  "author": "Coherent Global Inc <fieldengineering@coherent.global>",
   "private": true,
+  "keywords": [
+    "api",
+    "spark",
+    "sdk",
+    "execute",
+    "wasm",
+    "webassembly"
+  ],
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -20,7 +31,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@coherentglobal/spark-execute-sdk": "^0.4.19",
+    "@coherentglobal/spark-execute-sdk": "file:./temp/spark-sdk",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.2",
