@@ -5,7 +5,7 @@ technical details of the service.
 
 ## Introduction
 
-`wasm-service` is a sample RESTful API that enables you to run WASM modules generated
+`wasm-service` is a sample RESTful API that lets you to run WASM modules generated
 by Coherent Spark. It is built with [Node@16.14](https://nodejs.org/en/download)
 and [NestJS@9.0](https://docs.nestjs.com/). Though it is built to be used as a
 standalone service, this service is also microservice-friendly.
@@ -16,13 +16,13 @@ your needs. Those modules are: `HealthModule`, `ServicesModule`, and `ConfigModu
 
 Some other considered coding techniques and best practices are:
 
-- [S.O.L.I.D.](https://en.wikipedia.org/wiki/SOLID) principles
-- [CQRS](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation) pattern
+- [S.O.L.I.D.](https://en.wikipedia.org/wiki/SOLID)
+- [CQRS](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)
 - [DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
 - [Clean Code](https://en.wikipedia.org/wiki/Robert_C._Martin)
 - [Semantic Versioning](https://semver.org/)
 - [Docker](https://www.docker.com/)
-- [OpenAPI](https://swagger.io/specification/) documentation
+- [OpenAPI](https://swagger.io/specification/)
 
 ## Service roadmap
 
@@ -51,7 +51,7 @@ Some other considered coding techniques and best practices are:
 | app config             | ✅ | ❌ |
 | logging                | ✅ | ✅ |
 | error handling         | ✅ | ✅ |
-| use cases              | ✅ | ❌ |
+| use cases              | ✅ | :warning: |
 | testing                | ❌ | ❌ |
 | linting                | ✅ | ❌ |
 | formatting             | ✅ | ❌ |
@@ -59,7 +59,7 @@ Some other considered coding techniques and best practices are:
 | caching/memoization    | ✅ | ❌ |
 | DDD                    | ✅ | ❌ |
 | file management        | ✅ | ✅ |
-| secury layer           | ❌ | ❌ |
+| security layer           | ❌ | ❌ |
 
 ## Architecture and design
 
@@ -81,7 +81,7 @@ handling the different aspects of the service:
 ## API reference
 
 The base URL for all the endpoints is `http://localhost:8080`.
-See [Postman collection](postman-collection.json) for more details.
+See the [Postman collection](postman-collection.json) for more details.
 
 ### Check health status
 
@@ -89,10 +89,10 @@ GET **/health** - Check the health status of the service.
 
 This endpoint checks the following health indicators:
 
-- **wasm data**: checks whether the WASM data storage exceeds a certain threshold.
-- **disk storage**: checks whether the disk storage exceeds a certain threshold.
-- **memory heap**: checks whether the memory heap exceeds a certain threshold.
-- **memory rss**: checks whether the memory rss exceeds a certain threshold.
+- **wasm data**: indicates whether the WASM data storage exceeds a certain threshold.
+- **disk storage**: indicates whether the disk storage exceeds a certain threshold.
+- **memory heap**: indicates whether the memory heap exceeds a certain threshold.
+- **memory rss**: indicates whether the memory rss exceeds a certain threshold.
 
 It can also be used by a Kubernetes cluster to determine whether the service is
 up and running or not.
@@ -409,3 +409,11 @@ This endpoint is used to delete an existing WASM module to free up space. Both
 the WASM module and its execution history will be deleted.
 
 Response: **204 No Content**
+
+## Error handling
+
+TBD.
+
+## Troubleshooting
+
+WIP.

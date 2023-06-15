@@ -80,7 +80,7 @@ The `wasm-service` API covers five basic use cases to help you get started:
 5. delete a WASM module: `DELETE /v1/services/{version_id}`
 
 Additionally, the service includes a health check endpoint to verify that the
-service is up and running: `GET /v1/health`.
+service is up and running: `GET /health`.
 
 Find more details about the API endpoints from the [Postman collection](docs/postman-collection.json).
 
