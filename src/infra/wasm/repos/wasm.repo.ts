@@ -41,8 +41,7 @@ export class WasmRepo implements IWasmRepo {
       const model = data.find((m) => m.version_id === versionId);
       if (!model) throw new WasmNotFound(`no wasm file defined for version_id: ${versionId}`);
 
-      const filePath = join(process.cwd(), model.path);
-      wasm = this.wasmService.setWasm(versionId, filePath); // cache it until invalidated.
+      wasm = await this.wasmService.setWasm(versionId, model.path); // cache it until invalidated.
     }
 
     const request = {

@@ -15,24 +15,34 @@ export class Spark {
     return this.models.length;
   }
 
-  constructor(...models: Model[]) {
+  private constructor(models: Model[]) {
     this.models.concat(models);
     this.runner = models.length > 0 ? new WasmRunner(models) : new WasmRunner();
-    this.runner.initialize();
     this._threads = 1;
   }
 
-  add(model: Model, threads?: number) {
-    if (this.models.findIndex((m) => m.id === model.id) >= 0) return;
+  static async create(...models: Model[]) {
+    return await new Spark(models).init();
+  }
+
+  private async init() {
+    await this.runner.initialize();
+    return this;
+  }
+
+  async add(model: Model, threads?: number) {
+    if (this.models.findIndex((m) => m.id === model.id) >= 0) return this;
     this.models.push(model);
-    this.runner.append({ ...model, size: threads ?? this._threads });
+    await this.runner.append({ ...model, size: threads ?? this._threads });
+    return this;
   }
 
   remove(versionId: string) {
     const index = this.models.findIndex((model) => model.id === versionId);
-    if (index <= -1) return;
+    if (index <= -1) return this;
     this.models.splice(index, 1);
     this.runner.remove(versionId);
+    return this;
   }
 
   has(versionId: string): boolean {
