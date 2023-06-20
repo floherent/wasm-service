@@ -1,11 +1,18 @@
 # Developer guide
 
-This is the developer documentation for the `wasm-service` API. It dives into the
-technical details of the service.
+This developer documentation dives into technical details of the `wasm-service`,
+including its scope, its API reference and more.
+
+This guide will walk you through:
+
+- a reference implementation for running the [Web Assembly][wasm.org] (WASM)
+  module, *also known as offline deployments*,
+- and the steps that help you set up a development environment and extend the
+  service to suit your needs.
 
 ## Introduction
 
-`wasm-service` is a sample RESTful API that lets you to run WASM modules generated
+`wasm-service` is a sample RESTful API that lets you run WASM modules generated
 by Coherent Spark. It is built with [Node@16.14](https://nodejs.org/en/download)
 and [NestJS@9.0](https://docs.nestjs.com/). Though it is built to be used as a
 standalone service, this service is also microservice-friendly.
@@ -14,7 +21,12 @@ As NestJS's philosophy dictates, the service is built with modularity in mind.
 It is composed of several modules that can be easily extended or updated to suit
 your needs. Those modules are: `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
-Some other considered coding techniques and best practices are:
+The `ServicesModule` is a simple module that exposes a few endpoints, among them,
+one that relies heavily on the [@coherentglobal/spark-execute-sdk][spark-sdk]
+Node.js package's core logic.
+
+Some other coding techniques and best practices considered throughout this service
+implementation are:
 
 - [S.O.L.I.D.](https://en.wikipedia.org/wiki/SOLID)
 - [CQRS](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)
@@ -24,59 +36,64 @@ Some other considered coding techniques and best practices are:
 - [Docker](https://www.docker.com/)
 - [OpenAPI](https://swagger.io/specification/)
 
-## Service roadmap
+## Getting started
 
-| feature | wasm-service | nodegen-server |
-| ------- | ------------ | -------------- |
-| basic documentation    | ✅ | ✅ |
-| api documentation      | ✅ | ❌ |
-| developer guide        | ✅ | ❌ |
-| usage and examples     | ✅ | ❌ |
-| release notes          | ✅ | ❌ |
-| - | - | - |
-| application type       | microservice | monolith |
-| deps & vulnerabilities | 0 (zero) | :warning: |
-| versioning             | ✅ | ❌ |
-| UX and DX              | ✅ | ❌ |
-| service level agreement| ✅ | ❌ |
-| - | - | - |
-| platform support       | arm64/amd64 | amd64 |
-| devOps-ready           | ✅ | ✅ |
-| CI/CD-ready            | ✅ | ❌ |
-| - | - | - |
-| RESTful API            | ✅ | ❌ |
-| version-controlled     | ✅ | ✅ |
-| clean code             | ✅ | ❌ |
-| modular                | ✅ | ❌ |
-| app config             | ✅ | ❌ |
-| logging                | ✅ | ✅ |
-| error handling         | ✅ | ✅ |
-| use cases              | ✅ | :warning: |
-| testing                | ❌ | ❌ |
-| linting                | ✅ | ❌ |
-| formatting             | ✅ | ❌ |
-| - | - | - |
-| caching/memoization    | ✅ | ❌ |
-| DDD                    | ✅ | ❌ |
-| file management        | ✅ | ✅ |
-| security layer           | ❌ | ❌ |
+What you will need to get started:
 
-## Architecture and design
+1. choose an IDE or text editor
+2. have a copy of this repository
+3. set up your development environment
+4. download the WASM from Spark
+5. execute the WASM offline.
 
-Under the hood, the service is composed of several layers that are responsible for
-handling the different aspects of the service:
+### Choose an IDE or text editor
 
-- **Application layer**: This layer is responsible for handling the application
-  logic while maintaining the communication with the _infrastructure layer_. It
-  is composed of modules and controllers.
-- **Infrastructure layer**: This layer is responsible for handling the infrastructure
-  logic. It is composed of models, mappers, and repositories. It is also responsible
-  for handling the communication with the underlying storage system. In this case,
-  the storage system is the file system.
-- **Domain layer**: This layer handles the business logic. It is composed of entities,
-  data transfer objects (dto) and CQRS funtionalities.
-- **Shared layer**: This layer handles the shared logic between the different
-  layers. It is composed of interfaces, enums, and utilities.
+We recommend using [Visual Studio Code](https://code.visualstudio.com/) as your
+IDE. It is free, open source, and has a great community.
+
+### Set up your development environment
+
+Install [Node][nodejs.org] (we use `16.14.2` in our example) and dependencies,
+then run the service.
+
+```bash
+# install dependencies
+$ npm install
+
+# start the service
+$ npm run start:dev
+```
+
+> Make sure NPM is installed via `npm -v` (this will output the current version).
+> Feel free to use other Node package managers like `yarn` to proceed.
+
+## Download the WASM from Spark
+
+Once logged into Spark, navigate to the service you would like to execute offline.
+
+- From the folder page in Spark: select the service > click the 3-dot menu >
+  click on **View in File Manager**.
+- Once the file manager page is loaded, locate **your-service.zip** among a list
+  of files related to your service, click the 3-dot menu and select **Download**.
+
+If you would like to check if you got the correct zip file, you can unzip it and
+make sure the following files are present:
+
+- `your-service.wasm`
+- `your-service.data`
+- `your-service.js`
+- and some other files (e.g. checksums, etc.)
+
+> Please write down the `versionId` of the WASM that you downloaded as you will
+> be needing it as a unique identifier to execute the WASM.
+> You may choose to use the [wasm file](../examples/ExpectedCreditLossesModel.zip)
+> (and its versionId: `e57f48e7-fe8c-4202-b8bc-5d366cf1eee9`) provided in this
+> repository as well.
+
+### Execute the WASM offline
+
+See the [Execute a WASM module](#execute-a-wasm-module) in the
+[API reference](#api-reference) section for more details.
 
 ## API reference
 
@@ -143,7 +160,15 @@ PUT /v1/services/**{version_id}/upload** - Upload a WASM bundle file.
 Body: **multipart/form-data**
 
 - **wasm**: WASM bundle file
-- **data**: JSON payload that contains the metadata of the WASM module
+- **data** (optional): JSON payload containing some WASM metadata
+
+```json
+{
+  "service_name": "expected-loss",
+  "revision": "0.3.0",
+  "username": "john.doe@coherent.global",
+}
+```
 
 This endpoint is used to upload a WASM bundle file to the service. The file is
 then stored in the file system and the metadata is stored as part of csv file
@@ -410,10 +435,81 @@ the WASM module and its execution history will be deleted.
 
 Response: **204 No Content**
 
+## Conceptual references
+
+### Workflow
+
+A WASM journey can be defined a zip file that's transferred through HTTP and gets
+saved as assets, which will be later used to compute sparkified calculations.
+A record of that upload process is saved in a csv file for future references and
+computations.
+
+Upon an execution request, this WASM will be loaded in memory (*also cached until invalidated*)
+and become a Spark instance. And finally, the given inputs and versionId will be
+used to run the WASM and the generated output will be returned to a user. As user
+will be submitted several requests, records of those will be saved in a csv file
+and may be retrieved later as part the API call history.
+
+### Architecture and design
+
+Under the hood, the service is composed of several layers that are responsible for
+handling the different aspects of the service:
+
+- **Application layer**: This layer handles the application logic and communicates
+  with the *infrastructure layer*. That is, HTTP requests and responses are processed
+  there as well as some interceptors/filters.
+- **Infrastructure layer**: This layer handles anything related to infrastructure,
+  data persitence and storage system (e.g, file system).
+- **Domain layer**: This layer handles the business logic. It includes representations
+  of entity models.
+- **Shared layer**: This layer includes commonalities and utilities between the
+  different layers.
+
+### Service roadmap and delivery
+
+| feature | wasm-service | nodegen-server |
+| ------- | ------------ | -------------- |
+| basic documentation    | ✅ | ✅ |
+| api documentation      | ✅ | ❌ |
+| developer guide        | ✅ | ❌ |
+| usage and examples     | ✅ | ❌ |
+| release notes          | ✅ | ❌ |
+| - | - | - |
+| application type       | microservice | monolith |
+| deps & vulnerabilities | 0 (zero) | :warning: |
+| versioning             | ✅ | ❌ |
+| UX and DX              | ✅ | ❌ |
+| service level agreement| ✅ | ❌ |
+| - | - | - |
+| platform support       | arm64/amd64 | amd64 |
+| devOps-ready           | ✅ | ✅ |
+| CI/CD-ready            | ✅ | ❌ |
+| - | - | - |
+| RESTful API            | ✅ | ❌ |
+| version-controlled     | ✅ | ✅ |
+| clean code             | ✅ | ❌ |
+| modular                | ✅ | ❌ |
+| app config             | ✅ | ❌ |
+| logging                | ✅ | ✅ |
+| error handling         | ✅ | ✅ |
+| 5+ use cases           | ✅ | :warning: |
+| testing                | ❌ | ❌ |
+| linting                | ✅ | ❌ |
+| formatting             | ✅ | ❌ |
+| - | - | - |
+| caching/memoization    | ✅ | ❌ |
+| file management        | ✅ | ✅ |
+| security layer         | ❌ | ❌ |
+
 ## Error handling
 
 TBD.
 
 ## Troubleshooting
 
-WIP.
+TBD.
+
+<!-- References -->
+[spark-sdk]: https://www.npmjs.com/package/@coherentglobal/spark-execute-sdk
+[wasm.org]: https://webassembly.org/ "Web Assembly Homepage"
+[nodejs.org]: https://nodejs.org/en/download/ "Node.js Download Page"

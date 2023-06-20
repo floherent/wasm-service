@@ -41,8 +41,8 @@ for more technical details.
 This API service is built with [Node](https://nodejs.org) and [NestJS](https://nestjs.com/).
 Instructions on how to install Node can be found on its official website.
 
-Once Node is installed, clone this repository, install the dependencies and start
-the service.
+Once Node is installed, use a copy of this repository to install the dependencies
+and start the service.
 
 ```bash
 # install dependencies
@@ -82,11 +82,14 @@ The `wasm-service` API covers five basic use cases to help you get started:
 Additionally, the service includes a health check endpoint to verify that the
 service is up and running: `GET /health`.
 
-Find more details about the API endpoints from the [Postman collection](docs/postman-collection.json).
+Find more details about the API endpoints in the [API reference](docs/DEVELOPER.md#api-reference)
+section of the [Developer Guide](docs/DEVELOPER.md) and the
+[Postman collection](docs/postman-collection.json).
 
 ## Change log
 
-See the [CHANGELOG.md](CHANGELOG.md) for all notable changes about this project.
+See the [CHANGELOG](CHANGELOG.md) for all notable changes and release notes about
+this project.
 
 ## Support
 
