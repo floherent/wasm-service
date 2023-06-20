@@ -41,8 +41,8 @@ export class WasmRepo implements IWasmRepo {
       const model = data.find((m) => m.version_id === versionId);
       if (!model) throw new WasmNotFound(`no wasm file defined for version_id: ${versionId}`);
 
-      const file = readFileSync(model.path, 'binary');
-      wasm = this.wasmService.setWasm(versionId, Buffer.from(file, 'binary')); // cache it until invalidated.
+      const filePath = join(process.cwd(), model.path);
+      wasm = this.wasmService.setWasm(versionId, filePath); // cache it until invalidated.
     }
 
     const request = {
@@ -53,12 +53,13 @@ export class WasmRepo implements IWasmRepo {
         source_system: 'wasm-service',
         correlation_id: '',
         requested_output: null,
+        compiler_type: null,
         service_category: '',
       },
     };
 
     const startTime = performance.now();
-    const result = (await wasm.execute(request, versionId)) as ExecResponseData;
+    const result = (await wasm.execute(versionId, request)) as ExecResponseData;
     const endTime = performance.now();
 
     this.saveHistory(result, dto, endTime - startTime);

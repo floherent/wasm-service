@@ -6,9 +6,9 @@ including its scope, its API reference and more.
 This guide will walk you through:
 
 - a reference implementation for running the [Web Assembly][wasm.org] (WASM)
-  module, *also known as offline deployments*,
+  module, also known as *offline deployments*,
 - and the steps that help you set up a development environment and extend the
-  service to suit your needs.
+  service's functionality to suit your needs.
 
 ## Introduction
 
@@ -84,7 +84,7 @@ make sure the following files are present:
 - `your-service.js`
 - and some other files (e.g. checksums, etc.)
 
-> Please write down the `versionId` of the WASM that you downloaded as you will
+> Please write down the `versionId` of the WASM that you downloaded since you will
 > be needing it as a unique identifier to execute the WASM.
 > You may choose to use the [wasm file](../examples/ExpectedCreditLossesModel.zip)
 > (and its versionId: `e57f48e7-fe8c-4202-b8bc-5d366cf1eee9`) provided in this
@@ -114,7 +114,7 @@ This endpoint checks the following health indicators:
 It can also be used by a Kubernetes cluster to determine whether the service is
 up and running or not.
 
-Response: **200 OK**
+Response: **200 OK** / **503 Service Unavailable**
 
 ```json
 {
@@ -155,7 +155,7 @@ Response: **200 OK**
 
 ### Upload WASM module
 
-PUT /v1/services/**{version_id}/upload** - Upload a WASM bundle file.
+PUT /v1/services/**{version_id}** - Upload a WASM bundle file.
 
 Body: **multipart/form-data**
 
@@ -421,7 +421,7 @@ Response: **200 OK**
 
 ### Download an existing WASM module
 
-GET /v1/services/**{version_id}/download** - Download an existing WASM module.
+GET /v1/services/**{version_id}** - Download an existing WASM module.
 
 This endpoint is used to download an existing WASM module. The response will be
 saved as zip file.

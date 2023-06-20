@@ -31,7 +31,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@coherentglobal/spark-execute-sdk": "file:./temp/spark-sdk",
+    "@coherentglobal/wasm-runner": "^0.0.91",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.2",

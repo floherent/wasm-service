@@ -40,9 +40,9 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}/upload",
+          "raw": "{{base_url}}/v1/services/{{version_id}}",
           "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}", "upload"]
+          "path": ["v1", "services", "{{version_id}}"]
         }
       },
       "response": []
@@ -75,9 +75,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}/download",
+          "raw": "{{base_url}}/v1/services/{{version_id}}",
           "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}", "download"]
+          "path": ["v1", "services", "{{version_id}}"]
         }
       },
       "response": []

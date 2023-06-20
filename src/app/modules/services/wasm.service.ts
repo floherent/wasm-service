@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Spark } from '@coherentglobal/spark-execute-sdk';
 
 import { AppConfig } from '@app/modules/config';
+import { Spark } from '@shared/utils';
 
 @Injectable()
 export class WasmService {
@@ -18,7 +18,7 @@ export class WasmService {
     return wasm;
   }
 
-  setWasm(versionId: string, file: Buffer): Spark {
+  setWasm(versionId: string, filePath: string): Spark {
     if (this.wasms.size >= this.appConfig.props.app.cacheSize) {
       const oldest = this.bucket.pop();
       if (oldest) {
@@ -29,23 +29,15 @@ export class WasmService {
 
     if (this.wasms.has(versionId)) this.logger.warn(`wasm (${versionId}) already exists in cache`);
 
-    const wasm = this.sparkify(versionId, file);
+    const wasm = this.sparkify(versionId, filePath);
     this.wasms.set(versionId, wasm);
     this.bucket.unshift(versionId);
     this.logger.log(`wasm (${versionId}) has been cached`);
     return wasm;
   }
 
-  private sparkify(versionId: string, buffer: Buffer): Spark {
-    return new Spark({
-      nodeGenModels: [
-        {
-          versionId: versionId,
-          type: 'base64',
-          binary: buffer.toString('base64'),
-          metaData: {},
-        },
-      ],
-    });
+  private sparkify(versionId: string, filePath: string): Spark {
+    // FIXME: caching one model per Spark instances at the moment.
+    return new Spark({ id: versionId, url: filePath });
   }
 }

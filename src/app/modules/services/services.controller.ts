@@ -6,7 +6,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
-import { ValidationError, validateOrReject } from 'class-validator';
+import { validateOrReject } from 'class-validator';
 
 import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
@@ -20,7 +20,7 @@ export class ServicesController {
 
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
 
-  @Put(':version_id/upload')
+  @Put(':version_id')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
   async uploadWasmFile(
     @Param('version_id') versionId: string,
@@ -43,7 +43,7 @@ export class ServicesController {
     });
   }
 
-  @Get(':version_id/download')
+  @Get(':version_id')
   downloadWasmFile(@Param('version_id') versionId: string, @Res() response: Response) {
     return this.safe(async () => {
       const result = await this.queryBus.execute<DownloadWasmQuery, Result<Error, StreamableFile>>(
@@ -95,7 +95,7 @@ export class ServicesController {
       // FIXME: this is a temporary solution to handle errors.
       this.logger.error(cause);
       if (cause instanceof HttpException) throw cause;
-      if (cause instanceof Array<ValidationError>) throw new HttpException({ error: cause }, HttpStatus.BAD_REQUEST);
+      if (Array.isArray(cause)) throw new HttpException({ error: cause }, HttpStatus.BAD_REQUEST);
       throw new HttpException({ error: cause?.message ?? cause }, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
