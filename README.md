@@ -73,10 +73,10 @@ by modifying the [configuration](.config/config.yml) file.
 
 The `wasm-service` API covers five basic use cases to help you get started:
 
-1. upload a WASM module: `PUT /v1/services/{version_id}/upload`
+1. upload a WASM module: `PUT /v1/services/{version_id}`
 2. execute that WASM module: `POST /v1/services/{version_id}/execute`
 3. get the WASM execution history: `GET /v1/services/{version_id}/history?page=1&limit=100`
-4. download a WASM module: `GET /v1/services/{version_id}/download`
+4. download a WASM module: `GET /v1/services/{version_id}`
 5. delete a WASM module: `DELETE /v1/services/{version_id}`
 
 Additionally, the service includes a health check endpoint to verify that the
