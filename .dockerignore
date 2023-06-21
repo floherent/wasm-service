@@ -3,7 +3,10 @@ npm-debug.log
 .git
 .github
 README.md
+CHANGELOG.md
 .gitignore
 .nvmrc
 .prettierrc
 uploads
+examples
+docs

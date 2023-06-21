@@ -1,5 +1,5 @@
 import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder } from '@nestjs/common';
-import { HttpException, HttpStatus, StreamableFile, Res } from '@nestjs/common';
+import { HttpException, HttpStatus, Res } from '@nestjs/common';
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -8,7 +8,7 @@ import { Result } from 'typescript-result';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 
-import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery } from '@domain/wasm';
+import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery, DownloadHistoryQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
@@ -46,7 +46,7 @@ export class ServicesController {
   @Get(':version_id')
   downloadWasmFile(@Param('version_id') versionId: string, @Res() response: Response) {
     return this.safe(async () => {
-      const result = await this.queryBus.execute<DownloadWasmQuery, Result<Error, StreamableFile>>(
+      const result = await this.queryBus.execute<DownloadWasmQuery, Result<Error, Buffer>>(
         new DownloadWasmQuery(versionId),
       );
 
@@ -78,6 +78,19 @@ export class ServicesController {
       );
 
       return result.getOrThrow();
+    });
+  }
+
+  @Get(':version_id/history/file')
+  downloadHistoryFile(@Param('version_id') versionId: string, @Res() response: Response) {
+    return this.safe(async () => {
+      const result = await this.queryBus.execute<DownloadHistoryQuery, Result<Error, Buffer>>(
+        new DownloadHistoryQuery(versionId),
+      );
+
+      const file = result.getOrThrow();
+      response.contentType('text/csv');
+      return response.send(file);
     });
   }
 

@@ -22,7 +22,7 @@ It is composed of several modules that can be easily extended or updated to suit
 your needs. Those modules are: `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
 The `ServicesModule` is a simple module that exposes a few endpoints, among them,
-one that relies heavily on the [@coherentglobal/spark-execute-sdk][spark-sdk]
+one that relies heavily on the [@coherentglobal/wasm-runner][wasm-runner]
 Node.js package's core logic.
 
 Some other coding techniques and best practices considered throughout this service
@@ -106,10 +106,10 @@ GET **/health** - Check the health status of the service.
 
 This endpoint checks the following health indicators:
 
-- **wasm data**: indicates whether the WASM data storage exceeds a certain threshold.
-- **disk storage**: indicates whether the disk storage exceeds a certain threshold.
-- **memory heap**: indicates whether the memory heap exceeds a certain threshold.
-- **memory rss**: indicates whether the memory rss exceeds a certain threshold.
+- **wasm data**: checks the WASM data storage.
+- **disk storage**: checks the disk storage.
+- **memory heap**: checks the memory heap.
+- **memory rss**: checks the memory rss (resident set size).
 
 It can also be used by a Kubernetes cluster to determine whether the service is
 up and running or not.
@@ -510,6 +510,6 @@ TBD.
 TBD.
 
 <!-- References -->
-[spark-sdk]: https://www.npmjs.com/package/@coherentglobal/spark-execute-sdk
+[wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner "WASM Runner"
 [wasm.org]: https://webassembly.org/ "Web Assembly Homepage"
 [nodejs.org]: https://nodejs.org/en/download/ "Node.js Download Page"

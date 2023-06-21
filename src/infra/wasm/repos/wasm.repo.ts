@@ -8,7 +8,7 @@ import { WasmService } from '@app/modules';
 import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
 import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory } from '@domain/wasm';
-import { WasmNotFound, WasmRecordNotSaved, WasmExecutionNotSaved } from '@shared/errors';
+import { WasmNotFound, WasmRecordNotSaved, WasmExecutionNotSaved, WasmRecordNotFound } from '@shared/errors';
 import { ExecResponseData, Paginated, PaginationQueryParams, SortOrder } from '@shared/utils';
 
 @Injectable()
@@ -73,6 +73,13 @@ export class WasmRepo implements IWasmRepo {
   async download(versionId: string): Promise<Buffer> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
     if (!existsSync(path)) throw new WasmNotFound(`no wasm file defined for version_id: ${versionId}`);
+
+    return readFileSync(path);
+  }
+
+  async downloadHistory(versionId: string): Promise<Buffer> {
+    const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
+    if (!existsSync(path)) throw new WasmRecordNotFound(null, versionId);
 
     return readFileSync(path);
   }

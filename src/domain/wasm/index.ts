@@ -1,6 +1,7 @@
 import { DeleteWasmCommandHandler } from './commands/delete-wasm.cmd';
 import { ExecuteWasmCommandHandler } from './commands/execute-wasm.cmd';
 import { UploadWasmCommandHandler } from './commands/upload-wasm.cmd';
+import { DownloadHistoryQueryHandler } from './queries/download-history.query';
 import { DownloadWasmQueryHandler } from './queries/download-wasm.query';
 import { GetHistoryQueryHandler } from './queries/get-history.query';
 
@@ -11,6 +12,7 @@ export * from './dtos/execute-wasm.dto';
 export * from './dtos/upload-wasm.dto';
 export * from './dtos/wasm-file.dto';
 export * from './entities/exec-history.entity';
+export * from './queries/download-history.query';
 export * from './queries/download-wasm.query';
 export * from './queries/get-history.query';
 export * from './repos/wasm.repo';
@@ -20,5 +22,6 @@ export const CqrsHandlers = [
   ExecuteWasmCommandHandler,
   UploadWasmCommandHandler,
   DownloadWasmQueryHandler,
+  DownloadHistoryQueryHandler,
   GetHistoryQueryHandler,
 ];

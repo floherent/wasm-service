@@ -19,6 +19,19 @@
       "response": []
     },
     {
+      "name": "current config",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/v1/config",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "config"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "upload wasm",
       "request": {
         "method": "PUT",
@@ -29,7 +42,7 @@
             {
               "key": "wasm",
               "type": "file",
-              "src": "/Users/johndoe/Downloads/ExpectedCreditLossesModel.zip"
+              "src": "/path/to/wasms/ExpectedCreditLossesModel.zip"
             },
             {
               "key": "data",
@@ -48,13 +61,13 @@
       "response": []
     },
     {
-      "name": "execute wasm",
+      "name": "execute one wasm",
       "request": {
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"inputs\": {\n        \"AssessmentDate\": \"2022-08-31\",\n        \"CashFlowTypes\": \"Level\",\n        \"CCF\": 0.551,\n        \"Contract_IR\": 0.223,\n        \"LGD\": 0.8095,\n        \"LoanLimit\": 134000,\n        \"NextPaymentDate\": \"2022-09-30\",\n        \"ObligorRating\": \"D\",\n        \"OutstandingBalance\": 325000,\n        \"PaymentFreq\": 12,\n        \"RecoveryLags\": 10,\n        \"Segment\": 1,\n        \"Stage_Regular\": 2\n    }\n}",
+          "raw": "{\n    \"inputs\": {\n        \"AssessmentDate\": \"2022-08-31\",\n        \"CashFlowTypes\": \"Level\",\n        \"CCF\": 0.551,\n        \"Contract_IR\": 0.223,\n        \"LGD\": 0.8095,\n        \"LoanLimit\": 125000,\n        \"NextPaymentDate\": \"2022-09-30\",\n        \"ObligorRating\": \"A\",\n        \"OutstandingBalance\": 325000,\n        \"PaymentFreq\": 12,\n        \"RecoveryLags\": 10,\n        \"Segment\": 1,\n        \"Stage_Regular\": 2\n    }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -65,6 +78,36 @@
           "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
           "host": ["{{base_url}}"],
           "path": ["v1", "services", "{{version_id}}", "execute"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "retrieve wasm execution history",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/v1/services/{{version_id}}/history",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "services", "{{version_id}}", "history"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "2",
+              "disabled": true
+            },
+            {
+              "key": "order",
+              "value": "desc",
+              "disabled": true
+            }
+          ]
         }
       },
       "response": []
@@ -83,6 +126,19 @@
       "response": []
     },
     {
+      "name": "download execution history file",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/v1/services/{{version_id}}/history/file",
+          "host": ["{{base_url}}"],
+          "path": ["v1", "services", "{{version_id}}", "history", "file"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "delete wasm",
       "request": {
         "method": "DELETE",
@@ -91,36 +147,6 @@
           "raw": "{{base_url}}/v1/services/{{version_id}}",
           "host": ["{{base_url}}"],
           "path": ["v1", "services", "{{version_id}}"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "wasm execution history",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}/history",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}", "history"],
-          "query": [
-            {
-              "key": "page",
-              "value": "1",
-              "disabled": true
-            },
-            {
-              "key": "limit",
-              "value": "3",
-              "disabled": true
-            },
-            {
-              "key": "order",
-              "value": "desc",
-              "disabled": true
-            }
-          ]
         }
       },
       "response": []

@@ -10,8 +10,16 @@ export class WasmRecordNotSaved extends ApiError {
   }
 }
 
+export class WasmRecordNotFound extends ApiError {
+  constructor(message = 'execution history file not found', id?: string) {
+    message ??= `no execution history file defined for version_id: ${id}`;
+    super('WASM_RECORD_NOT_FOUND', message);
+  }
+}
+
 export class WasmNotFound extends ApiError {
-  constructor(readonly message = 'wasm not found') {
+  constructor(message = 'wasm not found', id?: string) {
+    message ??= `no wasm file defined for version_id: ${id}`;
     super('WASM_NOT_FOUND', message);
   }
 }
