@@ -95,6 +95,55 @@ make sure the following files are present:
 See the [Execute a WASM module](#execute-a-wasm-module) in the
 [API reference](#api-reference) section for more details.
 
+## Application configuration
+
+The configuration for the WASM service is stored in a YAML file named `.config.yml`.
+This [file](../.config/config.yml) contains various parameters that can be adjusted
+to customize the behavior of the service.
+
+### Service configuration
+
+The service configuration section includes the following parameters:
+
+- `name`: specifies the name of the WASM service. In this case, the name is set
+  to **wasm-service**.
+- `description`: provides a brief description of the service's purpose. For
+  example, the description states that the service is *an API for running WASM files*.
+- `service.port`: specifies the port number on which the service will listen for
+  incoming requests. The default port is set to **8080**.
+- `service.contextPath`: defines the context path for the service. Requests to
+  the service's API endpoints will be prefixed with this path. By default, the
+  context path is set to `/`.
+- `service.uploadPath`: specifies the directory path where the uploaded files
+  will be stored. The default upload path is set to `./uploads`.
+- `service.dataPath`: specifies the file path for storing the records of the
+  upload process. The default file path is set to `./uploads/wasm-data.csv`.
+
+### Performance configuration
+
+The performance configuration section includes the following parameters:
+
+- `performance.cacheSize`: specifies the number of wasm instances to cache. The
+  cache is used to store frequently accessed data to improve performance. By
+  default, the cache size is set to **10**.
+- `performance.health.wasmDataThreshold`: sets the threshold size in megabytes
+  (MB) for the health check related to the WASM data. If the size of the data
+  exceeds this threshold, it may indicate potential performance issues. The default
+  threshold is set to 150 MB.
+- `performance.health.diskThreshold`: sets the threshold size in megabytes (MB)
+  for the health check related to disk usage. If the available disk space falls
+  below this threshold, it may impact the service's performance. The default
+  threshold is set to 512 MB.
+- `performance.health.memoryThreshold`: sets the threshold size in megabytes (MB)
+  for the health check related to memory usage. If the memory consumption exceeds
+  this threshold, it may affect the service's performance. The default threshold
+  is set to 256 MB.
+
+These configuration parameters can be modified as per the requirements of the
+deployment environment and the specific needs of the WASM service. It is important
+to review and adjust these settings appropriately to ensure optimal performance
+and reliability.
+
 ## API reference
 
 The base URL for all the endpoints is `http://localhost:8080`.
@@ -439,31 +488,34 @@ Response: **204 No Content**
 
 ### Workflow
 
-A WASM journey can be defined a zip file that's transferred through HTTP and gets
-saved as assets, which will be later used to compute sparkified calculations.
-A record of that upload process is saved in a csv file for future references and
-computations.
+The workflow for a WASM journey involves transferring a zip file through HTTP,
+which is then saved as assets. These assets are later utilized to perform
+sparkified calculations. A record of the upload process is stored in a CSV file
+for future reference and computations.
 
-Upon an execution request, this WASM will be loaded in memory (*also cached until invalidated*)
-and become a Spark instance. And finally, the given inputs and versionId will be
-used to run the WASM and the generated output will be returned to a user. As user
-will be submitted several requests, records of those will be saved in a csv file
-and may be retrieved later as part the API call history.
+When an execution request is made, the WASM file is loaded into memory and
+*cached until invalidated*, effectively becoming a Spark instance. The provided
+inputs and version ID are used to run the WASM, and the resulting output is returned
+to the user. As the user submits multiple requests, records of those requests are
+saved in a CSV file, which can be retrieved later as part of the API call history.
 
 ### Architecture and design
 
 Under the hood, the service is composed of several layers that are responsible for
 handling the different aspects of the service:
 
-- **Application layer**: This layer handles the application logic and communicates
-  with the *infrastructure layer*. That is, HTTP requests and responses are processed
-  there as well as some interceptors/filters.
-- **Infrastructure layer**: This layer handles anything related to infrastructure,
-  data persitence and storage system (e.g, file system).
-- **Domain layer**: This layer handles the business logic. It includes representations
-  of entity models.
-- **Shared layer**: This layer includes commonalities and utilities between the
-  different layers.
+- **Application layer**: This layer manages the application logic and handles
+  communication with the infrastructure layer. It processes HTTP requests and
+  responses, and includes interceptors and filters.
+- **Infrastructure layer**: The infrastructure layer is responsible for managing
+  all aspects related to infrastructure, data persistence, and storage systems.
+  This includes interactions with the file system and other relevant components.
+- **Domain layer**: The domain layer handles the core business logic of the system.
+  It encompasses the representation of entity models and encapsulates the operations
+  and rules specific to the application domain.
+- **Shared layer**: The shared layer contains commonalities and utilities that
+  are shared across different layers of the system. It provides reusable components
+  and functionalities to enhance the overall development and maintenance process.
 
 ### Service roadmap and delivery
 
@@ -481,7 +533,7 @@ handling the different aspects of the service:
 | UX and DX              | ✅ | ❌ |
 | service level agreement| ✅ | ❌ |
 | - | - | - |
-| platform support       | arm64/amd64 | amd64 |
+| platform/architecture  | arm64/amd64 | amd64 |
 | devOps-ready           | ✅ | ✅ |
 | CI/CD-ready            | ✅ | ❌ |
 | - | - | - |
