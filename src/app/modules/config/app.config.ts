@@ -9,14 +9,14 @@ const dataPath = './wasm-data.csv';
 const servicePort = 8080;
 const cacheSize = 10;
 const wasmDataThreshold = 150; // 150 MB
-const diskThreshold = 512; // 512 MB
+const diskThresholdPercent = 0.75; // 512 MB
 const memoryThreshold = 256; // 256 MB
 
 interface Config {
   app: Partial<BaseConfig>;
   health: {
     wasmThreshold: number;
-    diskThreshold: number;
+    diskThresholdPercent: number;
     memoryThreshold: number;
   };
 }
@@ -57,7 +57,7 @@ class AppConfig {
       },
       health: {
         wasmThreshold: parseInt(performance?.health?.wasmDataThreshold, 10) ?? wasmDataThreshold,
-        diskThreshold: parseInt(performance?.health?.diskThreshold, 10) ?? diskThreshold,
+        diskThresholdPercent: parseFloat(performance?.health?.diskThresholdPercent) ?? diskThresholdPercent,
         memoryThreshold: parseInt(performance?.health?.memoryThreshold, 10) ?? memoryThreshold,
       },
     };

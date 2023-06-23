@@ -8,7 +8,7 @@ import { WasmService } from '@app/modules';
 import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
 import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory } from '@domain/wasm';
-import { WasmNotFound, WasmRecordNotSaved, WasmExecutionNotSaved, WasmRecordNotFound } from '@shared/errors';
+import { WasmFileNotFound, WasmRecordNotSaved, ExecHistoryNotSaved, ExecHistoryNotFound } from '@shared/errors';
 import { ExecResponseData, Paginated, PaginationQueryParams, SortOrder } from '@shared/utils';
 
 @Injectable()
@@ -27,8 +27,8 @@ export class WasmRepo implements IWasmRepo {
       if (!existsSync(path)) appendFileSync(path, `${model.headers()}`);
       appendFileSync(path, `\n${model.toCsv()}`);
       return model.asDto;
-    } catch (_) {
-      throw new WasmRecordNotSaved();
+    } catch (cause) {
+      throw new WasmRecordNotSaved(data.versionId, cause);
     }
   }
 
@@ -39,9 +39,9 @@ export class WasmRepo implements IWasmRepo {
       const { dataPath } = this.appConfig.props.app;
       const data = this.loadCsvWasm(dataPath);
       const model = data.find((m) => m.version_id === versionId);
-      if (!model) throw new WasmNotFound(`no wasm file defined for version_id: ${versionId}`);
+      if (!model) throw new WasmFileNotFound(versionId);
 
-      wasm = await this.wasmService.setWasm(versionId, model.path); // cache it until invalidated.
+      wasm = await this.wasmService.setWasm(versionId, model.file_path); // cache it until invalidated.
     }
 
     const request = {
@@ -72,14 +72,14 @@ export class WasmRepo implements IWasmRepo {
 
   async download(versionId: string): Promise<Buffer> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
-    if (!existsSync(path)) throw new WasmNotFound(`no wasm file defined for version_id: ${versionId}`);
+    if (!existsSync(path)) throw new WasmFileNotFound(`no wasm file defined for version_id: ${versionId}`);
 
     return readFileSync(path);
   }
 
   async downloadHistory(versionId: string): Promise<Buffer> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
-    if (!existsSync(path)) throw new WasmRecordNotFound(null, versionId);
+    if (!existsSync(path)) throw new ExecHistoryNotFound(versionId);
 
     return readFileSync(path);
   }
@@ -117,8 +117,8 @@ export class WasmRepo implements IWasmRepo {
 
       if (!existsSync(path)) appendFileSync(path, `${model.headers()}`);
       appendFileSync(path, `\n${model.toCsv()}`);
-    } catch (_) {
-      throw new WasmExecutionNotSaved();
+    } catch (cause) {
+      throw new ExecHistoryNotSaved(result.response_meta.version_id, cause);
     }
   }
 

@@ -1,19 +1,18 @@
-import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder } from '@nestjs/common';
-import { HttpException, HttpStatus, Res } from '@nestjs/common';
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, UseFilters, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
-import { plainToInstance } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
 
 import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery, DownloadHistoryQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
+import { ApiExceptionFilter } from '@shared/errors';
 
+@UseFilters(new ApiExceptionFilter())
 @Controller({ path: 'services', version: '1' })
 export class ServicesController {
   private readonly logger = new Logger(ServicesController.name);
@@ -23,93 +22,68 @@ export class ServicesController {
   @Put(':version_id')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
   async uploadWasmFile(
+    @Res() response: Response,
     @Param('version_id') versionId: string,
     @Body() body: { data?: string },
     @UploadedFile(new ParseFilePipeBuilder().addFileTypeValidator({ fileType: 'zip' }).build())
     file: Express.Multer.File,
-  ): Promise<WasmModel> {
-    return this.safe(async () => {
-      const data = plainToInstance(UploadWasmDto, JSON.parse(body?.data));
-      data.versionId = data.versionId ?? versionId;
-      await validateOrReject(data);
+  ) {
+    const data = await UploadWasmDto.validate(versionId, body?.data);
+    const command = new UploadWasmCommand(data, file);
+    const result = await this.commandBus.execute<UploadWasmCommand, Result<Error, WasmModel>>(command);
+    const payload = result.getOrThrow();
 
-      const result = await this.commandBus.execute<UploadWasmCommand, Result<Error, WasmModel>>(
-        new UploadWasmCommand(data, file),
-      );
-
-      const payload = result.getOrThrow();
-      this.logger.log(`wasm file (${payload.version_id}) has been uploaded.`);
-      return payload;
-    });
+    this.logger.log(`wasm file (${payload.version_id}) has been uploaded.`);
+    response.status(HttpStatus.CREATED).send(payload);
   }
 
   @Get(':version_id')
-  downloadWasmFile(@Param('version_id') versionId: string, @Res() response: Response) {
-    return this.safe(async () => {
-      const result = await this.queryBus.execute<DownloadWasmQuery, Result<Error, Buffer>>(
-        new DownloadWasmQuery(versionId),
-      );
+  async downloadWasmFile(@Res() response: Response, @Param('version_id') versionId: string) {
+    const query = new DownloadWasmQuery(versionId);
+    const result = await this.queryBus.execute<DownloadWasmQuery, Result<Error, Buffer>>(query);
+    const file = result.getOrThrow();
 
-      const file = result.getOrThrow();
-      response.contentType('application/zip');
-      return response.send(file);
-    });
+    this.logger.log(`wasm file (${versionId}) has been downloaded.`);
+    response.contentType('application/zip').status(HttpStatus.OK).send(file);
   }
 
-  @Post([':version_id/execute', ':version_id/exec', ':version_id/run'])
-  async executeWasm(@Param('version_id') versionId: string, @Body() body: ExecuteWasmDto): Promise<ExecResponseData> {
-    return this.safe(async () => {
-      const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(
-        new ExecuteWasmCommand(versionId, body),
-      );
+  @Post(':version_id/execute')
+  async executeWasm(@Res() response: Response, @Param('version_id') versionId: string, @Body() body: ExecuteWasmDto) {
+    const command = new ExecuteWasmCommand(versionId, body);
+    const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(command);
+    const payload = result.getOrThrow();
 
-      return result.getOrThrow();
-    });
+    response.status(HttpStatus.OK).send(payload);
   }
 
   @Get(':version_id/history')
   async getWasmExecHistory(
+    @Res() response: Response,
     @Param('version_id') versionId: string,
     @PaginationParams() pagination: PaginationQueryParams,
-  ): Promise<Paginated<ExecHistory>> {
-    return this.safe(async () => {
-      const result = await this.queryBus.execute<GetHistoryQuery, Result<Error, Paginated<ExecHistory>>>(
-        new GetHistoryQuery(versionId, pagination),
-      );
+  ) {
+    const query = new GetHistoryQuery(versionId, pagination);
+    const result = await this.queryBus.execute<GetHistoryQuery, Result<Error, Paginated<ExecHistory>>>(query);
+    const payload = result.getOrThrow();
 
-      return result.getOrThrow();
-    });
+    this.logger.log(`execution fetched for wasm file (${versionId}): ${payload.pagination.total_items} items`);
+    response.status(HttpStatus.OK).send(payload);
   }
 
   @Get(':version_id/history/file')
-  downloadHistoryFile(@Param('version_id') versionId: string, @Res() response: Response) {
-    return this.safe(async () => {
-      const result = await this.queryBus.execute<DownloadHistoryQuery, Result<Error, Buffer>>(
-        new DownloadHistoryQuery(versionId),
-      );
+  async downloadHistoryFile(@Res() response: Response, @Param('version_id') versionId: string) {
+    const query = new DownloadHistoryQuery(versionId);
+    const result = await this.queryBus.execute<DownloadHistoryQuery, Result<Error, Buffer>>(query);
+    const file = result.getOrThrow();
 
-      const file = result.getOrThrow();
-      response.contentType('text/csv');
-      return response.send(file);
-    });
+    this.logger.log(`execution history file (${versionId}) has been downloaded.`);
+    response.contentType('text/csv').status(HttpStatus.OK).send(file);
   }
 
   @Delete(':version_id')
-  deleteWasmFile(@Param('version_id') versionId: string): void {
-    return this.safe(async () => {
-      await this.commandBus.execute<DeleteWasmCommand, Result<Error, void>>(new DeleteWasmCommand(versionId));
-    });
-  }
-
-  private safe(func: () => any | Promise<any>) {
-    try {
-      return func();
-    } catch (cause) {
-      // FIXME: this is a temporary solution to handle errors.
-      this.logger.error(cause);
-      if (cause instanceof HttpException) throw cause;
-      if (Array.isArray(cause)) throw new HttpException({ error: cause }, HttpStatus.BAD_REQUEST);
-      throw new HttpException({ error: cause?.message ?? cause }, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
+  async deleteWasmFile(@Res() response: Response, @Param('version_id') versionId: string) {
+    await this.commandBus.execute<DeleteWasmCommand, Result<Error, void>>(new DeleteWasmCommand(versionId));
+    this.logger.log(`wasm file (${versionId}) has been deleted.`);
+    response.status(HttpStatus.NO_CONTENT).send();
   }
 }

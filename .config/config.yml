@@ -8,8 +8,8 @@ service:
   dataPath: uploads/wasm-data.csv
 
 performance:
-  cacheSize: 10
-  health: # size in MB
-    wasmDataThreshold: 150
-    diskThreshold: 512
-    memoryThreshold: 256
+  cacheSize: 16
+  health:
+    wasmDataThreshold: 512 # size in MB
+    diskThresholdPercent: 0.75
+    memoryThreshold: 256 # size in MB

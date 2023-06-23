@@ -130,14 +130,14 @@ The performance configuration section includes the following parameters:
   (MB) for the health check related to the WASM data. If the size of the data
   exceeds this threshold, it may indicate potential performance issues. The default
   threshold is set to 150 MB.
-- `performance.health.diskThreshold`: sets the threshold size in megabytes (MB)
+- `performance.health.diskThresholdPercent`: sets the threshold size in megabytes (MB)
   for the health check related to disk usage. If the available disk space falls
   below this threshold, it may impact the service's performance. The default
-  threshold is set to 512 MB.
+  value is set to 0.75%.
 - `performance.health.memoryThreshold`: sets the threshold size in megabytes (MB)
   for the health check related to memory usage. If the memory consumption exceeds
-  this threshold, it may affect the service's performance. The default threshold
-  is set to 256 MB.
+  this threshold, it may affect the service's performance. The default value is
+  set to 256 MB.
 
 These configuration parameters can be modified as per the requirements of the
 deployment environment and the specific needs of the WASM service. It is important

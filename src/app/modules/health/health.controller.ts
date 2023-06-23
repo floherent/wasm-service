@@ -8,7 +8,7 @@ import { WasmHealthIndicator } from './wasm-data.health';
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
   private readonly PLATFORM_PATH = process.platform === 'win32' ? 'C:\\' : '/';
-  private readonly DISK_THRESHOLD_IN_MB: number;
+  private readonly DISK_THRESHOLD_PERCENT: number;
   private readonly MEMORY_THRESHOLD_IN_MB: number;
 
   constructor(
@@ -18,7 +18,7 @@ export class HealthController {
     private readonly wasm: WasmHealthIndicator,
     private readonly appConfig: AppConfig,
   ) {
-    this.DISK_THRESHOLD_IN_MB = this.appConfig.props.health.diskThreshold * ONE_MB;
+    this.DISK_THRESHOLD_PERCENT = this.appConfig.props.health.diskThresholdPercent;
     this.MEMORY_THRESHOLD_IN_MB = this.appConfig.props.health.memoryThreshold * ONE_MB;
   }
 
@@ -29,17 +29,10 @@ export class HealthController {
       // The used disk storage for wasm should not exceed this threshold.
       () => this.wasm.isHealthy('wasm data'),
 
-      // The used disk storage should not exceed this threshold.
+      // The used disk storage should not exceed 75% of the full disk size.
       () =>
         this.disk.checkStorage('disk storage', {
-          threshold: this.DISK_THRESHOLD_IN_MB,
-          path: this.PLATFORM_PATH,
-        }),
-
-      // The used disk storage should not exceed 50% of the full disk size.
-      () =>
-        this.disk.checkStorage('disk storage', {
-          thresholdPercent: 0.5,
+          thresholdPercent: this.DISK_THRESHOLD_PERCENT,
           path: this.PLATFORM_PATH,
         }),
 

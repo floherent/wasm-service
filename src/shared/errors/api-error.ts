@@ -1,31 +1,54 @@
-export class ApiError extends Error {
-  constructor(readonly code: string, readonly message: string) {
-    super(message);
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export class ApiException extends HttpException {
+  constructor(code: string, status?: number, message?: string, cause?: Error) {
+    status ??= HttpStatus.UNPROCESSABLE_ENTITY;
+    message ??= 'unable to fully process request';
+    super({ status, message, code, cause }, status, { cause });
   }
 }
 
-export class WasmRecordNotSaved extends ApiError {
-  constructor(readonly message = 'failed to save wasm file records') {
-    super('WASM_RECORD_NOT_SAVED', message);
+export class WasmRecordNotSaved extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super(
+      'WASM_RECORD_NOT_SAVED',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      `failed to save wasm file records for version_id: ${id}`,
+      cause,
+    );
   }
 }
 
-export class WasmRecordNotFound extends ApiError {
-  constructor(message = 'execution history file not found', id?: string) {
-    message ??= `no execution history file defined for version_id: ${id}`;
-    super('WASM_RECORD_NOT_FOUND', message);
+export class ExecHistoryNotFound extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super(
+      'EXECUTION_HISTORY_NOT_FOUND',
+      HttpStatus.NOT_FOUND,
+      `no execution history file found for version_id: ${id}`,
+      cause,
+    );
   }
 }
 
-export class WasmNotFound extends ApiError {
-  constructor(message = 'wasm not found', id?: string) {
-    message ??= `no wasm file defined for version_id: ${id}`;
-    super('WASM_NOT_FOUND', message);
+export class WasmFileNotFound extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super('WASM_FILE_NOT_FOUND', HttpStatus.NOT_FOUND, `no wasm file found for version_id: ${id}`, cause);
   }
 }
 
-export class WasmExecutionNotSaved extends ApiError {
-  constructor(readonly message = 'failed to save wasm execution history') {
-    super('WASM_EXECUTION_NOT_SAVED', message);
+export class ExecHistoryNotSaved extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super(
+      'EXECUTION_HISTORY_NOT_SAVED',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      `failed to save wasm execution history ${id}`,
+      cause,
+    );
+  }
+}
+
+export class BadUploadWasmData extends ApiException {
+  constructor(message: string, cause: Error) {
+    super('WRONG_UPLOAD_WASM_DATA', HttpStatus.BAD_REQUEST, message, cause);
   }
 }

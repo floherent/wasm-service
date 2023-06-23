@@ -2,10 +2,10 @@ export class WasmModel {
   constructor(
     readonly version_id: string,
     readonly file_name: string,
-    readonly path: string,
+    readonly file_path: string,
     readonly original_name: string,
     readonly size: number,
-    readonly uploaded_at: number,
+    readonly uploaded_at: number | Date,
     readonly service_name?: string,
     readonly revision?: string,
     readonly username?: string,
@@ -16,7 +16,7 @@ export class WasmModelHandler extends WasmModel {
   private readonly _headers = [
     'version_id',
     'file_name',
-    'path',
+    'file_path',
     'original_name',
     'size',
     'uploaded_at',
@@ -29,10 +29,10 @@ export class WasmModelHandler extends WasmModel {
     return new WasmModel(
       this.version_id,
       this.file_name,
-      this.path,
+      this.file_path,
       this.original_name,
       this.size,
-      this.uploaded_at,
+      new Date(Number(this.uploaded_at)),
       this.service_name,
       this.revision,
       this.username,
@@ -43,10 +43,10 @@ export class WasmModelHandler extends WasmModel {
     fields: {
       version_id: string;
       file_name: string;
-      path: string;
+      file_path: string;
       original_name: string;
       size: number;
-      uploaded_at: number;
+      uploaded_at: number | Date;
       service_name?: string;
       revision?: string;
       username?: string;
@@ -56,7 +56,7 @@ export class WasmModelHandler extends WasmModel {
     super(
       fields.version_id,
       fields.file_name,
-      fields.path,
+      fields.file_path,
       fields.original_name,
       fields.size,
       fields.uploaded_at,
@@ -70,7 +70,7 @@ export class WasmModelHandler extends WasmModel {
     return [
       this.version_id,
       this.file_name,
-      this.path,
+      this.file_path,
       this.original_name,
       this.size,
       this.uploaded_at,
