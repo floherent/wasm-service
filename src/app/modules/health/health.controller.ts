@@ -1,10 +1,12 @@
 import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import { HealthCheck, HealthCheckService, DiskHealthIndicator, MemoryHealthIndicator } from '@nestjs/terminus';
+import { ApiTags } from '@nestjs/swagger';
 
 import { AppConfig } from '@app/modules/config';
 import { ONE_MB } from '@shared/constants';
 import { WasmHealthIndicator } from './wasm-data.health';
 
+@ApiTags('health')
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
   private readonly PLATFORM_PATH = process.platform === 'win32' ? 'C:\\' : '/';

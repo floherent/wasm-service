@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { readFileSync as read } from 'fs';
 import * as yaml from 'js-yaml';
 
-const configPath: string = process.env['CS_CONFIG_PATH'] ?? '.config/config.yml';
+const configPath: string = process.env['WS_CONFIG_PATH'] ?? '.config/config.yml';
 const contextPath = '/';
 const uploadPath = './uploads';
 const dataPath = './wasm-data.csv';

@@ -97,9 +97,27 @@ See the [Execute a WASM module](#execute-a-wasm-module) in the
 
 ## Application configuration
 
-The configuration for the WASM service is stored in a YAML file named `.config.yml`.
+The configuration for the WASM service is stored in a YAML file named `config.yml`.
 This [file](../.config/config.yml) contains various parameters that can be adjusted
 to customize the behavior of the service.
+
+You may save a configuration file in a different location and specify its path
+in the environment variable as `WS_CONFIG_PATH`. That way, the service will load
+the configuration from the specified path instead of the default one.
+
+If you choose to use docker to run the service, for example, you can mount the
+config file to the container and set the environment variable to the mounted path.
+
+```bash
+$ cd /local/path/to/config
+$ vim config.yml # create and edit the config file
+
+# run the service with docker and mount the config file
+$ docker run --name wasm-service -p 8080:8080 -d \
+  -v /local/path/to/config:/config \
+  -e WS_CONFIG_PATH=/config/config.yml \
+  wasm-service
+```
 
 ### Service configuration
 
@@ -149,6 +167,9 @@ and reliability.
 The base URL for all the endpoints is `http://localhost:8080`.
 See the [Postman collection](postman-collection.json) for more details.
 
+Additionally, you can use the Swagger UI `http://localhost:8080/docs` to
+visualize and explore the API endpoints.
+
 ### Check health status
 
 GET **/health** - Check the health status of the service.
@@ -184,21 +205,6 @@ Response: **200 OK** / **503 Service Unavailable**
     }
   },
   "error": {},
-  "details": {
-    "wasm data": {
-      "status": "up",
-      "sizeInMB": 0.802
-    },
-    "disk storage": {
-      "status": "up"
-    },
-    "memory heap": {
-      "status": "up"
-    },
-    "memory rss": {
-      "status": "up"
-    }
-  }
 }
 ```
 
@@ -220,19 +226,19 @@ Body: **multipart/form-data**
 ```
 
 This endpoint is used to upload a WASM bundle file to the service. The file is
-then stored in the file system and the metadata is stored as part of csv file
+then stored in the file system and the metadata is stored as part of CSV file
 for future references.
 
-Response: **201 Created** / **400 Bad Request** / **500 Internal Server Error**
+Response: **201 Created** / **400 Bad Request** / **422 Unprocessable Entity**
 
 ```json
 {
   "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
   "file_name": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip",
-  "path": "uploads/e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip",
+  "file_path": "uploads/e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip",
   "original_name": "ExpectedCreditLossesModel.zip",
   "size": 432451,
-  "uploaded_at": 1686804536700,
+  "uploaded_at": "2023-06-23T15:34:09.839Z",
   "service_name": "expected-loss",
   "revision": "0.3.0",
   "username": "john.doe@coherent.global"
@@ -245,7 +251,7 @@ POST /v1/services/**{version_id}/execute** - Execute a WASM module.
 
 Body: **application/json**
 
-- **inputs**: JSON payload that contains the input data for the WASM module to
+- **inputs**: JSON payload containing the input data for the WASM module to
   be executed. For example:
 
 ```json
@@ -270,9 +276,9 @@ Body: **application/json**
 
 This endpoint is used to execute a WASM module. It takes a JSON payload that
 contains the input data for the WASM module. Once executed, the WASM module will
-return a JSON payload that contains the output data.
+return a JSON payload that contains the `outputs` data of the calculations.
 
-Response: **200 OK** / **400 Bad Request**
+Response: **200 OK** / **400 Bad Request** / **422 Unprocessable Entity**
 
 ```json
 {
@@ -331,16 +337,13 @@ Response: **200 OK** / **400 Bad Request**
 GET /v1/services/**{version_id}/history** - Retrieve the execution history of a
 WASM module.
 
-This endpoint is used to retrieve the execution history of a WASM module. Additionally,
-it accepts query parameters to paginate the execution history.
-
-Query parameters:
+Additionally, it accepts query parameters to paginate the execution history:
 
 - **page**: page number
 - **limit**: number of records per page
 - **order**: order of the records (asc or desc)
 
-Response: **200 OK**
+Response: **200 OK** / **400 Bad Request** / **404 Not Found**
 
 ```json
 {
@@ -475,6 +478,8 @@ GET /v1/services/**{version_id}** - Download an existing WASM module.
 This endpoint is used to download an existing WASM module. The response will be
 saved as zip file.
 
+Response: **200 OK** / **404 Not Found** / **422 Unprocessable Entity**
+
 ### Delete an existing WASM module
 
 DELETE /v1/services/**{version_id}** - Delete an existing WASM module.
@@ -482,7 +487,33 @@ DELETE /v1/services/**{version_id}** - Delete an existing WASM module.
 This endpoint is used to delete an existing WASM module to free up space. Both
 the WASM module and its execution history will be deleted.
 
-Response: **204 No Content**
+Response: **204 No Content** / **404 Not Found**
+
+## Error handling
+
+`ApiException` is a base class for all custom exceptions is used to handle some
+basic errors. Using an `HttpException` filter, the error response is formatted as:
+
+```json
+{
+  "error": {
+    "status": 422,
+    "code": "UNABLE_TO_PROCESS_REQUEST",
+    "message": "unable to fully process request",
+    "cause": "description of the failure"
+  }
+}
+```
+
+Some of the derived exceptions are:
+
+| type | status | code | when |
+| ---- | ------ | ---- | ---- |
+|`WasmRecordNotSaved`| 422 | WASM_RECORD_NOT_SAVED | unable to save WASM file record |
+|`WasmFileNotFound`| 404 | WASM_FILE_NOT_FOUND | unable to find WASM file records |
+|`ExecHistoryNotFound`| 404 | EXECUTION_HISTORY_NOT_FOUND | unable to find its execution records |
+|`ExecHistoryNotSaved`| 422 | WASM_FILE_NOT_SAVED | unable to save WASM file |
+|`BadUploadWasmData`| 400 | WRONG_UPLOAD_WASM_DATA | wrong/missing params |
 
 ## Conceptual references
 
@@ -528,7 +559,6 @@ handling the different aspects of the service:
 | release notes          | ✅ | ❌ |
 | - | - | - |
 | application type       | microservice | monolith |
-| deps & vulnerabilities | 0 (zero) | :warning: |
 | versioning             | ✅ | ❌ |
 | UX and DX              | ✅ | ❌ |
 | service level agreement| ✅ | ❌ |
@@ -552,14 +582,6 @@ handling the different aspects of the service:
 | caching/memoization    | ✅ | ❌ |
 | file management        | ✅ | ✅ |
 | security layer         | ❌ | ❌ |
-
-## Error handling
-
-TBD.
-
-## Troubleshooting
-
-TBD.
 
 <!-- References -->
 [wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner "WASM Runner"

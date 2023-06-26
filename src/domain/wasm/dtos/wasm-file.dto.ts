@@ -2,7 +2,7 @@ export class WasmFileDto {
   constructor(
     readonly versionId: string,
     readonly fileName: string,
-    readonly file_path: string,
+    readonly filePath: string,
     readonly originalName: string,
     readonly size: number,
     readonly uploadedAt: number | Date,

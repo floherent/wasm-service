@@ -2,6 +2,7 @@ import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, UseFilters
 import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiBody, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
 
@@ -10,8 +11,9 @@ import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmComma
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
-import { ApiExceptionFilter } from '@shared/errors';
+import { ApiExceptionFilter, WasmRecordNotSaved } from '@shared/errors';
 
+@ApiTags('services')
 @UseFilters(new ApiExceptionFilter())
 @Controller({ path: 'services', version: '1' })
 export class ServicesController {
@@ -19,6 +21,9 @@ export class ServicesController {
 
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
 
+  @ApiResponse({ status: HttpStatus.CREATED, type: WasmModel, description: 'the uploaded wasm file' })
+  @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, type: WasmRecordNotSaved })
+  @ApiBody({ type: UploadWasmDto })
   @Put(':version_id')
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
   async uploadWasmFile(
@@ -56,6 +61,9 @@ export class ServicesController {
     response.status(HttpStatus.OK).send(payload);
   }
 
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'order', required: false, example: 'asc' })
   @Get(':version_id/history')
   async getWasmExecHistory(
     @Res() response: Response,

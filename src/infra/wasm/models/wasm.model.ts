@@ -1,15 +1,54 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class WasmModel {
+  @ApiProperty({ format: 'uuid' })
+  readonly version_id: string;
+
+  @ApiProperty()
+  readonly file_name: string;
+
+  @ApiProperty()
+  readonly file_path: string;
+
+  @ApiProperty()
+  readonly original_name: string;
+
+  @ApiProperty()
+  readonly size: number;
+
+  @ApiProperty({ type: Date, format: 'date-time' })
+  readonly uploaded_at: number | Date;
+
+  @ApiProperty({ required: false })
+  readonly service_name?: string;
+
+  @ApiProperty({ required: false })
+  readonly revision?: string;
+
+  @ApiProperty({ required: false })
+  readonly username?: string;
+
   constructor(
-    readonly version_id: string,
-    readonly file_name: string,
-    readonly file_path: string,
-    readonly original_name: string,
-    readonly size: number,
-    readonly uploaded_at: number | Date,
-    readonly service_name?: string,
-    readonly revision?: string,
-    readonly username?: string,
-  ) {}
+    versionId: string,
+    fileName: string,
+    filePath: string,
+    originalName: string,
+    size: number,
+    uploadedAt: number | Date,
+    serviceName?: string,
+    revision?: string,
+    username?: string,
+  ) {
+    this.version_id = versionId;
+    this.file_name = fileName;
+    this.file_path = filePath;
+    this.original_name = originalName;
+    this.size = size;
+    this.uploaded_at = uploadedAt;
+    this.service_name = serviceName;
+    this.revision = revision;
+    this.username = username;
+  }
 }
 
 export class WasmModelHandler extends WasmModel {

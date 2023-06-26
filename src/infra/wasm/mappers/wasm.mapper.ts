@@ -11,7 +11,7 @@ export class WasmMapper extends EntityModelMapper<WasmFileDto, WasmModelHandler>
     return new WasmModelHandler({
       version_id: from.versionId,
       file_name: from.fileName,
-      file_path: from.file_path,
+      file_path: from.filePath,
       original_name: from.originalName,
       size: from.size,
       uploaded_at: from.uploadedAt,

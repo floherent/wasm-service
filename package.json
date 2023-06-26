@@ -39,6 +39,7 @@
     "@nestjs/cqrs": "^9.0.4",
     "@nestjs/mongoose": "^9.2.2",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/swagger": "^7.0.4",
     "@nestjs/terminus": "^9.2.2",
     "@types/js-yaml": "^4.0.5",
     "class-transformer": "^0.5.1",
