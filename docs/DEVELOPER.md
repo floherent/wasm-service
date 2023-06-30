@@ -40,11 +40,11 @@ implementation are:
 
 What you will need to get started:
 
+0. have a copy of this repository
 1. choose an IDE or text editor
-2. have a copy of this repository
-3. set up your development environment
-4. download the WASM from Spark
-5. execute the WASM offline.
+2. set up your development environment
+3. download the WASM from Spark
+4. execute the WASM offline.
 
 ### Choose an IDE or text editor
 
@@ -67,7 +67,7 @@ $ npm run start:dev
 > Make sure NPM is installed via `npm -v` (this will output the current version).
 > Feel free to use other Node package managers like `yarn` to proceed.
 
-## Download the WASM from Spark
+### Download the WASM from Spark
 
 Once logged into Spark, navigate to the service you would like to execute offline.
 

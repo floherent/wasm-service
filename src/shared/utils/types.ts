@@ -1,5 +1,7 @@
 export type Nullable<T> = T | null | undefined;
 
+export type BatchStatus = 'created' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'expired';
+
 export type JsonValue =
   | string
   | number

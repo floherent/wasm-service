@@ -47,6 +47,17 @@ export class ExecHistoryNotSaved extends ApiException {
   }
 }
 
+export class BatchSubmissionNotSaved extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super(
+      'BATCH_SUBMISSION_NOT_SAVED',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      `failed to save batch submission for wasm ${id}`,
+      cause,
+    );
+  }
+}
+
 export class BadUploadWasmData extends ApiException {
   constructor(message: string, cause: Error) {
     super('WRONG_UPLOAD_WASM_DATA', HttpStatus.BAD_REQUEST, message, cause);

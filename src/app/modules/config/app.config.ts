@@ -7,13 +7,18 @@ const contextPath = '/';
 const uploadPath = './uploads';
 const dataPath = './wasm-data.csv';
 const servicePort = 8080;
-const cacheSize = 10;
+const cacheSize = 16;
 const wasmDataThreshold = 150; // 150 MB
 const diskThresholdPercent = 0.75; // 512 MB
 const memoryThreshold = 256; // 256 MB
 
 interface Config {
   app: Partial<BaseConfig>;
+  spark: {
+    cacheSize: number;
+    threads: number;
+    replicas: number;
+  };
   health: {
     wasmThreshold: number;
     diskThresholdPercent: number;
@@ -28,7 +33,6 @@ interface BaseConfig {
   contextPath: string;
   uploadPath: string;
   dataPath: string;
-  cacheSize: number;
 }
 
 class AppConfig {
@@ -53,7 +57,11 @@ class AppConfig {
         contextPath: service?.contextPath ?? contextPath,
         uploadPath: service?.uploadPath ?? uploadPath,
         dataPath: service?.dataPath ?? dataPath,
-        cacheSize: parseInt(performance?.cacheSize, 10) ?? cacheSize,
+      },
+      spark: {
+        cacheSize: parseInt(performance?.spark?.cacheSize, 10) ?? cacheSize,
+        threads: parseInt(performance?.spark?.threads, 10) ?? 1,
+        replicas: parseInt(performance?.spark?.replicas, 10) ?? 1,
       },
       health: {
         wasmThreshold: parseInt(performance?.health?.wasmDataThreshold, 10) ?? wasmDataThreshold,

@@ -8,7 +8,6 @@ import { Spark } from '@shared/utils';
 export class WasmService {
   private readonly logger = new Logger(WasmService.name);
   private readonly bucket: string[] = [];
-
   readonly wasms: Map<string, Spark> = new Map(); // could use redis or something else.
 
   constructor(private readonly appConfig: AppConfig) {}
@@ -20,7 +19,7 @@ export class WasmService {
   }
 
   async setWasm(versionId: string, filePath: string) {
-    if (this.wasms.size >= this.appConfig.props.app.cacheSize) {
+    if (this.wasms.size >= this.appConfig.props.spark.cacheSize) {
       const oldest = this.bucket.pop();
       if (oldest) {
         this.wasms.delete(oldest);
@@ -38,9 +37,8 @@ export class WasmService {
   }
 
   private async sparkify(versionId: string, path: string) {
-    // FIXME: caching one model per Spark instances at the moment.
-    this.logger.log(`initiating a new spark instance for wasm (${versionId})`);
+    this.logger.log(`initiating a new Spark instance for wasm (${versionId})`);
     const filePath = join(process.cwd(), path);
-    return await Spark.create({ id: versionId, url: filePath });
+    return await Spark.create({ id: versionId, url: filePath }, this.appConfig.props.spark);
   }
 }

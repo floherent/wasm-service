@@ -8,6 +8,7 @@ import { Result } from 'typescript-result';
 
 import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery, DownloadHistoryQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
+import { Batch, ExecuteBatchCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
@@ -56,6 +57,19 @@ export class ServicesController {
   async executeWasm(@Res() response: Response, @Param('version_id') versionId: string, @Body() body: ExecuteWasmDto) {
     const command = new ExecuteWasmCommand(versionId, body);
     const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(command);
+    const payload = result.getOrThrow();
+
+    response.status(HttpStatus.OK).send(payload);
+  }
+
+  @Post(':version_id/batch')
+  async executeBatch(
+    @Res() response: Response,
+    @Param('version_id') versionId: string,
+    @Body() body: ExecuteWasmDto[],
+  ) {
+    const command = new ExecuteBatchCommand(versionId, body);
+    const result = await this.commandBus.execute<ExecuteBatchCommand, Result<Error, Batch>>(command);
     const payload = result.getOrThrow();
 
     response.status(HttpStatus.OK).send(payload);

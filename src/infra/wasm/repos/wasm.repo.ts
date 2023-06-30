@@ -5,10 +5,11 @@ import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
 import { WasmService } from '@app/modules';
-import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
+import { WasmModel, WasmModelHandler, WasmMapper, BatchModelHandler } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
-import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory } from '@domain/wasm';
+import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, Batch } from '@domain/wasm';
 import { WasmFileNotFound, WasmRecordNotSaved, ExecHistoryNotSaved, ExecHistoryNotFound } from '@shared/errors';
+import { BatchSubmissionNotSaved } from '@shared/errors';
 import { ExecResponseData, Paginated, PaginationQueryParams, SortOrder } from '@shared/utils';
 
 @Injectable()
@@ -63,6 +64,20 @@ export class WasmRepo implements IWasmRepo {
 
     this.saveHistory(result, dto, endTime - startTime);
     return result;
+  }
+
+  async executeBatch(versionId: string, dto: ExecuteWasmDto[]): Promise<Batch> {
+    const batch = Batch.created(versionId, dto.length);
+    try {
+      const path = join(this.appConfig.props.app.uploadPath, `${versionId}_batch.csv`);
+      const model = new BatchModelHandler({ ...batch });
+
+      if (!existsSync(path)) appendFileSync(path, `${model.headers()}`);
+      appendFileSync(path, `\n${model.toCsv()}`);
+    } catch (cause) {
+      throw new BatchSubmissionNotSaved(versionId, cause);
+    }
+    return batch;
   }
 
   async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistory>> {
