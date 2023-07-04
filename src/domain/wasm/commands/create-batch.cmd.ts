@@ -2,22 +2,22 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from 'typescript-result';
 
-import { ExecuteWasmDto, IWasmRepo, Batch, BatchSubmittedEvent } from '@domain/wasm';
+import { ExecuteWasmDto, IWasmRepo, Batch, BatchCreatedEvent } from '@domain/wasm';
 
-export class ExecuteBatchCommand {
+export class CreateBatchCommand {
   constructor(readonly versionId: string, readonly dto: ExecuteWasmDto[]) {}
 }
 
-@CommandHandler(ExecuteBatchCommand)
-export class ExecuteBatchCommandHandler implements ICommandHandler<ExecuteBatchCommand, Result<Error, Batch>> {
+@CommandHandler(CreateBatchCommand)
+export class CreateBatchCommandHandler implements ICommandHandler<CreateBatchCommand, Result<Error, Batch>> {
   constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo, private readonly eventBus: EventBus) {}
 
-  async execute(cmd: ExecuteBatchCommand): Promise<Result<Error, Batch>> {
+  async execute(cmd: CreateBatchCommand): Promise<Result<Error, Batch>> {
     const { versionId, dto } = cmd;
     return Result.safe(async () => {
-      const result = await this.repo.executeBatch(versionId, dto);
+      const result = await this.repo.createBatch(versionId, dto);
       if (result?.id) {
-        const event = new BatchSubmittedEvent(
+        const event = new BatchCreatedEvent(
           result,
           dto.map((d) => d.inputs),
         );

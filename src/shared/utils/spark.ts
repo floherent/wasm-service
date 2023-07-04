@@ -1,5 +1,5 @@
 import { WasmRunner } from '@coherentglobal/wasm-runner';
-import { ExecRequestData, ExecResponseData } from './types';
+import { ExecRequestData, ExecResponseData, JsonValue } from './types';
 
 export interface SparkOptions {
   replicas?: number;
@@ -48,21 +48,24 @@ export class Spark {
     return spark;
   }
 
-  async execute(versionId: string, data: ExecRequestData) {
-    const index = Math.floor(Math.random() * this.replicas); // so far no way to know which replica is busy.
-    return (await this.runners[index].execute(data, versionId)) as ExecResponseData;
+  async dispose() {
+    for (const runner of this.runners) {
+      await runner.remove(this.model.id);
+    }
+    this.runners.splice(0, this.replicas);
   }
 
-  async executeAll(versionId: string, data: ExecRequestData[]) {
-    const blockSize = Math.ceil(data.length / this.replicas); // 100 units / 4 replicas = 25 units per replica
-    const blocks = [];
+  async execute(data: ExecRequestData, position?: number) {
+    const index = position ?? Math.floor(Math.random() * this.replicas); // so far no way to know which replica is busy.
+    return (await this.runners[index].execute(data, this.model.id)) as ExecResponseData;
+  }
 
-    for (let i = 0; i < this.replicas; i++) {
-      blocks.push(data.slice(i * blockSize, (i + 1) * blockSize));
+  async executeAll(data: ExecRequestData[]) {
+    const results: ExecResponseData[] = [];
+    for await (const batch of this.executeBatches(data)) {
+      results.push(...batch);
     }
-
-    const handlers = this.runners.map((runner, i) => runner.execute(blocks[i], versionId));
-    return await Promise.all(handlers);
+    return results;
   }
 
   async increaseBy(unit = 1) {
@@ -86,9 +89,32 @@ export class Spark {
       yield runner;
     }
   }
+
+  private async *executeBatches(data: ExecRequestData[]) {
+    const units = this.replicas;
+    const size = Math.ceil(data.length / units);
+    const batches = Array.from({ length: size }, (_, i) => data.slice(i * units, (i + 1) * units));
+
+    for (const batch of batches) {
+      const handlers = batch.map((b, i) => this.runners[i].execute(b, this.model.id));
+      const all = await Promise.all(handlers);
+      yield all.flat() as ExecResponseData[];
+    }
+  }
 }
 
 interface Model {
   id: string; // version_id
   url: string; // absolute path to wasm file
 }
+
+export const buildRequest = (versionId: string, inputs: JsonValue) => {
+  return {
+    request_data: { inputs },
+    request_meta: {
+      version_id: versionId,
+      call_purpose: 'Offline Execution',
+      source_system: 'wasm-service',
+    },
+  } as ExecRequestData;
+};

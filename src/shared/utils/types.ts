@@ -19,11 +19,11 @@ export interface ExecRequestData {
   request_meta: {
     version_id: string;
     call_purpose: string;
-    source_system: string;
-    correlation_id: string;
-    requested_output: Nullable<string>;
-    service_category: string;
-    compiler_type: Nullable<string>;
+    source_system?: string;
+    correlation_id?: string;
+    requested_output?: string;
+    service_category?: string;
+    compiler_type?: string;
   };
 }
 
