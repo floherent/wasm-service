@@ -1,5 +1,5 @@
 import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, UseFilters, HttpStatus } from '@nestjs/common';
-import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Headers, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -63,12 +63,32 @@ export class ServicesController {
   }
 
   @Post(':version_id/batch')
-  async createBatch(@Res() response: Response, @Param('version_id') versionId: string, @Body() body: ExecuteWasmDto[]) {
-    const command = new CreateBatchCommand(versionId, body);
+  async createBatch(
+    @Res() response: Response,
+    @Param('version_id') versionId: string,
+    @Headers('ws-client-id') clientId: string | undefined,
+    @Body() body: ExecuteWasmDto[],
+  ) {
+    const command = new CreateBatchCommand(versionId, clientId, body);
     const result = await this.commandBus.execute<CreateBatchCommand, Result<Error, Batch>>(command);
     const payload = result.getOrThrow();
 
-    response.status(HttpStatus.OK).send(payload);
+    response.status(HttpStatus.CREATED).send(payload);
+  }
+
+  @Get(':version_id/batch')
+  async getBatchStatus(
+    @Res() response: Response,
+    @Param('version_id') versionId: string,
+    @Headers('ws-client-id') clientId: string | undefined,
+  ) {
+    response.status(HttpStatus.OK).send({ status: 'in_progress', data: { versionId, clientId } });
+  }
+
+  @Get(':version_id/batch/file')
+  async downloadBatchExecFile(@Res() response: Response, @Param('version_id') versionId: string) {
+    this.logger.log(`batch execution file (${versionId}) has been downloaded.`);
+    response.contentType('text/csv').status(HttpStatus.OK).send('some,file,content');
   }
 
   @ApiQuery({ name: 'page', required: false, example: 1 })

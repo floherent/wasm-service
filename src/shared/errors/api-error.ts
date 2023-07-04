@@ -58,6 +58,12 @@ export class BatchSubmissionNotSaved extends ApiException {
   }
 }
 
+export class BatchExecNotSaved extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super('BATCH_EXECUTION_NOT_SAVED', HttpStatus.UNPROCESSABLE_ENTITY, `failed to save batch execution ${id}`, cause);
+  }
+}
+
 export class BadUploadWasmData extends ApiException {
   constructor(message: string, cause: Error) {
     super('WRONG_UPLOAD_WASM_DATA', HttpStatus.BAD_REQUEST, message, cause);

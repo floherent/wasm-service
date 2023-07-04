@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { existsSync, readFileSync, appendFileSync, unlinkSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
 import { WasmService } from '@app/modules';
-import { WasmModel, WasmModelHandler, WasmMapper, BatchModelHandler } from '@infra/wasm';
+import { WasmModel, WasmModelHandler, WasmMapper, BatchModelHandler, BatchExecModelHandler } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
 import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, Batch } from '@domain/wasm';
-import { WasmFileNotFound, ExecHistoryNotFound } from '@shared/errors';
+import { WasmFileNotFound, ExecHistoryNotFound, BatchExecNotSaved } from '@shared/errors';
 import { BatchSubmissionNotSaved, WasmRecordNotSaved, ExecHistoryNotSaved } from '@shared/errors';
 import { ExecResponseData, JsonValue, Paginated, PaginationQueryParams, SortOrder, buildRequest } from '@shared/utils';
 
@@ -45,8 +45,8 @@ export class WasmRepo implements IWasmRepo {
     return result;
   }
 
-  async createBatch(versionId: string, dto: ExecuteWasmDto[]): Promise<Batch> {
-    const batch = Batch.created(versionId, dto.length);
+  async createBatch(versionId: string, clientId: string, dto: ExecuteWasmDto[]): Promise<Batch> {
+    const batch = Batch.created(versionId, clientId, dto.length);
     try {
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}_batch.csv`);
       const model = new BatchModelHandler({ ...batch });
@@ -62,14 +62,12 @@ export class WasmRepo implements IWasmRepo {
   async executeBatch(batch: Batch, records: JsonValue[]) {
     const wasm = await this.findWasm(batch.service_id);
     const requests = records.map((r) => buildRequest(batch.service_id, r));
-
     const startTime = performance.now();
     const result = await wasm.executeAll(requests);
     const endTime = performance.now();
 
-    // TODO: save the batch history
-    console.log('batch exec duration', endTime - startTime);
-    return result;
+    this.saveBatchExec(batch.id, result);
+    return Batch.completed(batch, result.length, result.length, endTime - startTime);
   }
 
   async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistory>> {
@@ -156,5 +154,24 @@ export class WasmRepo implements IWasmRepo {
       wasm = await this.wasmService.setWasm(versionId, model.file_path);
     }
     return wasm;
+  }
+
+  private saveBatchExec(batchId: string, results: ExecResponseData[]): void {
+    try {
+      const path = join(this.appConfig.props.app.uploadPath, `${batchId}_batch_exec.csv`);
+      const models = results.map(
+        (result) =>
+          new BatchExecModelHandler({
+            inputs: '{}',
+            outputs: JSON.stringify(result?.response_data?.outputs),
+            process_time: `${result?.response_meta?.process_time}ms`,
+          }),
+      );
+
+      const content = BatchExecModelHandler.headers() + '\n' + models.map((m) => m.toCsv()).join('\n');
+      appendFileSync(path, content);
+    } catch (cause) {
+      throw new BatchExecNotSaved(batchId, cause);
+    }
   }
 }

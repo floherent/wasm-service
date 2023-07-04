@@ -6,14 +6,29 @@ export class Batch {
     readonly id: string,
     readonly status: BatchStatus,
     readonly service_id: string,
+    readonly client_id: string | undefined,
     readonly executed_at: Date,
     readonly total_inputs = 0,
     readonly total_processed = 0,
     readonly total_outputs = 0,
-    public duration_in_ms: number | undefined = undefined,
+    readonly duration_in_ms: number | undefined = undefined,
   ) {}
 
-  static created(serviceId: string, totalInputs: number): Batch {
-    return new Batch(uuid(), 'created', serviceId, new Date(), totalInputs);
+  static created(serviceId: string, clientId: string, totalInputs: number): Batch {
+    return new Batch(uuid(), 'created', serviceId, clientId, new Date(), totalInputs);
+  }
+
+  static completed(batch: Batch, totalProcessed: number, totalOutputs: number, durationInMs: number): Batch {
+    return new Batch(
+      batch.id,
+      'completed',
+      batch.service_id,
+      batch.client_id,
+      batch.executed_at,
+      batch.total_inputs,
+      totalProcessed,
+      totalOutputs,
+      durationInMs,
+    );
   }
 }
