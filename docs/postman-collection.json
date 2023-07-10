@@ -2,6 +2,7 @@
   "info": {
     "_postman_id": "bdb7ce88-d84a-43df-abb2-4b4873f4ab3b",
     "name": "wasm-service",
+    "description": "# API Reference\n\nThis API covers some basic use cases to help you get started:\n\n| Use case | Resources |\n| --- | --- |\n| Upload a WASM module | `PUT /v1/services/{version_id}` |\n| Execute a WASM module | `POST /v1/services/{version_id}/execute` |\n| Get the WASM execution history | `GET /v1/services/{version_id}/history` |\n| Download a WASM module | `GET /v1/services/{version_id}` |\n| Delete a WASM module | `DELETE /v1/services/{version_id}` |\n\nAdditionally, the service includes a health check endpoint to verify that the service is up and running: `GET /health`.\n\nFind more details about the API endpoints in the API reference section of the Developer Guide on GitHub.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -61,7 +62,7 @@
       "response": []
     },
     {
-      "name": "execute one wasm",
+      "name": "execute wasm",
       "request": {
         "method": "POST",
         "header": [],
@@ -83,7 +84,7 @@
       "response": []
     },
     {
-      "name": "retrieve wasm execution history",
+      "name": "fetch execution history",
       "request": {
         "method": "GET",
         "header": [],

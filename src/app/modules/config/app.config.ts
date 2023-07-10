@@ -3,44 +3,18 @@ import { readFileSync as read } from 'fs';
 import * as yaml from 'js-yaml';
 
 const configPath: string = process.env['WS_CONFIG_PATH'] ?? '.config/config.yml';
-const contextPath = '/';
-const uploadPath = './uploads';
-const dataPath = './wasm-data.csv';
-const servicePort = 8080;
-const cacheSize = 10;
-const wasmDataThreshold = 150; // 150 MB
-const diskThresholdPercent = 0.75; // 512 MB
-const memoryThreshold = 256; // 256 MB
-
-interface Config {
-  app: Partial<BaseConfig>;
-  health: {
-    wasmThreshold: number;
-    diskThresholdPercent: number;
-    memoryThreshold: number;
-  };
-}
-
-interface BaseConfig {
-  name: string;
-  description: string;
-  port: number;
-  contextPath: string;
-  uploadPath: string;
-  dataPath: string;
-  cacheSize: number;
-}
 
 class AppConfig {
   private static _instance: AppConfig;
   private readonly _config: Config;
+  private readonly logger = new Logger(AppConfig.name);
 
   get props(): Config {
     return this._config;
   }
 
   private constructor() {
-    Logger.log(`Loading config from ${configPath}`);
+    this.logger.log(`Loading config from ${configPath}`);
 
     const config = yaml.load(read(configPath, 'utf-8')) as Record<string, any>;
     const service = config?.service;
@@ -49,16 +23,20 @@ class AppConfig {
       app: {
         name: config?.name,
         description: config?.description,
-        port: parseInt(service?.port, 10) ?? servicePort,
-        contextPath: service?.contextPath ?? contextPath,
-        uploadPath: service?.uploadPath ?? uploadPath,
-        dataPath: service?.dataPath ?? dataPath,
-        cacheSize: parseInt(performance?.cacheSize, 10) ?? cacheSize,
+        port: parseInt(service?.port, 10) ?? 8080,
+        contextPath: service?.contextPath ?? '/',
+        uploadPath: service?.uploadPath ?? './uploads',
+        dataPath: service?.dataPath ?? './uploads/wasm-data.csv',
+      },
+      spark: {
+        cacheSize: parseInt(performance?.spark?.cacheSize, 10) ?? 16,
+        threads: parseInt(performance?.spark?.threads, 10) ?? 1,
+        replicas: parseInt(performance?.spark?.replicas, 10) ?? 1,
       },
       health: {
-        wasmThreshold: parseInt(performance?.health?.wasmDataThreshold, 10) ?? wasmDataThreshold,
-        diskThresholdPercent: parseFloat(performance?.health?.diskThresholdPercent) ?? diskThresholdPercent,
-        memoryThreshold: parseInt(performance?.health?.memoryThreshold, 10) ?? memoryThreshold,
+        diskThresholdPercent: parseFloat(performance?.health?.indicators?.disk) ?? 0.75, // 75%
+        wasmThreshold: parseInt(performance?.health?.indicators?.wasm, 10) ?? 150, // 150 MB
+        memoryThreshold: parseInt(performance?.health?.indicators?.memory, 10) ?? 256, // 256 MB
       },
     };
   }
@@ -69,13 +47,13 @@ class AppConfig {
 
   printUsage(verbose = false): void {
     const { app } = this._config;
-    Logger.log(`${app.name} running on port ${app.port}...`);
+    const description = app.description ? `(${app.description})` : '';
+    Logger.log(`${app.name} ${description} running on port ${app.port}...`);
     if (verbose) this.printVerbose();
   }
 
   printVerbose(): void {
-    Logger.log(`Printing app config`, AppConfig.name);
-    console.log(this._config);
+    this.logger.log(`Printing app config: \n${JSON.stringify(this._config, null, 2)}`);
   }
 }
 
@@ -84,5 +62,26 @@ class AppConfig {
  * @returns {Config} the app config
  */
 export const loadConfig = (): Config => AppConfig.getInstance().props;
+
+interface Config {
+  app: {
+    name: string;
+    description: string;
+    port: number;
+    contextPath: string;
+    uploadPath: string;
+    dataPath: string;
+  };
+  spark: {
+    cacheSize: number;
+    threads: number;
+    replicas: number;
+  };
+  health: {
+    wasmThreshold: number;
+    diskThresholdPercent: number;
+    memoryThreshold: number;
+  };
+}
 
 export { AppConfig, Config };

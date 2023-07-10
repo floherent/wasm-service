@@ -1,26 +1,27 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 
-import { ApiException } from './api-error';
+import { ApiException, ApiError } from './api-error';
 
-@Catch(HttpException)
+@Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus();
+    let error: ApiError;
 
-    const error =
-      exception instanceof ApiException
-        ? exception.getResponse()
-        : {
-            status: status === HttpStatus.INTERNAL_SERVER_ERROR ? HttpStatus.UNPROCESSABLE_ENTITY : status,
-            message: exception.message,
-            code: 'UNABLE_TO_PROCESS_REQUEST',
-            cause: exception.cause ?? undefined,
-          };
+    if (exception instanceof ApiException) {
+      error = exception.getResponse() as ApiError;
+    } else if (exception instanceof HttpException) {
+      const status = exception.getStatus();
+      const cause = status === HttpStatus.SERVICE_UNAVAILABLE ? exception.getResponse()['error'] : exception.cause;
+      const message = status === HttpStatus.SERVICE_UNAVAILABLE ? 'Service unhealthy' : exception.message;
+      error = { status, message, cause };
+    } else {
+      error = new ApiException(null, null, exception).getResponse() as ApiError;
+    }
 
-    Logger.error(error, exception.stack, 'ApiExceptionFilter');
-    response.status(status).json({ error });
+    Logger.error(error.message, 'ApiExceptionFilter');
+    response.status(error.status).json({ error });
   }
 }

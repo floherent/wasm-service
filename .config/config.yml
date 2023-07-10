@@ -8,8 +8,12 @@ service:
   dataPath: uploads/wasm-data.csv
 
 performance:
-  cacheSize: 16
+  spark:
+    cacheSize: 16
+    threads: 1
+    replicas: 2
   health:
-    wasmDataThreshold: 512 # size in MB
-    diskThresholdPercent: 0.75
-    memoryThreshold: 256 # size in MB
+    indicators:
+      disk: 0.75 # percentage
+      wasm: 512 # size in MB
+      memory: 256 # size in MB
