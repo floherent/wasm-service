@@ -1,4 +1,5 @@
 import { WasmRunner } from '@coherentglobal/wasm-runner';
+
 import { ExecRequestData, ExecResponseData, JsonValue } from './types';
 
 export interface SparkOptions {

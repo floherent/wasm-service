@@ -1,5 +1,6 @@
-import { DEFAULT_LIMIT_PAGE, DEFAULT_SKIP_PAGE } from '@shared/constants';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+import { DEFAULT_LIMIT_PAGE, DEFAULT_SKIP_PAGE } from '@shared/constants';
 
 export enum SortOrder {
   ASC = 'asc',

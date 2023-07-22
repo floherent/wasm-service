@@ -8,7 +8,7 @@ This guide will walk you through:
 - a reference implementation for running the [Web Assembly][wasm.org] (WASM)
   module, also known as *offline deployments*,
 - and the steps that help you set up a development environment and extend the
-  service's functionality to suit your needs.
+  service's functionality.
 
 ## Introduction
 
@@ -25,14 +25,11 @@ The `ServicesModule` is a simple module that exposes a few endpoints, among them
 one that relies heavily on the [@coherentglobal/wasm-runner][wasm-runner]
 Node.js package's core logic.
 
-Some other coding techniques and best practices considered throughout this service
+Some other coding techniques and practices considered throughout this service
 implementation are:
 
-- [S.O.L.I.D.](https://en.wikipedia.org/wiki/SOLID)
 - [CQRS](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)
 - [DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
-- [Clean Code](https://en.wikipedia.org/wiki/Robert_C._Martin)
-- [Semantic Versioning](https://semver.org/)
 - [Docker](https://www.docker.com/)
 - [OpenAPI](https://swagger.io/specification/)
 
@@ -72,9 +69,9 @@ $ npm run start:dev
 Once logged into Spark, navigate to the service you would like to execute offline.
 
 - From the folder page in Spark: select the service > click the 3-dot menu >
-  click on **View in File Manager**.
-- Once the file manager page is loaded, locate **your-service.zip** among a list
-  of files related to your service, click the 3-dot menu and select **Download**.
+  click on **Download service**.
+- In the "Download service" modal, choose the version you'd like to download and
+  in "Select file type" choose **Web Assembly Module**.
 
 If you would like to check if you got the correct zip file, you can unzip it and
 make sure the following files are present:
@@ -84,8 +81,8 @@ make sure the following files are present:
 - `your-service.js`
 - and some other files (e.g. checksums, etc.)
 
-> Please write down the `versionId` of the WASM that you downloaded since you will
-> be needing it as a unique identifier to execute the WASM.
+> You may write down the `versionId` of the WASM that you downloaded if you want
+> to use it as a unique identifier to execute the WASM.
 > You may choose to use the [wasm file](../examples/ExpectedCreditLossesModel.zip)
 > (and its versionId: `e57f48e7-fe8c-4202-b8bc-5d366cf1eee9`) provided in this
 > repository as well.
@@ -98,7 +95,7 @@ See the [Execute a WASM module](#execute-a-wasm-module) in the
 ## Application configuration
 
 The configuration for the WASM service is stored in a YAML file named `config.yml`.
-This [file](../.config/config.yml) contains various parameters that can be adjusted
+That [file](../.config/config.yml) contains various parameters that can be adjusted
 to customize the behavior of the service.
 
 You may save a configuration file in a different location and specify its path
@@ -141,23 +138,25 @@ The service configuration section includes the following parameters:
 
 The performance configuration section includes the following parameters:
 
-- `performance.cacheSize`: specifies the number of wasm instances to cache. The
-  cache is used to store frequently accessed data to improve performance. By
-  default, the cache size is set to **10**.
-- `performance.health.wasmDataThreshold`: sets the threshold size in megabytes
-  (MB) for the health check related to the WASM data. If the size of the data
+- `performance.spark.cacheSize`: specifies the number of service instances to cache.
+  The cache is used to store frequently accessed wasms to improve performance. By
+  default, the cache size is set to **16**.
+- `performance.spark.threads`: default to 1, specifies the number of parallel threads
+  to use for the WASM execution.
+- `performance.spark.replicas`: default to 2, specifies the number of replicas to
+  use for the WASM execution.
+- `performance.health.indicators.disk`: sets the threshold in percentage
+  (between 0.0 and 1.0) for the disk usage. By default, it is set to 0.75%.
+- `performance.health.indicators.wasm`: sets the threshold size in megabytes
+  for the health check related to the WASM data. If the size of the data
   exceeds this threshold, it may indicate potential performance issues. The default
-  threshold is set to 150 MB.
-- `performance.health.diskThresholdPercent`: sets the threshold size in megabytes (MB)
-  for the health check related to disk usage. If the available disk space falls
-  below this threshold, it may impact the service's performance. The default
-  value is set to 0.75%.
-- `performance.health.memoryThreshold`: sets the threshold size in megabytes (MB)
+  threshold is set to 512 MB.
+- `performance.health.indicators.memory`: sets the threshold size in megabytes
   for the health check related to memory usage. If the memory consumption exceeds
   this threshold, it may affect the service's performance. The default value is
   set to 256 MB.
 
-These configuration parameters can be modified as per the requirements of the
+**NOTE**: These configuration parameters can be modified as per requirements of the
 deployment environment and the specific needs of the WASM service. It is important
 to review and adjust these settings appropriately to ensure optimal performance
 and reliability.
@@ -167,7 +166,7 @@ and reliability.
 The base URL for all the endpoints is `http://localhost:8080`.
 See the [Postman collection](postman-collection.json) for more details.
 
-Additionally, you can use the Swagger UI `http://localhost:8080/docs` to
+Additionally, you can use the Swagger UI (WIP) `http://localhost:8080/docs` to
 visualize and explore the API endpoints.
 
 ### Check health status
@@ -184,7 +183,7 @@ This endpoint checks the following health indicators:
 It can also be used by a Kubernetes cluster to determine whether the service is
 up and running or not.
 
-Response: **200 OK** / **503 Service Unavailable**
+Response: **200-OK** / **503-Service Unavailable**
 
 ```json
 {
@@ -212,6 +211,9 @@ Response: **200 OK** / **503 Service Unavailable**
 
 PUT /v1/services/**{version_id}** - Upload a WASM bundle file.
 
+> NOTE: if the `version_id` is not provided, the service will generate one for
+> the uploaded WASM file.
+
 Body: **multipart/form-data**
 
 - **wasm**: WASM bundle file
@@ -229,7 +231,7 @@ This endpoint is used to upload a WASM bundle file to the service. The file is
 then stored in the file system and the metadata is stored as part of CSV file
 for future references.
 
-Response: **201 Created** / **400 Bad Request** / **422 Unprocessable Entity**
+Response: **201-Created** / **400-Bad Request** / **422-Unprocessable Entity**
 
 ```json
 {
@@ -274,11 +276,10 @@ Body: **application/json**
 }
 ```
 
-This endpoint is used to execute a WASM module. It takes a JSON payload that
-contains the input data for the WASM module. Once executed, the WASM module will
-return a JSON payload that contains the `outputs` data of the calculations.
+This endpoint is used to execute a WASM module. Once executed, it will return a
+JSON payload that contains the `outputs` data of the calculations.
 
-Response: **200 OK** / **400 Bad Request** / **422 Unprocessable Entity**
+Response: **200-OK** / **400-Bad Request** / **422-Unprocessable Entity**
 
 ```json
 {
@@ -332,6 +333,8 @@ Response: **200 OK** / **400 Bad Request** / **422 Unprocessable Entity**
 }
 ```
 
+> NOTE: you may indicate the flag `?flat=true` to return only the output data.
+
 ### Retrieve WASM execution history
 
 GET /v1/services/**{version_id}/history** - Retrieve the execution history of a
@@ -343,7 +346,7 @@ Additionally, it accepts query parameters to paginate the execution history:
 - **limit**: number of records per page
 - **order**: order of the records (asc or desc)
 
-Response: **200 OK** / **400 Bad Request** / **404 Not Found**
+Response: **200-OK** / **400-Bad Request** / **404-Not Found**
 
 ```json
 {
@@ -476,9 +479,9 @@ Response: **200 OK** / **400 Bad Request** / **404 Not Found**
 GET /v1/services/**{version_id}** - Download an existing WASM module.
 
 This endpoint is used to download an existing WASM module. The response will be
-saved as zip file.
+saved as a zip file.
 
-Response: **200 OK** / **404 Not Found** / **422 Unprocessable Entity**
+Response: **200-OK** / **404-Not Found** / **422-Unprocessable Entity**
 
 ### Delete an existing WASM module
 
@@ -487,33 +490,32 @@ DELETE /v1/services/**{version_id}** - Delete an existing WASM module.
 This endpoint is used to delete an existing WASM module to free up space. Both
 the WASM module and its execution history will be deleted.
 
-Response: **204 No Content** / **404 Not Found**
+Response: **204-No Content** / **404-Not Found**
 
 ## Error handling
 
-`ApiException` is a base class for all custom exceptions is used to handle some
-basic errors. Using an `HttpException` filter, the error response is formatted as:
+`ApiException` is a base class for all custom exceptions used to handle some basic
+API errors. Using an `HttpException` filter, the error response is formatted as:
 
 ```json
 {
   "error": {
     "status": 422,
-    "code": "UNABLE_TO_PROCESS_REQUEST",
     "message": "unable to fully process request",
-    "cause": "description of the failure"
+    "cause": "description of the failure if any"
   }
 }
 ```
 
 Some of the derived exceptions are:
 
-| type | status | code | when |
-| ---- | ------ | ---- | ---- |
-|`WasmRecordNotSaved`| 422 | WASM_RECORD_NOT_SAVED | unable to save WASM file record |
-|`WasmFileNotFound`| 404 | WASM_FILE_NOT_FOUND | unable to find WASM file records |
-|`ExecHistoryNotFound`| 404 | EXECUTION_HISTORY_NOT_FOUND | unable to find its execution records |
-|`ExecHistoryNotSaved`| 422 | WASM_FILE_NOT_SAVED | unable to save WASM file |
-|`BadUploadWasmData`| 400 | WRONG_UPLOAD_WASM_DATA | wrong/missing params |
+| type | status | when |
+| ---- | ------ | ---- |
+|`BadUploadWasmData`| 400 | wrong/missing params |
+|`WasmFileNotFound`| 404 | unable to find WASM file records |
+|`ExecHistoryNotFound`| 404 | unable to find its execution records |
+|`WasmRecordNotSaved`| 422 | unable to save WASM file record |
+|`ExecHistoryNotSaved`| 422 | unable to save WASM file |
 
 ## Conceptual references
 
@@ -522,12 +524,12 @@ Some of the derived exceptions are:
 The workflow for a WASM journey involves transferring a zip file through HTTP,
 which is then saved as assets. These assets are later utilized to perform
 sparkified calculations. A record of the upload process is stored in a CSV file
-for future reference and computations.
+for future references and computations.
 
 When an execution request is made, the WASM file is loaded into memory and
-*cached until invalidated*, effectively becoming a Spark instance. The provided
-inputs and version ID are used to run the WASM, and the resulting output is returned
-to the user. As the user submits multiple requests, records of those requests are
+*cached until invalidated*.
+The provided inputs and version ID are used to run the WASM, and the resulting output
+is returned to the user. As the user submits multiple requests, records of those requests are
 saved in a CSV file, which can be retrieved later as part of the API call history.
 
 ### Architecture and design
@@ -538,7 +540,7 @@ handling the different aspects of the service:
 - **Application layer**: This layer manages the application logic and handles
   communication with the infrastructure layer. It processes HTTP requests and
   responses, and includes interceptors and filters.
-- **Infrastructure layer**: The infrastructure layer is responsible for managing
+- **Infrastructure layer**: The one is responsible for managing
   all aspects related to infrastructure, data persistence, and storage systems.
   This includes interactions with the file system and other relevant components.
 - **Domain layer**: The domain layer handles the core business logic of the system.
@@ -548,40 +550,38 @@ handling the different aspects of the service:
   are shared across different layers of the system. It provides reusable components
   and functionalities to enhance the overall development and maintenance process.
 
-### Service roadmap and delivery
+### Service compliance and delivery
 
-| feature | wasm-service | nodegen-server |
-| ------- | ------------ | -------------- |
-| basic documentation    | ✅ | ✅ |
-| api documentation      | ✅ | ❌ |
-| developer guide        | ✅ | ❌ |
-| usage and examples     | ✅ | ❌ |
-| release notes          | ✅ | ❌ |
-| - | - | - |
-| application type       | microservice | monolith |
-| versioning             | ✅ | ❌ |
-| UX and DX              | ✅ | ❌ |
-| service level agreement| ✅ | ❌ |
-| - | - | - |
-| platform/architecture  | arm64/amd64 | amd64 |
-| devOps-ready           | ✅ | ✅ |
-| CI/CD-ready            | ✅ | ❌ |
-| - | - | - |
-| RESTful API            | ✅ | ❌ |
-| version-controlled     | ✅ | ✅ |
-| clean code             | ✅ | ❌ |
-| modular                | ✅ | ❌ |
-| app config             | ✅ | ❌ |
-| logging                | ✅ | ✅ |
-| error handling         | ✅ | ✅ |
-| 5+ use cases           | ✅ | :warning: |
-| testing                | ❌ | ❌ |
-| linting                | ✅ | ❌ |
-| formatting             | ✅ | ❌ |
-| - | - | - |
-| caching/memoization    | ✅ | ❌ |
-| file management        | ✅ | ✅ |
-| security layer         | ❌ | ❌ |
+| feature | compliance |
+| ------- | ---------- |
+| basic documentation    | ✅ |
+| api documentation      | ✅ |
+| developer guide        | ✅ |
+| usage and examples     | ✅ |
+| release notes          | ✅ |
+| - | - |
+| versioning             | ✅ |
+| UX/DX                  | ✅ |
+| service level agreement| ✅ |
+| - | - |
+| devOps-ready           | ✅ |
+| CI/CD-ready            | ✅ |
+| - | - |
+| RESTful API            | ✅ |
+| version-controlled     | ✅ |
+| clean code             | ✅ |
+| modular                | ✅ |
+| app config             | ✅ |
+| logging                | ✅ |
+| error handling         | ✅ |
+| 5+ use cases           | ✅ |
+| testing                | ❌ |
+| linting                | ✅ |
+| formatting             | ✅ |
+| - | - |
+| caching/memoization    | ✅ |
+| file management        | ✅ |
+| security layer         | ❌ |
 
 <!-- References -->
 [wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner "WASM Runner"

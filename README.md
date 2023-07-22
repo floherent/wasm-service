@@ -8,7 +8,7 @@ Coherent Spark.
 The underlying content of this project comprises a sample service (**not** a
 product) that demonstrates how to run WASM modules once _sparkified_. The codebase
 should serve as a reference for developers who wish to integrate WASM modules into
-their own applications.
+their own Node applications.
 
 ## Getting started
 
@@ -55,7 +55,7 @@ $ npm run start # or yarn start
 ### Launching the service via Docker
 
 You can either build a docker image from the codebase (see [Dockerfile](Dockerfile))
-or pull the docker image for this service directly from Docker hub. To run it,
+or pull the docker image for this service directly from a Docker registry (TBD). To run it,
 you will need to have [Docker](https://www.docker.com/) installed on your machine.
 
 ```bash
@@ -73,9 +73,9 @@ by modifying the [configuration](.config/config.yml) file.
 
 The `wasm-service` API covers five basic use cases to help you get started:
 
-| Use case | Resources |
+| Use Cases | Resources |
 | --- | --- |
-| Upload a WASM module | `PUT /v1/services/{version_id}` |
+| Upload a WASM module | `PUT /v1/services[/{version_id}]` |
 | Execute a WASM module | `POST /v1/services/{version_id}/execute` |
 | Get the WASM execution history | `GET /v1/services/{version_id}/history` |
 | Download a WASM module | `GET /v1/services/{version_id}` |
@@ -99,11 +99,11 @@ Developed by [Coherent Global Inc][coherent-site].
 
 Please contact <fieldengineering@coherent.global> with any questions.
 
-## Copyright and license
+## Copyright and licensing
 
-TBD.
+[MIT-licensed](LICENSE).
 
 <!-- References -->
 
 [coherent-site]: https://www.coherent.global
-[user-guide]: https://coherent.gitbook.io/spark/T1wG85lxdoEsRrNQJvPj/
+[user-guide]: https://docs.coherent.global/T1wG85lxdoEsRrNQJvPj/

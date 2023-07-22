@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { existsSync, readFileSync, appendFileSync, unlinkSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
@@ -38,7 +38,7 @@ export class WasmRepo implements IWasmRepo {
     const request = buildRequest(versionId, dto.inputs);
 
     const startTime = performance.now();
-    const result = (await wasm.execute(request)) as ExecResponseData;
+    const result = await wasm.execute(request);
     const endTime = performance.now();
 
     this.saveHistory(result, dto.inputs, endTime - startTime);
@@ -77,7 +77,7 @@ export class WasmRepo implements IWasmRepo {
 
   async download(versionId: string): Promise<Buffer> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
-    if (!existsSync(path)) throw new WasmFileNotFound(`no wasm file defined for version_id: ${versionId}`);
+    if (!existsSync(path)) throw new WasmFileNotFound(`no wasm file defined for version_id <${versionId}>`);
 
     return readFileSync(path);
   }
@@ -92,9 +92,18 @@ export class WasmRepo implements IWasmRepo {
   async delete(versionId: string): Promise<void> {
     const wasmFilePath = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
     const historyFilePath = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
+    const wasmDataPath = join(process.cwd(), this.appConfig.props.app.dataPath);
 
+    this.wasmService.remove(versionId); // remove from cache
     if (existsSync(wasmFilePath)) unlinkSync(wasmFilePath); // delete the WASM file
     if (existsSync(historyFilePath)) unlinkSync(historyFilePath); // delete the CSV history file
+
+    const models = csvParse<WasmModel>(readFileSync(wasmDataPath, 'utf8'), { header: true });
+    const filtered = models.data.filter((row) => row.version_id !== versionId);
+    const updated = filtered.map((row) => new WasmModelHandler({ ...row }).toCsv()).join('\n');
+
+    unlinkSync(wasmDataPath);
+    appendFileSync(wasmDataPath, `${models.meta.fields.join(',')}\n${updated}`); // update the WASM data file
   }
 
   private loadCsvWasm(filePath: string): WasmModelHandler[] {

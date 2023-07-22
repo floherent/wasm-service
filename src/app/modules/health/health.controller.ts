@@ -29,18 +29,18 @@ export class HealthController {
   check() {
     return this.health.check([
       // The used disk storage for wasm should not exceed this threshold.
-      () => this.wasm.isHealthy('wasm data'),
+      () => this.wasm.isHealthy('wasm_data'),
 
       // The used disk storage should not exceed 75% of the full disk size.
       () =>
-        this.disk.checkStorage('disk storage', {
+        this.disk.checkStorage('disk_storage', {
           thresholdPercent: this.DISK_THRESHOLD_PERCENT,
           path: this.PLATFORM_PATH,
         }),
 
       // The used memory heap and RSS/RAM should not exceed this threshold.
-      () => this.memory.checkHeap('memory heap', this.MEMORY_THRESHOLD_IN_MB),
-      () => this.memory.checkRSS('memory rss', this.MEMORY_THRESHOLD_IN_MB),
+      () => this.memory.checkHeap('memory_heap', this.MEMORY_THRESHOLD_IN_MB),
+      () => this.memory.checkRSS('memory_rss', this.MEMORY_THRESHOLD_IN_MB),
     ]);
   }
 }

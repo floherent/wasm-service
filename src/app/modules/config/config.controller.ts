@@ -11,6 +11,28 @@ export class ConfigController {
   @ApiOkResponse({ type: AppConfig, description: 'the current configuration of the wasm-service' })
   @Get()
   findOne() {
-    return this.appConfig.props;
+    const { app, spark, health } = this.appConfig.props;
+    return {
+      app: {
+        name: app.name,
+        description: app.description,
+        port: app.port,
+        context_path: app.contextPath,
+        upload_path: app.uploadPath,
+        data_path: app.dataPath,
+      },
+      spark: {
+        cache_size: spark.cacheSize,
+        threads: spark.threads,
+        replicas: spark.replicas,
+      },
+      health: {
+        indicators: {
+          disk: health.diskThresholdPercent,
+          wasm: health.wasmThreshold,
+          memory: health.memoryThreshold,
+        },
+      },
+    };
   }
 }

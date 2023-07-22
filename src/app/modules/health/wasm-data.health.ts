@@ -8,7 +8,7 @@ import { ONE_KB, ONE_MB } from '@shared/constants';
 
 @Injectable()
 export class WasmHealthIndicator extends HealthIndicator {
-  private readonly WASM_DATA_THRESHOLD_IN_MB: number; // 150 MB
+  private readonly WASM_DATA_THRESHOLD_IN_MB: number;
 
   constructor(private readonly appConfig: AppConfig) {
     super();
@@ -21,7 +21,7 @@ export class WasmHealthIndicator extends HealthIndicator {
     const status = this.getStatus(key, isHealthy, { sizeInMB: +folderSize.mb.toFixed(3) });
 
     if (isHealthy) return status;
-    throw new HealthCheckError('Too many WASM files. Consider deleting unneeded ones.', status);
+    throw new HealthCheckError('too many WASM files; consider deleting unneeded ones!', status);
   }
 
   getFolderSize(folderPath: string) {
