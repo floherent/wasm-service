@@ -1,3 +1,5 @@
+import { BatchData, ExecData } from '@domain/wasm';
+
 export type Nullable<T> = T | null | undefined;
 
 export type BatchStatus = 'created' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'expired';
@@ -12,7 +14,7 @@ export type JsonValue =
       [key: string]: JsonValue;
     };
 
-export interface ExecRequestData {
+export type ExecRequestData = {
   request_data: {
     inputs: JsonValue;
   };
@@ -25,21 +27,8 @@ export interface ExecRequestData {
     service_category?: string;
     compiler_type?: string;
   };
-}
+};
 
-export interface ExecResponseData {
-  response_data: {
-    outputs: JsonValue;
-    errors?: JsonValue;
-    warnings?: JsonValue;
-    service_chain?: JsonValue;
-  };
-  response_meta: {
-    version_id: string;
-    correlation_id?: string;
-    service_category?: string;
-    system?: string;
-    compiler_version?: string;
-    process_time?: number;
-  };
-}
+export type ExecResponseData = ExecData | BatchData;
+
+export type ExecResult = { input: ExecRequestData; output: ExecData; elapsed: number };

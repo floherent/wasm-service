@@ -9,8 +9,6 @@ export class ExecHistoryModel {
 }
 
 export class ExecHistoryModelHandler extends ExecHistoryModel {
-  private readonly _headers = ['version_id', 'inputs', 'outputs', 'executed_at', 'execution_time'];
-
   get asDto(): ExecHistoryModel {
     return new ExecHistoryModel(this.version_id, this.inputs, this.outputs, this.executed_at, this.execution_time);
   }
@@ -32,7 +30,7 @@ export class ExecHistoryModelHandler extends ExecHistoryModel {
     return [this.version_id, this.inputs, this.outputs, this.executed_at, this.execution_time].join(sep ?? this.sep);
   }
 
-  headers(sep?: string): string {
-    return this._headers.join(sep ?? this.sep);
+  static headers(sep?: string): string {
+    return ['version_id', 'inputs', 'outputs', 'executed_at', 'execution_time'].join(sep ?? '|');
   }
 }

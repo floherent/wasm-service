@@ -1,6 +1,7 @@
 import { WasmRunner } from '@coherentglobal/wasm-runner';
 
-import { ExecRequestData, ExecResponseData, JsonValue } from './types';
+import { ExecData } from '@domain/wasm';
+import { ExecRequestData, JsonValue } from './types';
 
 export interface SparkOptions {
   replicas?: number;
@@ -57,13 +58,13 @@ export class Spark {
   }
 
   async execute(data: ExecRequestData, position?: number) {
-    const index = position ?? Math.floor(Math.random() * this.replicas); // so far no way to know which replica is busy.
-    return (await this.runners[index].execute(data, this.model.id)) as ExecResponseData;
+    const index = position ?? Math.floor(Math.random() * this.replicas);
+    return (await this.runners[index].execute(data, this.model.id)) as ExecData;
   }
 
   async executeAll(data: ExecRequestData[]) {
-    const results: ExecResponseData[] = [];
-    for await (const batch of this.executeBatches(data)) {
+    const results: ExecData[] = [];
+    for await (const batch of this.executeAsync(data)) {
       results.push(...batch);
     }
     return results;
@@ -91,7 +92,7 @@ export class Spark {
     }
   }
 
-  private async *executeBatches(data: ExecRequestData[]) {
+  private async *executeAsync(data: ExecRequestData[]) {
     const units = this.replicas;
     const size = Math.ceil(data.length / units);
     const batches = Array.from({ length: size }, (_, i) => data.slice(i * units, (i + 1) * units));
@@ -99,7 +100,7 @@ export class Spark {
     for (const batch of batches) {
       const handlers = batch.map((b, i) => this.runners[i].execute(b, this.model.id));
       const all = await Promise.all(handlers);
-      yield all.flat() as ExecResponseData[];
+      yield all.flat() as ExecData[];
     }
   }
 }
@@ -109,7 +110,14 @@ interface Model {
   url: string; // absolute path to wasm file
 }
 
-export const buildRequest = (versionId: string, inputs: JsonValue) => {
+/**
+ * Builds the request data to be sent to the model.
+ *
+ * @param {string} versionId of the model to be executed
+ * @param {object} inputs data to be executed
+ * @returns {ExecRequestData} expected to run the model.
+ */
+export const buildRequest = (versionId: string, inputs: JsonValue): ExecRequestData => {
   return {
     request_data: { inputs },
     request_meta: {

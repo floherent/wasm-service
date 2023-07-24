@@ -1,14 +1,14 @@
 import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
-import { Controller, Get, Post, Put, Delete, Body, Param, Headers, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Headers, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
 
+import { Batch, CreateBatchCommand } from '@domain/wasm';
 import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery, DownloadHistoryQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
-import { Batch, CreateBatchCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
@@ -54,17 +54,12 @@ export class ServicesController {
   }
 
   @Post(':version_id/execute')
-  async executeWasm(
-    @Res() response: Response,
-    @Param('version_id') versionId: string,
-    @Query('flat') isFlat: boolean,
-    @Body() body: ExecuteWasmDto,
-  ) {
+  async executeWasm(@Res() response: Response, @Param('version_id') versionId: string, @Body() body: ExecuteWasmDto) {
     const command = new ExecuteWasmCommand(versionId, body);
     const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(command);
     const payload = result.getOrThrow();
 
-    response.status(HttpStatus.OK).send(!isFlat ? payload : payload.response_data.outputs);
+    response.status(HttpStatus.OK).send(payload);
   }
 
   @Post(':version_id/batch')

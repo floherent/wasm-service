@@ -7,10 +7,10 @@ import { AppConfig } from '@app/modules/config';
 import { WasmService } from '@app/modules';
 import { WasmModel, WasmModelHandler, WasmMapper, BatchModelHandler, BatchExecModelHandler } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
-import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, Batch } from '@domain/wasm';
+import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, Batch, BatchData, ExecData } from '@domain/wasm';
 import { WasmFileNotFound, ExecHistoryNotFound, BatchExecNotSaved } from '@shared/errors';
 import { BatchSubmissionNotSaved, WasmRecordNotSaved, ExecHistoryNotSaved } from '@shared/errors';
-import { ExecResponseData, JsonValue, Paginated, PaginationQueryParams, SortOrder, buildRequest } from '@shared/utils';
+import { Paginated, PaginationQueryParams, SortOrder, JsonValue, buildRequest, ExecResult } from '@shared/utils';
 
 @Injectable()
 export class WasmRepo implements IWasmRepo {
@@ -33,16 +33,36 @@ export class WasmRepo implements IWasmRepo {
     }
   }
 
-  async execute(versionId: string, dto: ExecuteWasmDto): Promise<ExecResponseData> {
+  async executeOne(versionId: string, dto: ExecuteWasmDto): Promise<ExecData> {
     const wasm = await this.findWasm(versionId);
-    const request = buildRequest(versionId, dto.inputs);
 
-    const startTime = performance.now();
-    const result = await wasm.execute(request);
-    const endTime = performance.now();
+    const input = buildRequest(versionId, dto.inputs);
+    const start = performance.now();
+    const output = await wasm.execute(input);
+    const end = performance.now();
 
-    this.saveHistory(result, dto.inputs, endTime - startTime);
-    return result;
+    this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
+
+    return output;
+  }
+
+  async executeMany(versionId: string, dto: ExecuteWasmDto): Promise<BatchData> {
+    const wasm = await this.findWasm(versionId);
+
+    const inputs = Array.isArray(dto.inputs) ? dto.inputs : [dto.inputs];
+    const results: ExecResult[] = [];
+
+    for (const i of inputs) {
+      const input = buildRequest(versionId, i);
+      const start = performance.now();
+      const output = await wasm.execute(input);
+      const end = performance.now();
+      results.push({ input, output, elapsed: end - start });
+    }
+
+    this.saveHistory(versionId, results);
+
+    return BatchData.from(results);
   }
 
   async createBatch(versionId: string, clientId: string, dto: ExecuteWasmDto[]): Promise<Batch> {
@@ -59,15 +79,17 @@ export class WasmRepo implements IWasmRepo {
     return batch;
   }
 
-  async executeBatch(batch: Batch, records: JsonValue[]) {
+  async runBatch(batch: Batch, records: JsonValue[]) {
     const wasm = await this.findWasm(batch.service_id);
     const requests = records.map((r) => buildRequest(batch.service_id, r));
-    const startTime = performance.now();
+
+    const start = performance.now();
     const result = await wasm.executeAll(requests);
-    const endTime = performance.now();
+    const end = performance.now();
 
     this.saveBatchExec(batch.id, result);
-    return Batch.completed(batch, result.length, result.length, endTime - startTime);
+
+    return Batch.completed(batch, result.length, result.length, end - start);
   }
 
   async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistory>> {
@@ -116,23 +138,24 @@ export class WasmRepo implements IWasmRepo {
     return parsed.data.map((row) => new WasmModelHandler({ ...row }));
   }
 
-  private saveHistory(result: ExecResponseData, inputs: JsonValue, execTime: number): void {
+  private saveHistory(versionId: string, results: ExecResult[]): void {
     try {
-      // FIXME: implement bucketing for save.
-      const version_id = result.response_meta.version_id;
-      const path = join(this.appConfig.props.app.uploadPath, `${version_id}.csv`);
-      const model = new ExecHistoryModelHandler({
-        version_id,
-        inputs: JSON.stringify(inputs),
-        outputs: JSON.stringify(result.response_data.outputs),
-        executed_at: `${Date.now()}`,
-        execution_time: `${execTime.toFixed(2)}ms`,
+      const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
+      const models = results.map((result) => {
+        return new ExecHistoryModelHandler({
+          version_id: versionId,
+          inputs: JSON.stringify(result.input.request_data.inputs),
+          outputs: JSON.stringify(result.output.response_data.outputs),
+          executed_at: Date.now().toString(),
+          execution_time: `${result.elapsed.toFixed(2)}ms`,
+        });
       });
 
-      if (!existsSync(path)) appendFileSync(path, `${model.headers()}`);
-      appendFileSync(path, `\n${model.toCsv()}`);
+      if (!existsSync(path)) appendFileSync(path, `${ExecHistoryModelHandler.headers()}`);
+      const csv = models.map((m) => m.toCsv()).join('\n');
+      appendFileSync(path, `\n${csv}`);
     } catch (cause) {
-      throw new ExecHistoryNotSaved(result.response_meta.version_id, cause);
+      throw new ExecHistoryNotSaved(versionId, cause);
     }
   }
 
@@ -165,13 +188,13 @@ export class WasmRepo implements IWasmRepo {
     return wasm;
   }
 
-  private saveBatchExec(batchId: string, results: ExecResponseData[]): void {
+  private saveBatchExec(batchId: string, results: ExecData[]): void {
     try {
       const path = join(this.appConfig.props.app.uploadPath, `${batchId}_batch_exec.csv`);
       const models = results.map(
         (result) =>
           new BatchExecModelHandler({
-            inputs: '{}',
+            inputs: '{}', // TODO: which inputs to save?
             outputs: JSON.stringify(result?.response_data?.outputs),
             process_time: `${result?.response_meta?.process_time}ms`,
           }),

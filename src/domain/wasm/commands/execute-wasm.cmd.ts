@@ -15,6 +15,11 @@ export class ExecuteWasmCommandHandler implements ICommandHandler<ExecuteWasmCom
 
   async execute(cmd: ExecuteWasmCommand): Promise<Result<Error, ExecResponseData>> {
     const { versionId, dto } = cmd;
-    return Result.safe(async () => await this.repo.execute(versionId, dto));
+
+    return Result.safe(async () => {
+      return dto.kind === 'batch'
+        ? await this.repo.executeMany(versionId, dto)
+        : await this.repo.executeOne(versionId, dto);
+    });
   }
 }
