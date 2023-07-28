@@ -31,7 +31,7 @@ and executing that WASM module within your own application.
 There are two ways to run this service:
 
 - via Docker
-- or using Node on your local machine
+- or using Node on your local machine (or on [Amazon EC2](DEPLOYMENT.md))
 
 Choose the one that best suits your needs. Refer to the [Developer Guide](docs/DEVELOPER.md)
 for more technical details.
