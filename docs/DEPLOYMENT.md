@@ -1,7 +1,5 @@
 # Deploying on Amazon EC2
 
-## AWS Sandbox
-
 This document offers brief guidance on how to run `wasm-service` on a AWS (Amazon
 Web Services) sandbox using Amazon Elastic Compute (EC2) instance.
 
@@ -11,12 +9,14 @@ Web Services) sandbox using Amazon Elastic Compute (EC2) instance.
 
 ## Introduction
 
-The purpose of having a sandbox is to run all sorts of tests within an isolated
-yet controlled environment across your team. But if you intend to take the API
-service to production, please contact our [Customer Success][coherent-helpdesk]
-for assistance.
+This tutorial is intended to teach the basics of deploying a wasm on your own
+infrastructure. It is not intended to articulate a full production-quality
+implementation. A full implementation will involve other considerations like IAM,
+scaling, logging, etc. For more information on how to deploy a production-ready
+API service, please contact our [Customer Success][coherent-helpdesk] for assistance.
 
-Some benefits of having a sandbox are:
+Having a sandbox will help run all sorts of tests within an isolated yet controlled
+environment across your team. Some key benefits include:
 
 * Testing environment (good for experimenting and collaborating)
 * Resource control (adjust the computational resources as needed)
@@ -90,8 +90,8 @@ ssh aws-sandbox
 #### Permission Denied
 
 When using SSH IdentityFile to establish an SSH connection, the SSH agent needs
-the right permission to perform properly. If not, you may run into permission
-denied issues:
+the right permission to perform properly. If not, you may run into "permission
+denied" issues:
 
 ```text
 login_name@ec2-8-8-8-8.compute-1.amazonaws.com: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
@@ -105,7 +105,7 @@ chmod 700 '~/.ssh/keys/my_key.pem'
 
 #### Wrong `login_name`
 
-If the `login_name` is not set properly or missing, you may run into a warning/
+If the `login_name` is not set properly or missing, you may run into a warning /
 error denying access to the sandbox. For example, if the `login_name` does not
 exist in `~/.ssh/config` as `User`, SSH will assume your current username from
 your environment variable.
@@ -121,9 +121,9 @@ folder to the sandbox. Then you can build and run the service.
 
 ### Transfer the Repo to EC2
 
-Start by copying the `wasm-service` folder to the EC2 instance via SSH. The `scp`
-command, which stands for "secure copy," allows you to securely transfer files
-and directories between your local machine and the remote EC2 instance.
+Start by copying the `wasm-service` folder to the EC2 instance via secure shell.
+The `scp` command, which stands for "secure copy," allows you to securely transfer
+files and directories between your local machine and the remote EC2 instance.
 
 ```bash
 scp -i ~/.ssh/keys/my_key.pem -r /path/to/local/folder ec2-user@ec2-8-8-8-8.compute-1.amazonaws.com:/path/to/remote/folder
@@ -162,6 +162,8 @@ sandbox. The following example uses `curl` to send a request to the sandbox.
 # Use the sandbox's IP address or domain name
 curl http://ec2-8-8-8-8.compute-1.amazonaws.com:8080/health
 ```
+
+Happy deploying 🎉!
 
 <!-- References -->
 [ec2-docs]: https://docs.aws.amazon.com/ec2/index.html

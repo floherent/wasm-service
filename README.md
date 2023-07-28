@@ -97,7 +97,9 @@ this project.
 
 Developed by [Coherent Global Inc][coherent-site].
 
-Please contact <fieldengineering@coherent.global> with any questions.
+Please contact <fieldengineering@coherent.global> with any questions or feedback.
+Also, feel free to pose your questions on the [Coherent Spark community][coherent-community]
+platform.
 
 ## Copyright and licensing
 
@@ -106,4 +108,5 @@ Please contact <fieldengineering@coherent.global> with any questions.
 <!-- References -->
 
 [coherent-site]: https://www.coherent.global
-[user-guide]: https://docs.coherent.global/T1wG85lxdoEsRrNQJvPj/
+[coherent-community]: https://ignitors.coherent.global/
+[user-guide]: https://docs.coherent.global/
