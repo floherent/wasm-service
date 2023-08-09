@@ -3,7 +3,7 @@ ENV PORT 8080
 EXPOSE 8080
 WORKDIR /app
 COPY . .
-RUN npm ci
+RUN npm install
 RUN npm run build && npm prune --production
 RUN rm -rf src test
 CMD ["node", "dist/main"]
