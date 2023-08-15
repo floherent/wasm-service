@@ -6,8 +6,9 @@ import { ApiBody, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
 
-import { UploadWasmDto, ExecuteWasmDto, ExecHistory, DownloadWasmQuery, DownloadHistoryQuery } from '@domain/wasm';
-import { UploadWasmCommand, ExecuteWasmCommand, GetHistoryQuery, DeleteWasmCommand } from '@domain/wasm';
+import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory } from '@domain/wasm';
+import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
+import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
@@ -36,6 +37,20 @@ export class ServicesController {
     const data = await UploadWasmDto.validate(versionId, body?.data);
     const command = new UploadWasmCommand(data, file);
     const result = await this.commandBus.execute<UploadWasmCommand, Result<Error, WasmModel>>(command);
+    const payload = result.getOrThrow();
+
+    this.logger.log(`wasm file <${payload.version_id}> has been uploaded.`);
+    response.status(HttpStatus.CREATED).send(payload);
+  }
+
+  @Post(['', ':version_id'])
+  async addWasmFileByUri(
+    @Res() response: Response,
+    @Param('version_id') versionId: string | undefined,
+    @Body() body: AddWasmByUriDto,
+  ) {
+    const command = new AddWasmByUriCommand(body, versionId);
+    const result = await this.commandBus.execute<AddWasmByUriCommand, Result<Error, WasmModel>>(command);
     const payload = result.getOrThrow();
 
     this.logger.log(`wasm file <${payload.version_id}> has been uploaded.`);

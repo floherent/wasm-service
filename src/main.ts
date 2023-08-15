@@ -25,8 +25,8 @@ async function bootstrap() {
     .addTag('config', 'endpoints for viewing the wasm-service configuration')
     .addTag('services', 'endpoints for managing wasm bundle files')
     .build();
-  const openAidocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, openAidocument);
+  const openApidocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('docs', app, openApidocument);
 
   await app.listen(appConfig.props.app.port);
   appConfig.printUsage();

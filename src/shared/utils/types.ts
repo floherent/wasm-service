@@ -41,3 +41,10 @@ export interface ExecResponseData {
     process_time?: number;
   };
 }
+
+export interface ExternalWasm {
+  filename: string;
+  url: string;
+  path: string;
+  size: number;
+}
