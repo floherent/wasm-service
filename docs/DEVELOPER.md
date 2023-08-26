@@ -22,7 +22,7 @@ It is composed of several modules that can be easily extended or updated to suit
 your needs. Those modules are: `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
 The `ServicesModule` is a simple module that exposes a few endpoints, among them,
-one that relies heavily on the [@coherentglobal/wasm-runner][wasm-runner]
+one that relies heavily on the [@coherentglobal/wasm-runner@0.0.102][wasm-runner]
 Node.js package's core logic.
 
 Some other coding techniques and practices considered throughout this service

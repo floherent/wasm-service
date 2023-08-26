@@ -3,11 +3,11 @@ import { TerminusModule } from '@nestjs/terminus';
 
 import { AppConfigModule } from '@app/modules/config';
 import { HealthController } from './health.controller';
-import { WasmHealthIndicator } from './wasm-data.health';
+import { WasmDataHealthIndicator } from './wasm-data.health';
 
 @Module({
   imports: [TerminusModule, AppConfigModule],
   controllers: [HealthController],
-  providers: [WasmHealthIndicator],
+  providers: [WasmDataHealthIndicator],
 })
 export class HealthModule {}

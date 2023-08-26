@@ -51,7 +51,7 @@ export class WasmRepo implements IWasmRepo {
 
   async download(versionId: string): Promise<Buffer> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
-    if (!existsSync(path)) throw new WasmFileNotFound(`no wasm file defined for version_id <${versionId}>`);
+    if (!existsSync(path)) throw new WasmFileNotFound(versionId);
 
     return readFileSync(path);
   }
