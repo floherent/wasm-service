@@ -14,6 +14,6 @@ performance:
     replicas: 2
   health:
     indicators:
-      disk: 0.75 # percentage
-      wasm: 512 # size in MB
-      memory: 256 # size in MB
+      disk: 0.75
+      wasm: 512
+      memory: 256
