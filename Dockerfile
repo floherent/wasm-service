@@ -6,6 +6,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install --ignore-scripts && npm run build; rm -rf src test
+RUN yarn install --ignore-scripts && yarn run build ; rm -rf src test
 
 CMD ["node", "dist/main"]
