@@ -32,3 +32,10 @@ export type ExecRequestData = {
 export type ExecResponseData = ExecData | BatchData;
 
 export type ExecResult = { input: ExecRequestData; output: ExecData; elapsed: number };
+
+export interface ExternalWasm {
+  filename: string;
+  url: string;
+  path: string;
+  size: number;
+}

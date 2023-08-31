@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WASM Service Configuration",
+  "type": "object",
+  "required": ["name", "service"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "description": "Name of the service",
+      "type": "string"
+    },
+    "description": {
+      "description": "Description of the service",
+      "type": "string"
+    },
+    "service": {
+      "description": "API Service configuration",
+      "type": "object",
+      "properties": {
+        "port": {
+          "description": "Port number of the service",
+          "type": "integer",
+          "default": 8080
+        },
+        "contextPath": {
+          "description": "Context path of the service; API endpoints will be prefixed with this path",
+          "type": "string",
+          "format": "uri",
+          "default": "/"
+        },
+        "uploadPath": {
+          "description": "Directory path where the uploaded files will be stored",
+          "default": "uploads",
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "string",
+              "pattern": "^\\w+$"
+            }
+          ]
+        },
+        "dataPath": {
+          "description": "File path for storing the records of the upload process (in CSV)",
+          "$comment": "supported headers: version_id,file_name,file_path,original_name,size,uploaded_at,service_name,revision,username",
+          "type": "string",
+          "pattern": "^.*\\.(c|t)sv$",
+          "default": "uploads/wasm-data.csv"
+        }
+      },
+      "required": ["port"],
+      "additionalProperties": false
+    },
+    "performance": {
+      "description": "Performance configuration",
+      "type": "object",
+      "properties": {
+        "spark": {
+          "description": "Spark runner configuration",
+          "type": "object",
+          "properties": {
+            "cacheSize": {
+              "description": "Number of Spark runners to cache",
+              "type": "integer",
+              "minimum": 1,
+              "default": 16
+            },
+            "threads": {
+              "description": "Number of threads to use per Spark runner",
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "replicas": {
+              "description": "Number of Spark runner replicas",
+              "type": "integer",
+              "minimum": 1,
+              "default": 2
+            }
+          }
+        },
+        "health": {
+          "description": "Health check configuration",
+          "type": "object",
+          "properties": {
+            "indicators": {
+              "description": "Health check indicators",
+              "type": "object",
+              "properties": {
+                "disk": {
+                  "description": "Threshold in percentage for disk usage",
+                  "type": "number",
+                  "exclusiveMinimum": 0.0,
+                  "exclusiveMaximum": 1.0,
+                  "default": 0.75
+                },
+                "wasm": {
+                  "description": "Threshold in MB for WASM file storage",
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 512
+                },
+                "memory": {
+                  "description": "Threshold in MB for heap and RSS memory usage",
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 256
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["spark"],
+      "additionalProperties": false
+    }
+  }
+}

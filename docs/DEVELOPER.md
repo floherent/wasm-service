@@ -6,7 +6,7 @@ including its scope, its API reference and more.
 This guide will walk you through:
 
 - a reference implementation for running the [Web Assembly][wasm.org] (WASM)
-  module, also known as *offline deployments*,
+  module, also known as _offline deployments_,
 - and the steps that help you set up a development environment and extend the
   service's functionality.
 
@@ -22,7 +22,7 @@ It is composed of several modules that can be easily extended or updated to suit
 your needs. Those modules are: `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
 The `ServicesModule` is a simple module that exposes a few endpoints, among them,
-one that relies heavily on the [@coherentglobal/wasm-runner][wasm-runner]
+one that relies heavily on the [@coherentglobal/wasm-runner@0.0.102][wasm-runner]
 Node.js package's core logic.
 
 Some other coding techniques and practices considered throughout this service
@@ -123,7 +123,7 @@ The service configuration section includes the following parameters:
 - `name`: specifies the name of the WASM service. In this case, the name is set
   to **wasm-service**.
 - `description`: provides a brief description of the service's purpose. For
-  example, the description states that the service is *an API for running WASM files*.
+  example, the description states that the service is _an API for running WASM files_.
 - `service.port`: specifies the port number on which the service will listen for
   incoming requests. The default port is set to **8080**.
 - `service.contextPath`: defines the context path for the service. Requests to
@@ -203,7 +203,7 @@ Response: **200-OK** / **503-Service Unavailable**
       "status": "up"
     }
   },
-  "error": {},
+  "error": {}
 }
 ```
 
@@ -223,7 +223,7 @@ Body: **multipart/form-data**
 {
   "service_name": "expected-loss",
   "revision": "0.3.0",
-  "username": "john.doe@coherent.global",
+  "username": "john.doe@coherent.global"
 }
 ```
 
@@ -509,13 +509,13 @@ API errors. Using an `HttpException` filter, the error response is formatted as:
 
 Some of the derived exceptions are:
 
-| type | status | when |
-| ---- | ------ | ---- |
-|`BadUploadWasmData`| 400 | wrong/missing params |
-|`WasmFileNotFound`| 404 | unable to find WASM file records |
-|`ExecHistoryNotFound`| 404 | unable to find its execution records |
-|`WasmRecordNotSaved`| 422 | unable to save WASM file record |
-|`ExecHistoryNotSaved`| 422 | unable to save WASM file |
+| type                  | status | when                                 |
+| --------------------- | ------ | ------------------------------------ |
+| `BadUploadWasmData`   | 400    | wrong/missing params                 |
+| `WasmFileNotFound`    | 404    | unable to find WASM file records     |
+| `ExecHistoryNotFound` | 404    | unable to find its execution records |
+| `WasmRecordNotSaved`  | 422    | unable to save WASM file record      |
+| `ExecHistoryNotSaved` | 422    | unable to save WASM file             |
 
 ## Conceptual references
 
@@ -527,7 +527,7 @@ sparkified calculations. A record of the upload process is stored in a CSV file
 for future references and computations.
 
 When an execution request is made, the WASM file is loaded into memory and
-*cached until invalidated*.
+_cached until invalidated_.
 The provided inputs and version ID are used to run the WASM, and the resulting output
 is returned to the user. As the user submits multiple requests, records of those requests are
 saved in a CSV file, which can be retrieved later as part of the API call history.
@@ -552,38 +552,39 @@ handling the different aspects of the service:
 
 ### Service compliance and delivery
 
-| feature | compliance |
-| ------- | ---------- |
-| basic documentation    | ✅ |
-| api documentation      | ✅ |
-| developer guide        | ✅ |
-| usage and examples     | ✅ |
-| release notes          | ✅ |
-| - | - |
-| versioning             | ✅ |
-| UX/DX                  | ✅ |
-| service level agreement| ✅ |
-| - | - |
-| devOps-ready           | ✅ |
-| CI/CD-ready            | ✅ |
-| - | - |
-| RESTful API            | ✅ |
-| version-controlled     | ✅ |
-| clean code             | ✅ |
-| modular                | ✅ |
-| app config             | ✅ |
-| logging                | ✅ |
-| error handling         | ✅ |
-| 5+ use cases           | ✅ |
-| testing                | ❌ |
-| linting                | ✅ |
-| formatting             | ✅ |
-| - | - |
-| caching/memoization    | ✅ |
-| file management        | ✅ |
-| security layer         | ❌ |
+| feature                 | compliance |
+| ----------------------- | ---------- |
+| basic documentation     | ✅         |
+| api documentation       | ✅         |
+| developer guide         | ✅         |
+| usage and examples      | ✅         |
+| release notes           | ✅         |
+| -                       | -          |
+| versioning              | ✅         |
+| UX/DX                   | ✅         |
+| service level agreement | ✅         |
+| -                       | -          |
+| devOps-ready            | ✅         |
+| CI/CD-ready             | ✅         |
+| -                       | -          |
+| RESTful API             | ✅         |
+| version-controlled      | ✅         |
+| clean code              | ✅         |
+| modular                 | ✅         |
+| app config              | ✅         |
+| logging                 | ✅         |
+| error handling          | ✅         |
+| 5+ use cases            | ✅         |
+| testing                 | ❌         |
+| linting                 | ✅         |
+| formatting              | ✅         |
+| -                       | -          |
+| caching/memoization     | ✅         |
+| file management         | ✅         |
+| security layer          | ❌         |
 
 <!-- References -->
-[wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner "WASM Runner"
-[wasm.org]: https://webassembly.org/ "Web Assembly Homepage"
-[nodejs.org]: https://nodejs.org/en/download/ "Node.js Download Page"
+
+[wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner 'WASM Runner'
+[wasm.org]: https://webassembly.org/ 'Web Assembly Homepage'
+[nodejs.org]: https://nodejs.org/en/download/ 'Node.js Download Page'

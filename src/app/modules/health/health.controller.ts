@@ -4,24 +4,26 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { AppConfig } from '@app/modules/config';
 import { ONE_MB } from '@shared/constants';
-import { WasmHealthIndicator } from './wasm-data.health';
+import { WasmDataHealthIndicator } from './wasm-data.health';
 
 @ApiTags('health')
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
-  private readonly PLATFORM_PATH = process.platform === 'win32' ? 'C:\\' : '/';
+  private readonly PLATFORM_PATH = process.platform === 'win32' ? 'C:\\' : '/'; // FIXME: use external config
   private readonly DISK_THRESHOLD_PERCENT: number;
   private readonly MEMORY_THRESHOLD_IN_MB: number;
+  private readonly WASM_DATA_THRESHOLD_IN_MB: number;
 
   constructor(
     private readonly health: HealthCheckService,
     private readonly disk: DiskHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
-    private readonly wasm: WasmHealthIndicator,
+    private readonly wasm: WasmDataHealthIndicator,
     private readonly appConfig: AppConfig,
   ) {
     this.DISK_THRESHOLD_PERCENT = this.appConfig.props.health.diskThresholdPercent;
     this.MEMORY_THRESHOLD_IN_MB = this.appConfig.props.health.memoryThreshold * ONE_MB;
+    this.WASM_DATA_THRESHOLD_IN_MB = this.appConfig.props.health.wasmThreshold * ONE_MB;
   }
 
   @Get()
@@ -29,7 +31,7 @@ export class HealthController {
   check() {
     return this.health.check([
       // The used disk storage for wasm should not exceed this threshold.
-      () => this.wasm.isHealthy('wasm_data'),
+      () => this.wasm.checkSize('wasm_data', this.WASM_DATA_THRESHOLD_IN_MB),
 
       // The used disk storage should not exceed 75% of the full disk size.
       () =>
