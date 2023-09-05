@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from '@app/modules/app.module';
 import { AppConfig } from '@app/modules/config';
-import { ApiExceptionFilter } from '@shared/errors';
+import { ApiExceptionFilter, ApiValidationPipe } from '@shared/errors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,7 +14,7 @@ async function bootstrap() {
   app.enableCors();
 
   app.setGlobalPrefix(appConfig.props.app.contextPath);
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalPipes(ApiValidationPipe);
   app.useGlobalFilters(new ApiExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()

@@ -1,8 +1,11 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, ValidateIf, ArrayMaxSize } from 'class-validator';
 
-import { IsJsonValue, JsonValue } from '@shared/utils';
+import { IsJsonValue, MaxBatchSize, JsonValue, MAX_BATCH_LENGTH } from '@shared/utils';
 
 export class ExecuteWasmDto {
+  @ArrayMaxSize(MAX_BATCH_LENGTH, { message: 'must be less than or equal to $constraint1 items' })
+  @MaxBatchSize()
+  @ValidateIf((obj) => obj.kind === 'batch')
   @IsJsonValue()
   inputs: JsonValue | JsonValue[];
 

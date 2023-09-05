@@ -1,4 +1,5 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger, HttpStatus } from '@nestjs/common';
+import { ValidationPipe, ValidationError } from '@nestjs/common';
 import { Response } from 'express';
 
 import { ApiException, ApiError } from './api-error';
@@ -25,3 +26,15 @@ export class ApiExceptionFilter implements ExceptionFilter {
     response.status(error.status).json({ error });
   }
 }
+
+export const ApiValidationPipe = new ValidationPipe({
+  transform: true,
+  whitelist: true,
+  exceptionFactory: (errors: ValidationError[]) => {
+    return new ApiException(
+      HttpStatus.BAD_REQUEST,
+      'validation failed',
+      errors.reduce((acc, cur) => ({ ...acc, [cur.property]: Object.values(cur.constraints) }), {}),
+    );
+  },
+});
