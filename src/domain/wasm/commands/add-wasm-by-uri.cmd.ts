@@ -33,7 +33,7 @@ export class AddWasmByUriCommandHandler implements ICommandHandler<AddWasmByUriC
         dto.username,
       );
       this.wasmService.setWasm(versionId, file.path);
-      return await this.repo.save(wasm);
+      return await this.repo.saveWasm(wasm);
     });
   }
 }

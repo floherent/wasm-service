@@ -5,7 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 
 import { AppConfigModule } from '@app/modules/config';
 import { SocketModule } from '@app/modules/socket';
-import { ExecHistoryMapper, WasmMapper, WasmRepo } from '@infra/wasm';
+import { BatchMapper, BatchRepo, ExecHistoryMapper, WasmMapper, WasmRepo } from '@infra/wasm';
 import { CqrsHandlers } from '@domain/wasm';
 import { ServicesController } from './services.controller';
 import { WasmService } from './wasm.service';
@@ -17,8 +17,10 @@ import { WasmService } from './wasm.service';
     WasmService,
     WasmMapper,
     ExecHistoryMapper,
+    BatchMapper,
     ...CqrsHandlers,
     { provide: 'IWasmRepo', useClass: WasmRepo },
+    { provide: 'IBatchRepo', useClass: BatchRepo },
   ],
 })
 export class ServicesModule {}

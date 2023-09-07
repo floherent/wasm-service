@@ -7,6 +7,7 @@ import { UploadWasmCommandHandler } from './commands/upload-wasm.cmd';
 import { BatchCreatedEventHandler } from './events/batch-created.event';
 import { DownloadHistoryQueryHandler } from './queries/download-history.query';
 import { DownloadWasmQueryHandler } from './queries/download-wasm.query';
+import { GetBatchQueryHandler } from './queries/get-batch.query';
 import { GetHistoryQueryHandler } from './queries/get-history.query';
 
 export * from './commands/add-wasm-by-uri.cmd';
@@ -26,7 +27,9 @@ export * from './entities/exec-history.entity';
 export * from './events/batch-created.event';
 export * from './queries/download-history.query';
 export * from './queries/download-wasm.query';
+export * from './queries/get-batch.query';
 export * from './queries/get-history.query';
+export * from './repos/batch.repo';
 export * from './repos/wasm.repo';
 
 export const CqrsHandlers = [
@@ -39,5 +42,6 @@ export const CqrsHandlers = [
   BatchCreatedEventHandler,
   DownloadWasmQueryHandler,
   DownloadHistoryQueryHandler,
+  GetBatchQueryHandler,
   GetHistoryQueryHandler,
 ];

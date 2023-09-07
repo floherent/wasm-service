@@ -6,7 +6,7 @@ import { ApiBody, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
 
-import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, Batch } from '@domain/wasm';
+import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, Batch, GetBatchQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
 import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery, CreateBatchCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
@@ -90,19 +90,22 @@ export class ServicesController {
     response.status(HttpStatus.CREATED).send(payload);
   }
 
-  @Get(':version_id/batch')
+  @Get(':version_id/batch/:batch_id')
   async getBatchStatus(
     @Res() response: Response,
     @Param('version_id') versionId: string,
-    @Headers('ws-client-id') clientId: string | undefined,
+    @Param('batch_id') batchId: string,
   ) {
-    // TODO: implement this
-    response.status(HttpStatus.OK).send({ status: 'in_progress', data: { versionId, clientId } });
+    const query = new GetBatchQuery(versionId, batchId);
+    const result = await this.queryBus.execute<GetBatchQuery, Result<Error, Batch>>(query);
+    const payload = result.getOrThrow();
+
+    response.status(HttpStatus.OK).send(payload);
   }
 
   @Get(':version_id/batch/file')
   async downloadBatchExecFile(@Res() response: Response, @Param('version_id') versionId: string) {
-    this.logger.log(`batch execution file (${versionId}) has been downloaded.`);
+    this.logger.log(`batch execution file <${versionId}> has been downloaded`);
     // TODO: implement this
     response.contentType('text/csv').status(HttpStatus.OK).send('some,file,content');
   }

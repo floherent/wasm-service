@@ -18,7 +18,7 @@ export class WasmService {
 
   getWasm(versionId: string): Spark | undefined {
     const wasm = this.wasms.get(versionId);
-    if (!wasm) this.logger.log(`no wasm found for version_id <${versionId}>`);
+    if (!wasm) this.logger.warn(`no wasm found for version_id <${versionId}> in cache`);
     return wasm;
   }
 

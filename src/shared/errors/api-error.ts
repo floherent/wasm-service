@@ -32,6 +32,12 @@ export class WasmFileNotFound extends ApiException {
   }
 }
 
+export class RecordsNotFound extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super(HttpStatus.NOT_FOUND, `no records found for wasm with version_id <${id}>`, cause);
+  }
+}
+
 export class ExecHistoryNotSaved extends ApiException {
   constructor(id: string, cause?: Error) {
     super(HttpStatus.UNPROCESSABLE_ENTITY, `failed to save wasm execution history <${id}>`, cause);

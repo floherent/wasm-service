@@ -1,3 +1,6 @@
+import { Batch } from '@domain/wasm';
+import { BatchStatus } from '@shared/utils';
+
 export class BatchModel {
   constructor(
     readonly id: string,
@@ -7,7 +10,7 @@ export class BatchModel {
     readonly total_inputs: string,
     readonly total_processed: string,
     readonly total_outputs: string,
-    readonly duration_in_ms: string,
+    readonly duration_in_ms: string | undefined,
   ) {}
 }
 
@@ -41,11 +44,11 @@ export class BatchModelHandler extends BatchModel {
       id: string;
       status: string;
       service_id: string;
-      executed_at: Date;
-      total_inputs: number;
-      total_processed: number;
-      total_outputs: number;
-      duration_in_ms: number | undefined;
+      executed_at: string;
+      total_inputs: string;
+      total_processed: string;
+      total_outputs: string;
+      duration_in_ms: string | undefined;
     },
     public sep = ',',
   ) {
@@ -53,11 +56,11 @@ export class BatchModelHandler extends BatchModel {
       fields.id,
       fields.status,
       fields.service_id,
-      fields.executed_at?.toISOString(),
-      fields.total_inputs?.toString(),
-      fields.total_processed?.toString(),
-      fields.total_outputs?.toString(),
-      fields.duration_in_ms?.toString(),
+      fields.executed_at,
+      fields.total_inputs,
+      fields.total_processed,
+      fields.total_outputs,
+      fields.duration_in_ms,
     );
   }
 
@@ -72,6 +75,20 @@ export class BatchModelHandler extends BatchModel {
       this.total_outputs,
       this.duration_in_ms,
     ].join(sep ?? this.sep);
+  }
+
+  toBatch(): Batch {
+    return new Batch(
+      this.id,
+      this.status as BatchStatus,
+      this.service_id,
+      undefined,
+      new Date(this.executed_at),
+      +this.total_inputs,
+      +this.total_processed,
+      +this.total_outputs,
+      +this.duration_in_ms,
+    );
   }
 
   headers(sep?: string): string {

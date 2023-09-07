@@ -29,7 +29,7 @@ export class UploadWasmCommandHandler implements ICommandHandler<UploadWasmComma
         dto.username,
       );
       this.wasmService.setWasm(dto.versionId, file.path);
-      return await this.repo.save(wasm);
+      return await this.repo.saveWasm(wasm);
     });
   }
 }
