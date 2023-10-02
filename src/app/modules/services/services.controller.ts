@@ -9,6 +9,7 @@ import { Result } from 'typescript-result';
 import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, Batch, GetBatchQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
 import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery, CreateBatchCommand } from '@domain/wasm';
+import { DownloadBatchQuery } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
@@ -103,11 +104,14 @@ export class ServicesController {
     response.status(HttpStatus.OK).send(payload);
   }
 
-  @Get(':version_id/batch/file')
-  async downloadBatchExecFile(@Res() response: Response, @Param('version_id') versionId: string) {
-    this.logger.log(`batch execution file <${versionId}> has been downloaded`);
-    // TODO: implement this
-    response.contentType('text/csv').status(HttpStatus.OK).send('some,file,content');
+  @Get('batch/:batch_id/file')
+  async downloadBatchExecFile(@Res() response: Response, @Param('batch_id') batchId: string) {
+    const query = new DownloadBatchQuery(batchId);
+    const result = await this.queryBus.execute<DownloadBatchQuery, Result<Error, Buffer>>(query);
+    const file = result.getOrThrow();
+
+    this.logger.log(`batch <${batchId}> file has been downloaded`);
+    response.contentType('text/csv').status(HttpStatus.OK).send(file);
   }
 
   @ApiQuery({ name: 'page', required: false, example: 1 })

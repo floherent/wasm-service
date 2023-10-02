@@ -56,6 +56,12 @@ export class BatchExecNotSaved extends ApiException {
   }
 }
 
+export class BatchResultsNotFound extends ApiException {
+  constructor(id: string, cause?: Error) {
+    super(HttpStatus.NOT_FOUND, `no results found for batch_id <${id}>`, cause);
+  }
+}
+
 export class BadUploadWasmData extends ApiException {
   constructor(message: string, cause: Error) {
     super(HttpStatus.BAD_REQUEST, message, cause);

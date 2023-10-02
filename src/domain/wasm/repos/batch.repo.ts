@@ -8,4 +8,5 @@ export interface IBatchRepo {
   executeAsync: (batch: Batch, records: JsonValue[]) => Promise<Batch>;
   create: (versionId: string, clientId: string, dto: ExecuteWasmDto[]) => Promise<Batch>;
   findOne: (versionId: string, batchId: string) => Promise<Batch>;
+  download: (batchId: string) => Promise<Buffer>;
 }

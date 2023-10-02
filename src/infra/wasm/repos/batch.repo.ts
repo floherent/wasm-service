@@ -7,6 +7,7 @@ import { AppConfig } from '@app/modules/config';
 import { BatchModelHandler, BatchExecModelHandler, BatchModel, BatchMapper } from '@infra/wasm';
 import { IBatchRepo, ExecuteWasmDto, Batch, BatchData, ExecData, IWasmRepo } from '@domain/wasm';
 import { BatchSubmissionNotSaved, BatchExecNotSaved, RecordsNotFound } from '@shared/errors';
+import { BatchResultsNotFound } from '@shared/errors';
 import { JsonValue, buildRequest, ExecResult } from '@shared/utils';
 
 @Injectable()
@@ -72,6 +73,13 @@ export class BatchRepo implements IBatchRepo {
     if (!model) throw new RecordsNotFound(batchId);
 
     return model.toBatch();
+  }
+
+  async download(batchId: string): Promise<Buffer> {
+    const path = join(this.appConfig.props.app.uploadPath, `${batchId}_batch_exec.csv`);
+    if (!existsSync(path)) throw new BatchResultsNotFound(batchId);
+
+    return readFileSync(path);
   }
 
   private saveBatchExec(batchId: string, results: ExecData[]): void {
