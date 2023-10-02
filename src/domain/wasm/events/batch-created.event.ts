@@ -22,6 +22,6 @@ export class BatchCreatedEventHandler implements IEventHandler<BatchCreatedEvent
     const payload = result.getOrThrow();
 
     Logger.log(`batch (${event.batch.id}) ready`);
-    this.socketService.emit('batch:completed', { ...payload, batch_id: payload.id });
+    this.socketService.emit('batch:completed', payload);
   }
 }

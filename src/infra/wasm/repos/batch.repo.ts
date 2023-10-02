@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { existsSync, appendFileSync, readFileSync } from 'fs';
+import { existsSync, appendFileSync, writeFileSync, readFileSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
@@ -42,7 +42,7 @@ export class BatchRepo implements IBatchRepo {
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}_batch.csv`);
       const model = this.batchMapper.toModel(batch);
 
-      if (!existsSync(path)) appendFileSync(path, `${model.headers()}`);
+      if (!existsSync(path)) appendFileSync(path, `${BatchModelHandler.headers()}`);
       appendFileSync(path, `\n${model.toCsv()}`);
     } catch (cause) {
       throw new BatchSubmissionNotSaved(versionId, cause);
@@ -60,7 +60,9 @@ export class BatchRepo implements IBatchRepo {
 
     this.saveBatchExec(batch.id, result);
 
-    return Batch.completed(batch, result.length, result.length, end - start);
+    const completed = Batch.completed(batch, result.length, result.length, end - start);
+    this.updateCsvBatch(completed);
+    return completed;
   }
 
   async findOne(versionId: string, batchId: string): Promise<Batch> {
@@ -99,5 +101,20 @@ export class BatchRepo implements IBatchRepo {
     if (parsed.errors.length > 0) return [];
 
     return parsed.data.map((row) => new BatchModelHandler({ ...row }));
+  }
+
+  private updateCsvBatch(batch: Batch): void {
+    const dataPath = join(this.appConfig.props.app.uploadPath, `${batch.service_id}_batch.csv`);
+    const data = this.loadCsvBatch(dataPath);
+
+    for (const i in data) {
+      if (data[i].id === batch.id) {
+        data[i] = this.batchMapper.toModel(batch);
+        break;
+      }
+    }
+
+    const updated = data.map((row) => row.toCsv()).join('\n');
+    writeFileSync(dataPath, `${BatchModelHandler.headers()}\n${updated}`);
   }
 }

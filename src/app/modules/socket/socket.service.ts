@@ -12,7 +12,7 @@ export class SocketService {
 }
 
 export interface PublishMessageDto {
+  readonly id: string; // batch id
   readonly client_id: string;
-  readonly batch_id: string;
   readonly token?: string;
 }

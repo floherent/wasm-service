@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
 import { AppModule } from '@app/modules/app.module';
 import { AppConfig } from '@app/modules/config';
@@ -16,6 +17,7 @@ async function bootstrap() {
   app.setGlobalPrefix(appConfig.props.app.contextPath);
   app.useGlobalPipes(ApiValidationPipe);
   app.useGlobalFilters(new ApiExceptionFilter());
+  app.use(bodyParser.json({ limit: '50mb' }));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('wasm-service')

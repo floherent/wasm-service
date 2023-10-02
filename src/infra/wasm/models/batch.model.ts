@@ -15,17 +15,6 @@ export class BatchModel {
 }
 
 export class BatchModelHandler extends BatchModel {
-  private readonly _headers = [
-    'id',
-    'status',
-    'service_id',
-    'executed_at',
-    'total_inputs',
-    'total_processed',
-    'total_outputs',
-    'duration_in_ms',
-  ];
-
   get asDto(): BatchModel {
     return new BatchModel(
       this.id,
@@ -91,7 +80,16 @@ export class BatchModelHandler extends BatchModel {
     );
   }
 
-  headers(sep?: string): string {
-    return this._headers.join(sep ?? this.sep);
+  static headers(sep = ','): string {
+    return [
+      'id',
+      'status',
+      'service_id',
+      'executed_at',
+      'total_inputs',
+      'total_processed',
+      'total_outputs',
+      'duration_in_ms',
+    ].join(sep);
   }
 }

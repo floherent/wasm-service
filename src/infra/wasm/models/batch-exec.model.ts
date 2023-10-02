@@ -3,8 +3,6 @@ export class BatchExecModel {
 }
 
 export class BatchExecModelHandler extends BatchExecModel {
-  private readonly _headers = ['inputs', 'outputs', 'process_time'];
-
   get asDto(): BatchExecModel {
     return new BatchExecModel(this.inputs, this.outputs, this.process_time);
   }

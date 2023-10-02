@@ -12,7 +12,7 @@ export class BatchMapper extends EntityModelMapper<Batch, BatchModelHandler> {
       id: from.id,
       status: from.status,
       service_id: from.service_id,
-      executed_at: from.executed_at.toString(),
+      executed_at: from.executed_at.toISOString(),
       total_inputs: from.total_inputs.toString(),
       total_processed: from.total_processed.toString(),
       total_outputs: from.total_outputs.toString(),
