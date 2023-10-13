@@ -16,12 +16,12 @@ export class BatchCreatedEventHandler implements IEventHandler<BatchCreatedEvent
   constructor(private readonly commandBus: CommandBus, private socketService: SocketService) {}
 
   async handle(event: BatchCreatedEvent) {
-    Logger.log(`new batch (${event.batch.id}) submitted`);
+    Logger.log(`new batch <${event.batch.id}> submitted`);
     const command = new RunBatchCommand(event.batch, event.inputs);
     const result = await this.commandBus.execute<RunBatchCommand, Result<Error, Batch>>(command);
     const payload = result.getOrThrow();
 
-    Logger.log(`batch (${event.batch.id}) ready`);
+    Logger.log(`batch <${event.batch.id}> ready`);
     this.socketService.emit('batch:completed', payload);
   }
 }

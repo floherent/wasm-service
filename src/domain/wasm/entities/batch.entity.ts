@@ -18,17 +18,21 @@ export class Batch {
     return new Batch(uuid(), 'created', serviceId, clientId, new Date(), totalInputs);
   }
 
-  static completed(batch: Batch, totalProcessed: number, totalOutputs: number, durationInMs: number): Batch {
+  static updated(batch: Batch, status: BatchStatus = 'processing', processed = 0, outputs = 0, duration = 0): Batch {
     return new Batch(
       batch.id,
-      'completed',
+      status,
       batch.service_id,
       batch.client_id,
       batch.executed_at,
       batch.total_inputs,
-      totalProcessed,
-      totalOutputs,
-      durationInMs,
+      processed,
+      outputs,
+      duration,
     );
+  }
+
+  static completed(batch: Batch, totalProcessed: number, totalOutputs: number, durationInMs: number): Batch {
+    return Batch.updated(batch, 'completed', totalProcessed, totalOutputs, durationInMs);
   }
 }

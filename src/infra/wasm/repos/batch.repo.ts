@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { existsSync, appendFileSync, writeFileSync, readFileSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
@@ -8,7 +8,7 @@ import { BatchModelHandler, BatchExecModelHandler, BatchModel, BatchMapper } fro
 import { IBatchRepo, ExecuteWasmDto, Batch, BatchData, ExecData, IWasmRepo } from '@domain/wasm';
 import { BatchSubmissionNotSaved, BatchExecNotSaved, RecordsNotFound } from '@shared/errors';
 import { BatchResultsNotFound } from '@shared/errors';
-import { JsonValue, buildRequest, ExecResult } from '@shared/utils';
+import { JsonValue, buildRequest, ExecResult, Duration } from '@shared/utils';
 
 @Injectable()
 export class BatchRepo implements IBatchRepo {
@@ -55,15 +55,28 @@ export class BatchRepo implements IBatchRepo {
     const wasm = await this.wasmRepo.findWasm(batch.service_id);
     const requests = records.map((r) => buildRequest(batch.service_id, r));
 
+    this.updateCsvBatch(Batch.updated(batch));
+
     const start = performance.now();
-    const result = await wasm.executeAll(requests);
-    const end = performance.now();
+    let totalProcessed = 0;
+    await wasm.executeAll(requests, (processed) => {
+      try {
+        totalProcessed += processed.length;
+        const duration = performance.now() - start;
+        const status = totalProcessed === requests.length ? 'completed' : 'processing';
+        this.updateCsvBatch(Batch.updated(batch, status, totalProcessed, totalProcessed, duration));
+        this.saveBatchExec(batch.id, processed);
+        Logger.log(
+          `batch <${batch.id}> updated: ${totalProcessed} of ${requests.length} about ${Duration.from(duration).ago}`,
+        );
+      } catch (cause) {
+        const exception = new BatchExecNotSaved(batch.id, cause);
+        Logger.warn(exception.getResponse());
+      }
+    });
 
-    this.saveBatchExec(batch.id, result);
-
-    const completed = Batch.completed(batch, result.length, result.length, end - start);
-    this.updateCsvBatch(completed);
-    return completed;
+    requests.length = 0;
+    return Batch.completed(batch, totalProcessed, totalProcessed, performance.now() - start);
   }
 
   async findOne(versionId: string, batchId: string): Promise<Batch> {

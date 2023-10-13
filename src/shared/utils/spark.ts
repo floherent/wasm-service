@@ -62,10 +62,14 @@ export class Spark {
     return (await this.runners[index].execute(data, this.model.id)) as ExecData;
   }
 
-  async executeAll(data: ExecRequestData[]) {
+  async executeAll(data: ExecRequestData[], predicate?: (processed: ExecData[]) => void) {
     const results: ExecData[] = [];
     for await (const batch of this.executeAsync(data)) {
-      results.push(...batch);
+      if (predicate) {
+        predicate(batch);
+      } else {
+        results.push(...batch);
+      }
     }
     return results;
   }
