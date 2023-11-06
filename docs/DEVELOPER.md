@@ -6,7 +6,7 @@ including its scope, its API reference and more.
 This guide will walk you through:
 
 - a reference implementation for running the [Web Assembly][wasm.org] (WASM)
-  module, also known as *offline deployments*,
+  module, also known as _offline deployments_,
 - and the steps that help you set up a development environment and extend the
   service's functionality.
 
@@ -123,7 +123,7 @@ The service configuration section includes the following parameters:
 - `name`: specifies the name of the WASM service. In this case, the name is set
   to **wasm-service**.
 - `description`: provides a brief description of the service's purpose. For
-  example, the description states that the service is *an API for running WASM files*.
+  example, the description states that the service is _an API for running WASM files_.
 - `service.port`: specifies the port number on which the service will listen for
   incoming requests. The default port is set to **8080**.
 - `service.contextPath`: defines the context path for the service. Requests to
@@ -140,10 +140,10 @@ The performance configuration section includes the following parameters:
 
 - `performance.spark.cacheSize`: specifies the number of service instances to cache.
   The cache is used to store frequently accessed wasms to improve performance. By
-  default, the cache size is set to **16**.
+  default, the cache size is set to **8**.
 - `performance.spark.threads`: default to 1, specifies the number of parallel threads
   to use for the WASM execution.
-- `performance.spark.replicas`: default to 2, specifies the number of replicas to
+- `performance.spark.replicas`: default to 1, specifies the number of replicas to
   use for the WASM execution.
 - `performance.health.indicators.disk`: sets the threshold in percentage
   (between 0.0 and 1.0) for the disk usage. By default, it is set to 0.75%.
@@ -154,7 +154,7 @@ The performance configuration section includes the following parameters:
 - `performance.health.indicators.memory`: sets the threshold size in megabytes
   for the health check related to memory usage. If the memory consumption exceeds
   this threshold, it may affect the service's performance. The default value is
-  set to 256 MB.
+  set to 1024 MB.
 
 **NOTE**: These configuration parameters can be modified as per requirements of the
 deployment environment and the specific needs of the WASM service. It is important
@@ -203,7 +203,7 @@ Response: **200-OK** / **503-Service Unavailable**
       "status": "up"
     }
   },
-  "error": {},
+  "error": {}
 }
 ```
 
@@ -223,7 +223,7 @@ Body: **multipart/form-data**
 {
   "service_name": "expected-loss",
   "revision": "0.3.0",
-  "username": "john.doe@coherent.global",
+  "username": "john.doe@coherent.global"
 }
 ```
 
@@ -509,13 +509,32 @@ API errors. Using an `HttpException` filter, the error response is formatted as:
 
 Some of the derived exceptions are:
 
-| type | status | when |
-| ---- | ------ | ---- |
-|`BadUploadWasmData`| 400 | wrong/missing params |
-|`WasmFileNotFound`| 404 | unable to find WASM file records |
-|`ExecHistoryNotFound`| 404 | unable to find its execution records |
-|`WasmRecordNotSaved`| 422 | unable to save WASM file record |
-|`ExecHistoryNotSaved`| 422 | unable to save WASM file |
+| type                  | status | when                                 |
+| --------------------- | ------ | ------------------------------------ |
+| `BadUploadWasmData`   | 400    | wrong/missing params                 |
+| `WasmFileNotFound`    | 404    | unable to find WASM file records     |
+| `ExecHistoryNotFound` | 404    | unable to find its execution records |
+| `WasmRecordNotSaved`  | 422    | unable to save WASM file record      |
+| `ExecHistoryNotSaved` | 422    | unable to save WASM file             |
+
+## Testing
+
+Given that this API service is a sample service, we do not have a full test suite
+for it. However, we have set a baseline for some unit and end-to-end tests.
+With the testing setup already in place, you can easily extend the test suites to
+cover more use cases. A good practice is to write tests for the most critical
+parts of the service (or the parts that are most likely to change).
+
+To run the tests, run the following commands:
+
+```bash
+npm run test # unit tests
+npm run test:e2e # end-to-end tests
+```
+
+> NOTE: We use the `ConfigModule` to set up the testing environment. The end-to-end
+> test files are located in the `test` directory while the unit tests are located
+> under the `src` directory with the suffix `.spec.ts`.
 
 ## Conceptual references
 
@@ -527,7 +546,7 @@ sparkified calculations. A record of the upload process is stored in a CSV file
 for future references and computations.
 
 When an execution request is made, the WASM file is loaded into memory and
-*cached until invalidated*.
+_cached until invalidated_.
 The provided inputs and version ID are used to run the WASM, and the resulting output
 is returned to the user. As the user submits multiple requests, records of those requests are
 saved in a CSV file, which can be retrieved later as part of the API call history.
@@ -552,38 +571,39 @@ handling the different aspects of the service:
 
 ### Service compliance and delivery
 
-| feature | compliance |
-| ------- | ---------- |
-| basic documentation    | ✅ |
-| api documentation      | ✅ |
-| developer guide        | ✅ |
-| usage and examples     | ✅ |
-| release notes          | ✅ |
-| - | - |
-| versioning             | ✅ |
-| UX/DX                  | ✅ |
-| service level agreement| ✅ |
-| - | - |
-| devOps-ready           | ✅ |
-| CI/CD-ready            | ✅ |
-| - | - |
-| RESTful API            | ✅ |
-| version-controlled     | ✅ |
-| clean code             | ✅ |
-| modular                | ✅ |
-| app config             | ✅ |
-| logging                | ✅ |
-| error handling         | ✅ |
-| 5+ use cases           | ✅ |
-| testing                | ❌ |
-| linting                | ✅ |
-| formatting             | ✅ |
-| - | - |
-| caching/memoization    | ✅ |
-| file management        | ✅ |
-| security layer         | ❌ |
+| feature                 | compliance |
+| ----------------------- | ---------- |
+| basic documentation     | ✅         |
+| api documentation       | ✅         |
+| developer guide         | ✅         |
+| usage and examples      | ✅         |
+| release notes           | ✅         |
+| -                       | -          |
+| versioning              | ✅         |
+| UX/DX                   | ✅         |
+| service level agreement | ✅         |
+| -                       | -          |
+| devOps-ready            | ✅         |
+| CI/CD-ready             | ✅         |
+| -                       | -          |
+| RESTful API             | ✅         |
+| version-controlled      | ✅         |
+| clean code              | ✅         |
+| modular                 | ✅         |
+| app config              | ✅         |
+| logging                 | ✅         |
+| error handling          | ✅         |
+| 5+ use cases            | ✅         |
+| testing                 | ❌         |
+| linting                 | ✅         |
+| formatting              | ✅         |
+| -                       | -          |
+| caching/memoization     | ✅         |
+| file management         | ✅         |
+| security layer          | ❌         |
 
 <!-- References -->
-[wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner "WASM Runner"
-[wasm.org]: https://webassembly.org/ "Web Assembly Homepage"
-[nodejs.org]: https://nodejs.org/en/download/ "Node.js Download Page"
+
+[wasm-runner]: https://www.npmjs.com/package/@coherentglobal/wasm-runner 'WASM Runner'
+[wasm.org]: https://webassembly.org/ 'Web Assembly Homepage'
+[nodejs.org]: https://nodejs.org/en/download/ 'Node.js Download Page'
