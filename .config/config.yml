@@ -9,11 +9,11 @@ service:
 
 performance:
   spark:
-    cacheSize: 16
+    cacheSize: 8
     threads: 1
-    replicas: 2
+    replicas: 1
   health:
     indicators:
       disk: 0.75
       wasm: 512
-      memory: 256
+      memory: 1024

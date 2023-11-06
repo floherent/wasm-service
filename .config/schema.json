@@ -65,19 +65,22 @@
               "description": "Number of Spark runners to cache",
               "type": "integer",
               "minimum": 1,
-              "default": 16
+              "maximum": 16,
+              "default": 8
             },
             "threads": {
               "description": "Number of threads to use per Spark runner",
               "type": "integer",
               "minimum": 1,
+              "maximum": 8,
               "default": 1
             },
             "replicas": {
               "description": "Number of Spark runner replicas",
               "type": "integer",
               "minimum": 1,
-              "default": 2
+              "maximum": 100,
+              "default": 1
             }
           }
         },
@@ -106,7 +109,7 @@
                   "description": "Threshold in MB for heap and RSS memory usage",
                   "type": "integer",
                   "minimum": 1,
-                  "default": 256
+                  "default": 1024
                 }
               }
             }

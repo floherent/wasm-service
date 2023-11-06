@@ -140,10 +140,10 @@ The performance configuration section includes the following parameters:
 
 - `performance.spark.cacheSize`: specifies the number of service instances to cache.
   The cache is used to store frequently accessed wasms to improve performance. By
-  default, the cache size is set to **16**.
+  default, the cache size is set to **8**.
 - `performance.spark.threads`: default to 1, specifies the number of parallel threads
   to use for the WASM execution.
-- `performance.spark.replicas`: default to 2, specifies the number of replicas to
+- `performance.spark.replicas`: default to 1, specifies the number of replicas to
   use for the WASM execution.
 - `performance.health.indicators.disk`: sets the threshold in percentage
   (between 0.0 and 1.0) for the disk usage. By default, it is set to 0.75%.
@@ -154,7 +154,7 @@ The performance configuration section includes the following parameters:
 - `performance.health.indicators.memory`: sets the threshold size in megabytes
   for the health check related to memory usage. If the memory consumption exceeds
   this threshold, it may affect the service's performance. The default value is
-  set to 256 MB.
+  set to 1024 MB.
 
 **NOTE**: These configuration parameters can be modified as per requirements of the
 deployment environment and the specific needs of the WASM service. It is important
@@ -516,6 +516,25 @@ Some of the derived exceptions are:
 | `ExecHistoryNotFound` | 404    | unable to find its execution records |
 | `WasmRecordNotSaved`  | 422    | unable to save WASM file record      |
 | `ExecHistoryNotSaved` | 422    | unable to save WASM file             |
+
+## Testing
+
+Given that this API service is a sample service, we do not have a full test suite
+for it. However, we have set a baseline for some unit and end-to-end tests.
+With the testing setup already in place, you can easily extend the test suites to
+cover more use cases. A good practice is to write tests for the most critical
+parts of the service (or the parts that are most likely to change).
+
+To run the tests, run the following commands:
+
+```bash
+npm run test # unit tests
+npm run test:e2e # end-to-end tests
+```
+
+> NOTE: We use the `ConfigModule` to set up the testing environment. The end-to-end
+> test files are located in the `test` directory while the unit tests are located
+> under the `src` directory with the suffix `.spec.ts`.
 
 ## Conceptual references
 
