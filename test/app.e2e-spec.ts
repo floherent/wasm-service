@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { ConfigController, AppConfig, DEFAULT_CONFIG } from '@app/modules/config';
 
-describe('ConfigModule', () => {
+describe('ConfigController', () => {
   let configController: ConfigController;
 
   beforeEach(async () => {
@@ -29,6 +29,7 @@ describe('ConfigModule', () => {
     expect(spark.threads).toBe(1);
     expect(spark.replicas).toBe(1);
 
+    expect(health.batch_limit).toBe(10);
     expect(health.indicators.disk).toBe(0.75);
     expect(health.indicators.wasm).toBe(512);
     expect(health.indicators.memory).toBe(1024);

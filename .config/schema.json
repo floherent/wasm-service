@@ -88,6 +88,13 @@
           "description": "Health check configuration",
           "type": "object",
           "properties": {
+            "batchLimit": {
+              "description": "Limit the number of batch processing per wasm runner",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
             "indicators": {
               "description": "Health check indicators",
               "type": "object",

@@ -49,6 +49,17 @@ export class HealthController {
 
   @Get('profile')
   getProfile() {
-    return getMemoryUsage(this.appConfig.props);
+    const { health } = this.appConfig.props;
+    const { rss, heapTotal, heapUsed } = getMemoryUsage();
+    return {
+      rss: Math.round(rss / ONE_MB),
+      heap_total: Math.round(heapTotal / ONE_MB),
+      heap_used: Math.round(heapUsed / ONE_MB),
+      threshold: {
+        disk: health.diskThresholdPercent,
+        wasm: health.wasmThreshold,
+        memory: health.memoryThreshold,
+      },
+    };
   }
 }

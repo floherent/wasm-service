@@ -9,12 +9,12 @@ service:
 
 performance:
   spark:
-    cacheSize: 2
+    cacheSize: 8
     threads: 1
-    replicas: 20
+    replicas: 1
   health:
-    batchLimit: 60
+    batchLimit: 10
     indicators:
       disk: 0.75
       wasm: 512
-      memory: 4096
+      memory: 1024

@@ -27,6 +27,7 @@ export class ConfigController {
         replicas: spark.replicas,
       },
       health: {
+        batch_limit: health.batchLimit,
         indicators: {
           disk: health.diskThresholdPercent,
           wasm: health.wasmThreshold,

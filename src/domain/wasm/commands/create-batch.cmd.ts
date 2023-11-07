@@ -17,9 +17,10 @@ export class CreateBatchCommandHandler implements ICommandHandler<CreateBatchCom
     const { versionId, clientId, dto } = cmd;
     const inputs = Spark.inferFormatFrom(dto.inputs)[1];
     const records = Array.isArray(inputs) ? inputs : [inputs];
+    const bufferSize = Buffer.from(JSON.stringify(records)).length;
 
     return Result.safe(async () => {
-      const result = await this.repo.create(versionId, clientId, records.length);
+      const result = await this.repo.create(versionId, clientId, bufferSize, records.length);
       if (result?.id) {
         this.eventBus.publish(new BatchCreatedEvent(result, records));
       }

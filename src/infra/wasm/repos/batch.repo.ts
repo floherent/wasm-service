@@ -7,8 +7,8 @@ import { AppConfig } from '@app/modules/config';
 import { BatchModelHandler, BatchExecModelHandler, BatchModel, BatchMapper } from '@infra/wasm';
 import { IBatchRepo, ExecuteWasmDto, Batch, BatchData, ExecData, IWasmRepo } from '@domain/wasm';
 import { BatchSubmissionNotSaved, BatchExecNotSaved, RecordsNotFound } from '@shared/errors';
-import { BatchResultsNotFound } from '@shared/errors';
-import { JsonValue, Spark, ExecResult, Duration } from '@shared/utils';
+import { BatchResultsNotFound, RateLimitExceeded } from '@shared/errors';
+import { JsonValue, Spark, ExecResult, Duration, isMemoryOK } from '@shared/utils';
 
 @Injectable()
 export class BatchRepo implements IBatchRepo {
@@ -37,18 +37,23 @@ export class BatchRepo implements IBatchRepo {
     return BatchData.from(results);
   }
 
-  async create(versionId: string, clientId: string, size = 0): Promise<Batch> {
-    const batch = Batch.created(versionId, clientId, size);
+  async create(versionId: string, clientId: string, bufferSize = 0, totalRecords = 0): Promise<Batch> {
+    const { health } = this.appConfig.props;
+    if (!isMemoryOK(health.memoryThreshold)) throw new RateLimitExceeded('rss/heap memory limit exceeded');
+    if (!this.canCreateBatch(versionId)) throw new RateLimitExceeded(`batch limit exceeded (${health.batchLimit})`);
+    await this.wasmRepo.findWasm(versionId);
+
     try {
+      const batch = Batch.created(versionId, clientId, bufferSize, totalRecords);
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}_batch.csv`);
       const model = this.batchMapper.toModel(batch);
 
       if (!existsSync(path)) appendFileSync(path, `${BatchModelHandler.headers()}`);
       appendFileSync(path, `\n${model.toCsv()}`);
+      return batch;
     } catch (cause) {
       throw new BatchSubmissionNotSaved(versionId, cause);
     }
-    return batch;
   }
 
   async executeAsync(batch: Batch, records: JsonValue[]) {
@@ -139,5 +144,14 @@ export class BatchRepo implements IBatchRepo {
 
     const updated = data.map((row) => row.toCsv()).join('\n');
     writeFileSync(dataPath, `${BatchModelHandler.headers()}\n${updated}`);
+  }
+
+  private canCreateBatch(versionId: string): boolean {
+    const dataPath = join(this.appConfig.props.app.uploadPath, `${versionId}_batch.csv`);
+    const processing = this.loadCsvBatch(dataPath)
+      .map((m) => m.toBatch())
+      .filter((b) => b.status === 'processing');
+
+    return processing.length <= this.appConfig.props.health.batchLimit;
   }
 }

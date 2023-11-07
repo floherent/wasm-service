@@ -3,7 +3,7 @@ import { diskStorage } from 'multer';
 import { readdirSync, statSync } from 'fs';
 import { extname, join } from 'path';
 
-import { AppConfig, Config } from '@app/modules/config';
+import { AppConfig } from '@app/modules/config';
 import { ONE_KB, ONE_MB } from '@shared/constants';
 
 export const dumpOntoDisk = (options?: { dest: string }) => {
@@ -50,17 +50,13 @@ export const getFolderSize = (folderPath: string) => {
   };
 };
 
-export const getMemoryUsage = (config?: Config) => {
+export const getMemoryUsage = () => {
   const { heapTotal, heapUsed, rss } = process.memoryUsage();
-  const { health } = config ?? AppConfig.getInstance().props;
-  return {
-    rss: Math.round(rss / ONE_MB),
-    heap_total: Math.round(heapTotal / ONE_MB),
-    heap_used: Math.round(heapUsed / ONE_MB),
-    threshold: {
-      disk: health.diskThresholdPercent,
-      wasm: health.wasmThreshold,
-      memory: health.memoryThreshold,
-    },
-  };
+  return { rss, heapTotal, heapUsed };
+};
+
+export const isMemoryOK = (thresholdInMB: number): boolean => {
+  const threshold = thresholdInMB * ONE_MB;
+  const { rss, heapUsed: heap } = getMemoryUsage();
+  return threshold > rss || threshold > heap;
 };

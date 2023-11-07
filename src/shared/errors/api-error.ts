@@ -68,6 +68,12 @@ export class BatchResultsNotFound extends ApiException {
   }
 }
 
+export class RateLimitExceeded extends ApiException {
+  constructor(message = 'rate limit exceeded', cause?: Error) {
+    super(HttpStatus.TOO_MANY_REQUESTS, message, cause);
+  }
+}
+
 export class BadUploadWasmData extends ApiException {
   constructor(message: string, cause: Error) {
     super(HttpStatus.BAD_REQUEST, message, cause);

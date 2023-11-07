@@ -19,6 +19,7 @@ interface Config {
     replicas: number;
   };
   health: {
+    batchLimit: number;
     wasmThreshold: number;
     diskThresholdPercent: number;
     memoryThreshold: number;
@@ -55,6 +56,7 @@ class AppConfig {
         replicas: parseInt(performance?.spark?.replicas, 10) ?? 1,
       },
       health: {
+        batchLimit: parseInt(performance?.health?.batchLimit, 10) ?? 10,
         diskThresholdPercent: parseFloat(performance?.health?.indicators?.disk) ?? 0.75, // 75%
         wasmThreshold: parseInt(performance?.health?.indicators?.wasm, 10) ?? 512, // 512 MB
         memoryThreshold: parseInt(performance?.health?.indicators?.memory, 10) ?? 1024, // 1024 MB
@@ -93,6 +95,7 @@ const DEFAULT_CONFIG: Config = {
     replicas: 1,
   },
   health: {
+    batchLimit: 10,
     diskThresholdPercent: 0.75,
     wasmThreshold: 512,
     memoryThreshold: 1024,
