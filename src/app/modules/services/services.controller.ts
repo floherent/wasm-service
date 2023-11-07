@@ -84,7 +84,7 @@ export class ServicesController {
     @Res() response: Response,
     @Param('version_id') versionId: string,
     @Headers('ws-client-id') clientId: string | undefined,
-    @Body() body: ExecuteWasmDto[],
+    @Body() body: ExecuteWasmDto,
   ) {
     const command = new CreateBatchCommand(versionId, clientId, body);
     const result = await this.commandBus.execute<CreateBatchCommand, Result<Error, Batch>>(command);

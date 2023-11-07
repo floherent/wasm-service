@@ -9,7 +9,7 @@ import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
 import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, ExecData } from '@domain/wasm';
 import { WasmFileNotFound, ExecHistoryNotFound, WasmRecordNotSaved, ExecHistoryNotSaved } from '@shared/errors';
-import { Paginated, PaginationQueryParams, SortOrder, buildRequest, ExecResult } from '@shared/utils';
+import { Paginated, PaginationQueryParams, SortOrder, Spark, ExecResult } from '@shared/utils';
 
 @Injectable()
 export class WasmRepo implements IWasmRepo {
@@ -49,7 +49,7 @@ export class WasmRepo implements IWasmRepo {
   async execute(versionId: string, dto: ExecuteWasmDto): Promise<ExecData> {
     const wasm = await this.findWasm(versionId);
 
-    const input = buildRequest(versionId, dto.inputs);
+    const input = Spark.buildRequest(dto.inputs, versionId);
     const start = performance.now();
     const output = await wasm.execute(input);
     const end = performance.now();

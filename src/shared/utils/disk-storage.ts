@@ -59,7 +59,7 @@ export const getMemoryUsage = (config?: Config) => {
     heap_used: Math.round(heapUsed / ONE_MB),
     threshold: {
       disk: health.diskThresholdPercent,
-      wasm: health.memoryThreshold,
+      wasm: health.wasmThreshold,
       memory: health.memoryThreshold,
     },
   };

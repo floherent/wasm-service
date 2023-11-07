@@ -18,7 +18,7 @@ export type ExecRequestData = {
   request_data: {
     inputs: JsonValue;
   };
-  request_meta: {
+  request_meta?: Partial<{
     version_id: string;
     call_purpose: string;
     source_system?: string;
@@ -26,7 +26,7 @@ export type ExecRequestData = {
     requested_output?: string;
     service_category?: string;
     compiler_type?: string;
-  };
+  }>;
 };
 
 export type ExecResponseData = ExecData | BatchData;

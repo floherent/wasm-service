@@ -12,4 +12,8 @@ export class ExecuteWasmDto {
   @IsString()
   @IsOptional()
   kind: 'single' | 'batch' = 'single';
+
+  @IsString()
+  @IsOptional()
+  format: 'columnar' | 'json' = 'json';
 }

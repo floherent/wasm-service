@@ -8,7 +8,7 @@ import { BatchModelHandler, BatchExecModelHandler, BatchModel, BatchMapper } fro
 import { IBatchRepo, ExecuteWasmDto, Batch, BatchData, ExecData, IWasmRepo } from '@domain/wasm';
 import { BatchSubmissionNotSaved, BatchExecNotSaved, RecordsNotFound } from '@shared/errors';
 import { BatchResultsNotFound } from '@shared/errors';
-import { JsonValue, buildRequest, ExecResult, Duration } from '@shared/utils';
+import { JsonValue, Spark, ExecResult, Duration } from '@shared/utils';
 
 @Injectable()
 export class BatchRepo implements IBatchRepo {
@@ -25,7 +25,7 @@ export class BatchRepo implements IBatchRepo {
     const results: ExecResult[] = [];
 
     for (const i of inputs) {
-      const input = buildRequest(versionId, i);
+      const input = Spark.buildRequest(i, versionId);
       const start = performance.now();
       const output = await wasm.execute(input);
       const end = performance.now();
@@ -37,8 +37,8 @@ export class BatchRepo implements IBatchRepo {
     return BatchData.from(results);
   }
 
-  async create(versionId: string, clientId: string, dto: ExecuteWasmDto[]): Promise<Batch> {
-    const batch = Batch.created(versionId, clientId, dto.length);
+  async create(versionId: string, clientId: string, size = 0): Promise<Batch> {
+    const batch = Batch.created(versionId, clientId, size);
     try {
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}_batch.csv`);
       const model = this.batchMapper.toModel(batch);
@@ -53,7 +53,7 @@ export class BatchRepo implements IBatchRepo {
 
   async executeAsync(batch: Batch, records: JsonValue[]) {
     const wasm = await this.wasmRepo.findWasm(batch.service_id);
-    const requests = records.map((r) => buildRequest(batch.service_id, r));
+    const requests = records.map((record) => Spark.buildRequest(record, batch.service_id));
 
     this.updateCsvBatch(Batch.updated(batch));
 
@@ -64,8 +64,10 @@ export class BatchRepo implements IBatchRepo {
         totalProcessed += processed.length;
         const duration = performance.now() - start;
         const status = totalProcessed === requests.length ? 'completed' : 'processing';
+
         this.updateCsvBatch(Batch.updated(batch, status, totalProcessed, totalProcessed, duration));
         this.saveBatchExec(batch.id, processed);
+
         Logger.log(
           `batch <${batch.id}> updated: ${totalProcessed} of ${requests.length} about ${Duration.from(duration).ago}`,
         );

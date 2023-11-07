@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { WasmRunner } from '@coherentglobal/wasm-runner';
+import { WasmRunner, ColumnarSerializer } from '@coherentglobal/wasm-runner';
 
 import { ExecData } from '@domain/wasm';
 import { ExecRequestData, JsonValue } from './types';
@@ -27,6 +27,8 @@ export interface SparkOptions {
  * to achieve better performance.
  */
 export class Spark {
+  private static readonly serializer = new ColumnarSerializer();
+
   private readonly model: Model & { size: number };
   private readonly runners: WasmRunner[] = [];
   private readonly threads: number;
@@ -61,6 +63,16 @@ export class Spark {
     }
 
     return spark;
+  }
+
+  static inferFormatFrom(inputs: JsonValue): ['columnar' | 'json', JsonValue] {
+    const format = ColumnarSerializer.isDeserializable(inputs) ? 'columnar' : 'json';
+    const data = format === 'columnar' ? this.serializer.deserialize(inputs) : inputs;
+    return [format, data];
+  }
+
+  static buildRequest(inputs: JsonValue, versionId: string): ExecRequestData {
+    return { request_data: { inputs }, request_meta: { version_id: versionId } };
   }
 
   async dispose() {
@@ -126,21 +138,3 @@ interface Model {
   id: string; // version_id
   url: string; // absolute path to wasm file
 }
-
-/**
- * Builds the request data to be sent to the model.
- *
- * @param {string} versionId of the model to be executed
- * @param {object} inputs data to be executed
- * @returns {ExecRequestData} expected to run the model.
- */
-export const buildRequest = (versionId: string, inputs: JsonValue): ExecRequestData => {
-  return {
-    request_data: { inputs },
-    request_meta: {
-      version_id: versionId,
-      call_purpose: 'Offline Execution',
-      source_system: 'wasm-service',
-    },
-  } as ExecRequestData;
-};

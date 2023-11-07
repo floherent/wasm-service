@@ -15,7 +15,7 @@ export class RunBatchCommandHandler implements ICommandHandler<RunBatchCommand, 
 
   async execute(cmd: RunBatchCommand): Promise<Result<Error, Batch>> {
     const { batch, records } = cmd;
-    Logger.log(`starting batch <${batch.id}> of ${records.length} records`);
+    Logger.log(`starting batch <${batch.id}> of ${batch.total_inputs} records`);
 
     return Result.safe(async () => await this.repo.executeAsync(batch, records));
   }

@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from 'typescript-result';
 
 import { ExecuteWasmDto, IBatchRepo, IWasmRepo } from '@domain/wasm';
-import { ExecResponseData } from '@shared/utils';
+import { ExecResponseData, Spark } from '@shared/utils';
 
 export class ExecuteWasmCommand {
   constructor(readonly versionId: string, readonly dto: ExecuteWasmDto) {}
@@ -20,6 +20,9 @@ export class ExecuteWasmCommandHandler implements ICommandHandler<ExecuteWasmCom
     const { versionId, dto } = cmd;
 
     return Result.safe(async () => {
+      const [format, inputs] = Spark.inferFormatFrom(dto.inputs);
+      dto.format = format;
+      dto.inputs = inputs;
       return dto.kind === 'batch'
         ? await this.batchRepo.executeSync(versionId, dto)
         : await this.wasmRepo.execute(versionId, dto);
