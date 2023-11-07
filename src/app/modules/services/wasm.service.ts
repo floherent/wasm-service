@@ -26,12 +26,12 @@ export class WasmService {
     if (this.wasms.size >= this.appConfig.props.spark.cacheSize) {
       const oldest = this.bucket.pop();
       if (oldest) {
+        const wasm = this.wasms.get(oldest);
+        if (wasm) await wasm.dispose();
         this.wasms.delete(oldest);
         this.logger.log(`wasm <${oldest}> has been removed from cache`);
       }
     }
-
-    if (this.wasms.has(versionId)) this.logger.warn(`wasm <${versionId}> already exists in cache`);
 
     const wasm = await this.sparkify(versionId, filePath);
     this.wasms.set(versionId, wasm);
@@ -42,14 +42,18 @@ export class WasmService {
 
   remove(versionId: string) {
     const wasm = this.wasms.get(versionId);
-    if (wasm) {
-      this.wasms.delete(versionId);
-      this.bucket.splice(this.bucket.indexOf(versionId), 1);
-      this.logger.log(`wasm <${versionId}> has been removed from cache`);
-    }
+    if (!wasm) return;
+
+    wasm.dispose();
+    this.wasms.delete(versionId);
+    this.bucket.splice(this.bucket.indexOf(versionId), 1);
+    this.logger.log(`wasm <${versionId}> has been removed from cache`);
   }
 
-  clear() {
+  async clear() {
+    for (const wasm of this.wasms.values()) {
+      await wasm.dispose();
+    }
     this.wasms.clear();
     this.bucket.splice(0, this.bucket.length);
     this.logger.log('wasm cache has been cleared');

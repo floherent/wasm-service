@@ -1,5 +1,5 @@
 import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
-import { Controller, Get, Post, Put, Delete, Body, Param, Headers, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Query, Param, Headers, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -30,13 +30,14 @@ export class ServicesController {
   async uploadWasmFile(
     @Res() response: Response,
     @Param('version_id') id: string | undefined,
+    @Query('preload') preload: boolean,
     @Body() body: { data?: string },
     @UploadedFile(new ParseFilePipeBuilder().addFileTypeValidator({ fileType: 'zip' }).build())
     file: Express.Multer.File,
   ) {
     const versionId = id || file.filename.replace('.zip', '');
     const data = await UploadWasmDto.validate(versionId, body?.data);
-    const command = new UploadWasmCommand(data, file);
+    const command = new UploadWasmCommand(data, file, !!preload);
     const result = await this.commandBus.execute<UploadWasmCommand, Result<Error, WasmModel>>(command);
     const payload = result.getOrThrow();
 
@@ -48,13 +49,14 @@ export class ServicesController {
   async addWasmFileByUri(
     @Res() response: Response,
     @Param('version_id') versionId: string | undefined,
+    @Query('preload') preload: boolean,
     @Body() body: AddWasmByUriDto,
   ) {
-    const command = new AddWasmByUriCommand(body, versionId);
+    const command = new AddWasmByUriCommand(body, versionId, !!preload);
     const result = await this.commandBus.execute<AddWasmByUriCommand, Result<Error, WasmModel>>(command);
     const payload = result.getOrThrow();
 
-    this.logger.log(`wasm file <${payload.version_id}> has been uploaded.`);
+    this.logger.log(`wasm file <${payload.version_id}> has been uploaded`);
     response.status(HttpStatus.CREATED).send(payload);
   }
 
@@ -137,14 +139,14 @@ export class ServicesController {
     const result = await this.queryBus.execute<DownloadHistoryQuery, Result<Error, Buffer>>(query);
     const file = result.getOrThrow();
 
-    this.logger.log(`execution history file <${versionId}> has been downloaded.`);
+    this.logger.log(`execution history file <${versionId}> has been downloaded`);
     response.contentType('text/csv').status(HttpStatus.OK).send(file);
   }
 
   @Delete(':version_id')
   async deleteWasmFile(@Res() response: Response, @Param('version_id') versionId: string) {
     await this.commandBus.execute<DeleteWasmCommand, Result<Error, void>>(new DeleteWasmCommand(versionId));
-    this.logger.log(`wasm file <${versionId}> has been deleted.`);
+    this.logger.log(`wasm file <${versionId}> has been deleted`);
     response.status(HttpStatus.NO_CONTENT).send();
   }
 }

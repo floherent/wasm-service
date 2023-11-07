@@ -34,12 +34,12 @@ export class Duration {
 
   get ago(): string {
     const hours = Math.floor(this.inHours);
-    const minutes = Math.floor(this.inMinutes);
-    const seconds = Math.floor(this.inSeconds);
+    const minutes = Math.floor(this.inMinutes % Duration.minutesPerHour);
+    const seconds = Math.floor(this.inSeconds % Duration.secondsPerMinute);
 
-    let timeago = `${seconds} secs ago`;
-    if (minutes > 0) timeago = `${minutes}mins ${timeago}`;
-    if (hours > 0) timeago = `${hours}hrs ${timeago}`;
+    let timeago = `${seconds} ${seconds > 1 ? 'secs' : 'sec'} ago`;
+    if (minutes > 0) timeago = `${minutes} ${minutes > 1 ? 'mins' : 'min'} ${timeago}`;
+    if (hours > 0) timeago = `${hours} ${hours > 1 ? 'hrs' : 'hr'} ${timeago}`;
     return timeago;
   }
 

@@ -1,7 +1,9 @@
+import { Logger } from '@nestjs/common';
 import { WasmRunner } from '@coherentglobal/wasm-runner';
 
 import { ExecData } from '@domain/wasm';
 import { ExecRequestData, JsonValue } from './types';
+import { WasmRunnerNotCreated } from '../errors';
 
 export interface SparkOptions {
   replicas?: number;
@@ -13,7 +15,7 @@ export interface SparkOptions {
  * model to be executed in parallel.
  *
  * Suppose we have 100 records of input data to execute. For a model with 4
- * replicas, the operation will now be divided into 4 batches of 25 records each.
+ * replicas, the operation will now be divided into 25 batches of 4 records each.
  *
  * @param {Model} model info to be executed. The provided `url` can be a local
  * path, a remote URL, or even a file buffer. Ideally, an absolute path will
@@ -43,10 +45,21 @@ export class Spark {
   }
 
   static async create(model: Model, options?: SparkOptions) {
+    const replicas = options?.replicas ?? 1;
     const spark = new this(model, options);
-    for await (const runner of spark.init(options?.replicas ?? 1)) {
-      spark.runners.push(runner);
+
+    try {
+      for await (const runner of spark.init(replicas)) {
+        spark.runners.push(runner);
+      }
+    } catch (error) {
+      if (spark.replicas > 0 && spark.replicas <= replicas) {
+        Logger.warn(`only created ${spark.replicas} replicas of wasm runner <${model.id}>`, 'Spark');
+      } else {
+        throw new WasmRunnerNotCreated(`failed to create wasm runner <${model.id}>`, error);
+      }
     }
+
     return spark;
   }
 

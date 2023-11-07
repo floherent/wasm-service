@@ -14,6 +14,12 @@ export class ApiException extends HttpException {
   }
 }
 
+export class WasmRunnerNotCreated extends ApiException {
+  constructor(message = 'failed to create wasm runner', cause?: Error) {
+    super(HttpStatus.UNPROCESSABLE_ENTITY, message, cause);
+  }
+}
+
 export class WasmRecordNotSaved extends ApiException {
   constructor(id: string, cause?: Error) {
     super(HttpStatus.UNPROCESSABLE_ENTITY, `failed to save wasm file records for version_id <${id}>`, cause);

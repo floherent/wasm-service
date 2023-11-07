@@ -4,6 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { AppConfig } from '@app/modules/config';
 import { ONE_MB } from '@shared/constants';
+import { getMemoryUsage } from '@shared/utils';
 import { WasmDataHealthIndicator } from './wasm-data.health';
 
 @ApiTags('health')
@@ -44,5 +45,10 @@ export class HealthController {
       () => this.memory.checkHeap('memory_heap', this.MEMORY_THRESHOLD_IN_MB),
       () => this.memory.checkRSS('memory_rss', this.MEMORY_THRESHOLD_IN_MB),
     ]);
+  }
+
+  @Get('profile')
+  getProfile() {
+    return getMemoryUsage(this.appConfig.props);
   }
 }
