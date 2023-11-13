@@ -10,6 +10,7 @@ import { DownloadHistoryQueryHandler } from './queries/download-history.query';
 import { DownloadWasmQueryHandler } from './queries/download-wasm.query';
 import { GetBatchQueryHandler } from './queries/get-batch.query';
 import { GetHistoryQueryHandler } from './queries/get-history.query';
+import { GetWasmDataQueryHandler } from './queries/get-wasm-data.query';
 
 export * from './commands/add-wasm-by-uri.cmd';
 export * from './commands/delete-wasm.cmd';
@@ -31,6 +32,7 @@ export * from './queries/download-history.query';
 export * from './queries/download-wasm.query';
 export * from './queries/get-batch.query';
 export * from './queries/get-history.query';
+export * from './queries/get-wasm-data.query';
 export * from './repos/batch.repo';
 export * from './repos/wasm.repo';
 
@@ -47,4 +49,5 @@ export const CqrsHandlers = [
   DownloadHistoryQueryHandler,
   GetBatchQueryHandler,
   GetHistoryQueryHandler,
+  GetWasmDataQueryHandler,
 ];

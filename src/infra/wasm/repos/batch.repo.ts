@@ -4,11 +4,12 @@ import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
+import { SocketService } from '@app/modules/socket';
 import { BatchModelHandler, BatchExecModelHandler, BatchModel, BatchMapper } from '@infra/wasm';
 import { IBatchRepo, ExecuteWasmDto, Batch, BatchData, ExecData, IWasmRepo } from '@domain/wasm';
 import { BatchSubmissionNotSaved, BatchExecNotSaved, RecordsNotFound } from '@shared/errors';
 import { BatchResultsNotFound, RateLimitExceeded } from '@shared/errors';
-import { JsonValue, Spark, ExecResult, Duration, isMemoryOK } from '@shared/utils';
+import { JsonValue, Spark, ExecResult, isMemoryOK } from '@shared/utils';
 
 @Injectable()
 export class BatchRepo implements IBatchRepo {
@@ -16,6 +17,7 @@ export class BatchRepo implements IBatchRepo {
     @Inject('IWasmRepo') private readonly wasmRepo: IWasmRepo,
     private readonly batchMapper: BatchMapper,
     private readonly appConfig: AppConfig,
+    private readonly socketService: SocketService,
   ) {}
 
   async executeSync(versionId: string, dto: ExecuteWasmDto): Promise<BatchData> {
@@ -64,18 +66,20 @@ export class BatchRepo implements IBatchRepo {
 
     const start = performance.now();
     let totalProcessed = 0;
+    let updated: Batch;
+
     await wasm.executeAll(requests, (processed) => {
       try {
         totalProcessed += processed.length;
         const duration = performance.now() - start;
         const status = totalProcessed === requests.length ? 'completed' : 'processing';
+        updated = Batch.updated(batch, status, totalProcessed, totalProcessed, duration);
 
-        this.updateCsvBatch(Batch.updated(batch, status, totalProcessed, totalProcessed, duration));
+        this.socketService.emit(`batch:${status}`, updated);
+        this.updateCsvBatch(updated);
         this.saveBatchExec(batch.id, processed);
 
-        Logger.log(
-          `batch <${batch.id}> updated: ${totalProcessed} of ${requests.length} about ${Duration.from(duration).ago}`,
-        );
+        Logger.log(updated.toString());
       } catch (cause) {
         const exception = new BatchExecNotSaved(batch.id, cause);
         Logger.warn(exception.getResponse());
@@ -83,7 +87,7 @@ export class BatchRepo implements IBatchRepo {
     });
 
     requests.length = 0;
-    return Batch.completed(batch, totalProcessed, totalProcessed, performance.now() - start);
+    return updated;
   }
 
   async findOne(versionId: string, batchId: string): Promise<Batch> {

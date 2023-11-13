@@ -8,6 +8,7 @@ import { ExecData } from '../entities/exec-data.entity';
 export interface IWasmRepo {
   execute: (id: string, dto: ExecuteWasmDto) => Promise<ExecData>;
   saveWasm: (dto: WasmFileDto) => Promise<WasmModel>;
+  getWasmData: (params: PaginationQueryParams) => Promise<Paginated<WasmModel>>;
   findWasm: (id: string) => Promise<Spark>;
   downloadWasm: (id: string) => Promise<Buffer>;
   deleteWasm: (id: string) => Promise<void>;

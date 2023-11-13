@@ -9,7 +9,7 @@ import { Result } from 'typescript-result';
 import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, Batch, GetBatchQuery } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
 import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery, CreateBatchCommand } from '@domain/wasm';
-import { DownloadBatchQuery } from '@domain/wasm';
+import { DownloadBatchQuery, GetWasmDataQuery } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { dumpOntoDisk } from '@shared/utils';
 import { WasmModel } from '@infra/wasm';
@@ -21,6 +21,15 @@ export class ServicesController {
   private readonly logger = new Logger(ServicesController.name);
 
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
+
+  @Get()
+  async findAll(@Res() response: Response, @PaginationParams() pagination: PaginationQueryParams) {
+    const query = new GetWasmDataQuery(pagination);
+    const result = await this.queryBus.execute<GetWasmDataQuery, Result<Error, Paginated<WasmModel>>>(query);
+    const payload = result.getOrThrow();
+
+    response.status(HttpStatus.OK).send(payload);
+  }
 
   @ApiResponse({ status: HttpStatus.CREATED, type: WasmModel, description: 'the uploaded wasm file' })
   @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, type: WasmRecordNotSaved })
@@ -83,7 +92,7 @@ export class ServicesController {
   async createBatch(
     @Res() response: Response,
     @Param('version_id') versionId: string,
-    @Headers('ws-client-id') clientId: string | undefined,
+    @Headers('Ws-Client-Id') clientId: string | undefined,
     @Body() body: ExecuteWasmDto,
   ) {
     const command = new CreateBatchCommand(versionId, clientId, body);

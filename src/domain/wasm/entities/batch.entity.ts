@@ -1,4 +1,4 @@
-import { BatchStatus } from '@shared/utils';
+import { BatchStatus, Duration } from '@shared/utils';
 import { v4 as uuid } from 'uuid';
 
 export class Batch {
@@ -12,7 +12,7 @@ export class Batch {
     readonly total_inputs = 0,
     readonly total_processed = 0,
     readonly total_outputs = 0,
-    readonly duration_in_ms: number | undefined = undefined,
+    readonly duration_in_ms = 0,
   ) {}
 
   static created(serviceId: string, clientId: string, bufferSize: number, totalInputs: number): Batch {
@@ -36,5 +36,11 @@ export class Batch {
 
   static completed(batch: Batch, totalProcessed: number, totalOutputs: number, durationInMs: number): Batch {
     return Batch.updated(batch, 'completed', totalProcessed, totalOutputs, durationInMs);
+  }
+
+  toString() {
+    return `batch <${this.id}> updated: ${this.total_processed} of ${this.total_inputs} about ${
+      Duration.from(this.duration_in_ms).ago
+    }`;
   }
 }

@@ -20,6 +20,16 @@ export class WasmRepo implements IWasmRepo {
     private readonly wasmService: WasmService,
   ) {}
 
+  async getWasmData(params: PaginationQueryParams): Promise<Paginated<WasmModel>> {
+    const data = this.loadCsvWasm(this.appConfig.props.app.dataPath);
+
+    const total = data.length;
+    const [start, end] = Paginated.toIndex(params.page, params.limit);
+    const dataset = params.order === SortOrder.ASC ? data : data.reverse();
+    const models = dataset.slice(start, end).map((model) => model.asDto);
+    return Paginated.from(models, { ...params, total });
+  }
+
   async saveWasm(data: WasmFileDto): Promise<WasmModel> {
     const model = this.wasmMapper.toModel(data);
     const path = this.appConfig.props.app.dataPath;
