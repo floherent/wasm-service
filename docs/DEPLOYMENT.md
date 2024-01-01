@@ -20,20 +20,20 @@ API service, please contact our [Customer Success][coherent-helpdesk] for assist
 Having a sandbox will help run all sorts of tests within an isolated yet controlled
 environment across your team. Some key benefits include:
 
-* Testing environment (good for experimenting and collaborating)
-* Resource control (adjust the computational resources as needed)
-* Security and compliance (use of separate credentials and access control to avoid risks)
-* Learning and training
-* and more.
+- Testing environment (good for experimenting and collaborating)
+- Resource control (adjust the computational resources as needed)
+- Security and compliance (use of separate credentials and access control to avoid risks)
+- Learning and training
+- and more.
 
 ## Prerequisites
 
 With the appropriate access rights, you will need the following:
 
-* a running EC2 instance or Azure VM
-* access to a shell (bash, zsh, PowerShell, git-bash, etc.) that supports [SSH client][ssh-client].
-* user credentials (ideally, an identity file)
-* connection details (login name and IP address or domain name).
+- a running EC2 instance or Azure VM
+- access to a shell (bash, zsh, PowerShell, git-bash, etc.) that supports [SSH client][ssh-client].
+- user credentials (ideally, an identity file)
+- connection details (login name and IP address or domain name).
 
 Your AWS/Azure Admin should provide you with the credentials and connection details.
 And keep in mind that the Admin can invalidate them at some point if necessary.
@@ -202,6 +202,24 @@ $ docker build -t wasm-service .
 $ docker run --name wasm-service -p 8080:8080 -d wasm-service
 ```
 
+> [!IMPORTANT]
+> If you're using docker to build and run the service, you'll need to use a named
+> volume to persist the data. Otherwise, the data will be lost when the container
+> is removed. To do so, you'll need to update the `Dockerfile` and the `docker run`.
+
+Assuming that your upload path is `uploads`, edit the [Dockerfile](../Dockerfile)
+by adding the `VOLUME /app/uploads` layer before `CMD ["node", "dist/main"]`. So,
+the previous Docker command will look like this:
+
+```bash
+# 3b. or use docker to build and run the service
+$ docker build -t wasm-service .
+$ docker run --name wasm-service -p 8080:8080 -v ws-data:/app/uploads -d wasm-service
+```
+
+The `ws-data` volume will be used to persist the data. If you need to remove the
+volume, run `docker volume rm ws-data`, and revert the `Dockerfile` to its original.
+
 ## Test the API Service
 
 Once the service is up and running, you can test it by sending a request to the
@@ -216,6 +234,7 @@ $ curl http://ec2-8-8-8-8.compute-1.amazonaws.com:8080/health # or http://10.10.
 Happy deploying 🎉!
 
 <!-- References -->
+
 [ec2-docs]: https://docs.aws.amazon.com/ec2/index.html
 [azurevm-docs]: https://learn.microsoft.com/en-us/azure/virtual-machines/
 [setup-ec2-docs]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html

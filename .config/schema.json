@@ -2,7 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "WASM Service Configuration",
   "type": "object",
-  "required": ["name", "service"],
   "additionalProperties": false,
   "properties": {
     "name": {
@@ -42,15 +41,14 @@
             }
           ]
         },
-        "dataPath": {
-          "description": "File path for storing the records of the upload process (in CSV)",
-          "$comment": "supported headers: version_id,file_name,file_path,original_name,size,uploaded_at,service_name,revision,username",
-          "type": "string",
-          "pattern": "^.*\\.(c|t)sv$",
-          "default": "uploads/wasm-data.csv"
+        "bodyLimit": {
+          "description": "Body parser size limit",
+          "$comment": "In bytes, can be a string (100kb) or an integer (102400)",
+          "examples": ["100kb", 102400],
+          "default": "50mb",
+          "oneOf": [{ "type": "string" }, { "type": "integer", "minimum": 1 }]
         }
       },
-      "required": ["port"],
       "additionalProperties": false
     },
     "performance": {

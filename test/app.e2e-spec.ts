@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { ConfigController, AppConfig, DEFAULT_CONFIG } from '@app/modules/config';
 
-describe('ConfigModule', () => {
+describe('ConfigController', () => {
   let configController: ConfigController;
 
   beforeEach(async () => {
@@ -23,7 +23,7 @@ describe('ConfigModule', () => {
     expect(app.port).toBe(8080);
     expect(app.context_path).toBe('/');
     expect(app.upload_path).toBe('uploads');
-    expect(app.data_path).toBe('uploads/wasm-data.csv');
+    expect(app.body_limit).toBe('50mb');
 
     expect(spark.cache_size).toBe(8);
     expect(spark.threads).toBe(1);

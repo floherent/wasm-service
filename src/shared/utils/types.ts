@@ -1,4 +1,12 @@
-export type Nullable<T> = T | null | undefined;
+import { ExecData } from '@domain/wasm';
+import { BatchData } from '@domain/batch';
+
+export type BatchStatus = 'created' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'expired';
+
+export enum QueryType {
+  DATA = 'data',
+  FILE = 'file',
+}
 
 export type JsonValue =
   | string
@@ -10,37 +18,24 @@ export type JsonValue =
       [key: string]: JsonValue;
     };
 
-export interface ExecRequestData {
+export type ExecRequestData = {
   request_data: {
     inputs: JsonValue;
   };
-  request_meta: {
+  request_meta?: Partial<{
     version_id: string;
     call_purpose: string;
-    source_system: string;
-    correlation_id: string;
-    requested_output: Nullable<string>;
-    service_category: string;
-    compiler_type: Nullable<string>;
-  };
-}
-
-export interface ExecResponseData {
-  response_data: {
-    outputs: JsonValue;
-    errors?: JsonValue;
-    warnings?: JsonValue;
-    service_chain?: JsonValue;
-  };
-  response_meta: {
-    version_id: string;
+    source_system?: string;
     correlation_id?: string;
+    requested_output?: string;
     service_category?: string;
-    system?: string;
-    compiler_version?: string;
-    process_time?: number;
-  };
-}
+    compiler_type?: string;
+  }>;
+};
+
+export type ExecResponseData = ExecData | BatchData;
+
+export type ExecResult = { input: ExecRequestData; output: ExecData; elapsed: number };
 
 export interface ExternalWasm {
   filename: string;

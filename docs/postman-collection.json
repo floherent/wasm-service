@@ -43,11 +43,11 @@
             {
               "key": "wasm",
               "type": "file",
-              "src": "/path/to/wasms/ExpectedCreditLossesModel.zip"
+              "src": "/path/to/wasms/volume-cylinder.zip"
             },
             {
               "key": "data",
-              "value": "{\"service_name\": \"expected-loss\",  \"revision\": \"0.3.0\", \"username\": \"john.doe@coherent.global\"}",
+              "value": "{\"service_name\": \"volme of cylinder\",  \"revision\": \"0.1.0\", \"username\": \"john.doe@coherent.global\"}",
               "contentType": "application/json",
               "type": "default"
             }
@@ -68,7 +68,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"inputs\": {\n        \"AssessmentDate\": \"2022-08-31\",\n        \"CashFlowTypes\": \"Level\",\n        \"CCF\": 0.551,\n        \"Contract_IR\": 0.223,\n        \"LGD\": 0.8095,\n        \"LoanLimit\": 125000,\n        \"NextPaymentDate\": \"2022-09-30\",\n        \"ObligorRating\": \"A\",\n        \"OutstandingBalance\": 325000,\n        \"PaymentFreq\": 12,\n        \"RecoveryLags\": 10,\n        \"Segment\": 1,\n        \"Stage_Regular\": 2\n    }\n}",
+          "raw": "{\n  \"inputs\": { \"Height\": 4, \"Radius\": 6,\n  }\n}",
           "options": {
             "raw": {
               "language": "json"

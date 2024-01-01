@@ -1,5 +1,5 @@
 {
   "yaml.schemas": {
-    ".config/schema.json": ".config/config.yml"
+    ".config/schema.json": ".config/*.yml"
   }
 }

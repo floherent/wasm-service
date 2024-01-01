@@ -19,7 +19,7 @@ standalone service, this service is also microservice-friendly.
 
 As NestJS's philosophy dictates, the service is built with modularity in mind.
 It is composed of several modules that can be easily extended or updated to suit
-your needs. Those modules are: `HealthModule`, `ServicesModule`, and `ConfigModule`.
+your needs. Those modules include a `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
 The `ServicesModule` is a simple module that exposes a few endpoints, among them,
 one that relies heavily on the [@coherentglobal/wasm-runner@0.0.102][wasm-runner]
@@ -61,7 +61,7 @@ $ npm install
 $ npm run start:dev
 ```
 
-> Make sure NPM is installed via `npm -v` (this will output the current version).
+> Confirm that NPM is installed (e.g., `npm -v` this will output its version).
 > Feel free to use other Node package managers like `yarn` to proceed.
 
 ### Download the WASM from Spark
@@ -81,11 +81,10 @@ make sure the following files are present:
 - `your-service.js`
 - and some other files (e.g. checksums, etc.)
 
-> You may write down the `versionId` of the WASM that you downloaded if you want
-> to use it as a unique identifier to execute the WASM.
-> You may choose to use the [wasm file](../examples/ExpectedCreditLossesModel.zip)
-> (and its versionId: `e57f48e7-fe8c-4202-b8bc-5d366cf1eee9`) provided in this
-> repository as well.
+> You may write down the `versionId` of the WASM that you downloaded if you intend
+> to use it as a unique identifier for the downloaded WASM bundle. For testing purposes,
+> we provide the [wasm file (volume of cylinder)](../examples/volume-cylinder.zip)
+> (and its versionId `e57f48e7-fe8c-4202-b8bc-5d366cf1eee9`).
 
 ### Execute the WASM offline
 
@@ -94,8 +93,8 @@ See the [Execute a WASM module](#execute-a-wasm-module) in the
 
 ## Application configuration
 
-The configuration for the WASM service is stored in a YAML file named `config.yml`.
-That [file](../.config/config.yml) contains various parameters that can be adjusted
+The configuration for the WASM service is stored in a YAML file named `default.yml`.
+That [file](../.config/default.yml) contains various parameters that can be adjusted
 to customize the behavior of the service.
 
 You may save a configuration file in a different location and specify its path
@@ -107,12 +106,12 @@ config file to the container and set the environment variable to the mounted pat
 
 ```bash
 $ cd /local/path/to/config
-$ vim config.yml # create and edit the config file
+$ vim custom-config.yml # create and edit the config file
 
 # run the service with docker and mount the config file
 $ docker run --name wasm-service -p 8080:8080 -d \
   -v /local/path/to/config:/config \
-  -e WS_CONFIG_PATH=/config/config.yml \
+  -e WS_CONFIG_PATH=/config/custom-config.yml \
   wasm-service
 ```
 
@@ -120,19 +119,17 @@ $ docker run --name wasm-service -p 8080:8080 -d \
 
 The service configuration section includes the following parameters:
 
-- `name`: specifies the name of the WASM service. In this case, the name is set
-  to **wasm-service**.
-- `description`: provides a brief description of the service's purpose. For
-  example, the description states that the service is _an API for running WASM files_.
+- `name`: specifies the name of the WASM service (e.g., **wasm-service**).
+- `description`: provides a brief description of the service's purpose.
 - `service.port`: specifies the port number on which the service will listen for
   incoming requests. The default port is set to **8080**.
 - `service.contextPath`: defines the context path for the service. Requests to
   the service's API endpoints will be prefixed with this path. By default, the
   context path is set to `/`.
 - `service.uploadPath`: specifies the directory path where the uploaded files
-  will be stored. The default upload path is set to `./uploads`.
-- `service.dataPath`: specifies the file path for storing the records of the
-  upload process. The default file path is set to `./uploads/wasm-data.csv`.
+  will be stored. The default upload path is set to `uploads`.
+- `service.bodyLimit`: specifies the request's payload size limit. By default,
+  the size limit is **50 MB**, due to batch operations.
 
 ### Performance configuration
 
@@ -166,8 +163,8 @@ and reliability.
 The base URL for all the endpoints is `http://localhost:8080`.
 See the [Postman collection](postman-collection.json) for more details.
 
-Additionally, you can use the Swagger UI (WIP) `http://localhost:8080/docs` to
-visualize and explore the API endpoints.
+Additionally, you can use the Swagger UI <http://localhost:8080/docs> or
+<http://localhost:8080/docs-json> to visualize and explore the API endpoints.
 
 ### Check health status
 
@@ -175,10 +172,10 @@ GET **/health** - Check the health status of the service.
 
 This endpoint checks the following health indicators:
 
-- **wasm data**: checks the WASM data storage.
-- **disk storage**: checks the disk storage.
-- **memory heap**: checks the memory heap.
-- **memory rss**: checks the memory rss (resident set size).
+- **wasm_data**: checks the WASM data storage.
+- **disk_storage**: checks the disk storage.
+- **memory_heap**: checks the memory heap.
+- **memory_rss**: checks the memory rss (resident set size).
 
 It can also be used by a Kubernetes cluster to determine whether the service is
 up and running or not.
@@ -189,17 +186,17 @@ Response: **200-OK** / **503-Service Unavailable**
 {
   "status": "ok",
   "info": {
-    "wasm data": {
+    "wasm_data": {
       "status": "up",
-      "sizeInMB": 0.802
+      "sizeInMB": 0.385
     },
-    "disk storage": {
+    "disk_storage": {
       "status": "up"
     },
-    "memory heap": {
+    "memory_heap": {
       "status": "up"
     },
-    "memory rss": {
+    "memory_rss": {
       "status": "up"
     }
   },
@@ -221,8 +218,8 @@ Body: **multipart/form-data**
 
 ```json
 {
-  "service_name": "expected-loss",
-  "revision": "0.3.0",
+  "service_name": "volume of cylinder",
+  "revision": "0.1.0",
   "username": "john.doe@coherent.global"
 }
 ```
@@ -238,11 +235,11 @@ Response: **201-Created** / **400-Bad Request** / **422-Unprocessable Entity**
   "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
   "file_name": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip",
   "file_path": "uploads/e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip",
-  "original_name": "ExpectedCreditLossesModel.zip",
-  "size": 432451,
-  "uploaded_at": "2023-06-23T15:34:09.839Z",
-  "service_name": "expected-loss",
-  "revision": "0.3.0",
+  "original_name": "volume-cylinder.zip",
+  "size": 403161,
+  "uploaded_at": "2023-01-01T01:22:34.008Z",
+  "service_name": "volume of cylinder",
+  "revision": "0.1.0",
   "username": "john.doe@coherent.global"
 }
 ```
@@ -259,19 +256,8 @@ Body: **application/json**
 ```json
 {
   "inputs": {
-    "AssessmentDate": "2022-08-31",
-    "CashFlowTypes": "Level",
-    "CCF": 0.551,
-    "Contract_IR": 0.223,
-    "LGD": 0.8095,
-    "LoanLimit": 134000,
-    "NextPaymentDate": "2022-09-30",
-    "ObligorRating": "D",
-    "OutstandingBalance": 325000,
-    "PaymentFreq": 12,
-    "RecoveryLags": 10,
-    "Segment": 1,
-    "Stage_Regular": 2
+    "Height": 4,
+    "Radius": 6
   }
 }
 ```
@@ -285,57 +271,20 @@ Response: **200-OK** / **400-Bad Request** / **422-Unprocessable Entity**
 {
   "response_data": {
     "outputs": {
-      "PVExpected": 201637.709154489,
-      "ImpairmentRatio": 0.0642152198859025,
-      "PDC": [
-        {
-          "1": 0.108,
-          "13": 0.1108,
-          "25": 0.11,
-          "37": 0.107,
-          "49": 0.103,
-          "61": 0.0985,
-          "73": 0.0939,
-          "85": 0.0894,
-          "97": 0.0851,
-          "109": 0.081,
-          "121": 0.0772,
-          "133": 0.0737,
-          "145": 0.0704,
-          "157": 0.0674,
-          "169": 0.0645,
-          "181": 0.0618,
-          "193": 0.0593,
-          "205": 0.057,
-          "217": 0.0547,
-          "229": 0.0526,
-          "241": 0.0506,
-          "253": 0.0506,
-          "265": 0.0506
-        }
-      ],
-      "Final_ECL": 14111.872506906,
-      "ExpectedBehaviouralLife": 17,
-      "GrossCarryingAmount": 219759,
-      "PVContractual": 215749.581661395,
-      "ContractualMaturityDate": "2024-01-31"
+      "Volume": 452.389
     }
   },
   "response_meta": {
     "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
-    "correlation_id": "",
-    "service_category": "",
     "compiler_type": "Neuron",
     "system": "SPARK",
-    "compiler_version": "1.3.1",
-    "process_time": 8
+    "compiler_version": "1.5.0",
+    "process_time": 0
   }
 }
 ```
 
-> NOTE: you may indicate the flag `?flat=true` to return only the output data.
-
-### Retrieve WASM execution history
+### Retrieve the WASM execution history
 
 GET /v1/services/**{version_id}/history** - Retrieve the execution history of a
 WASM module.
@@ -346,7 +295,7 @@ Additionally, it accepts query parameters to paginate the execution history:
 - **limit**: number of records per page
 - **order**: order of the records (asc or desc)
 
-Response: **200-OK** / **400-Bad Request** / **404-Not Found**
+Response: **200-OK** / **404-Not Found**
 
 ```json
 {
@@ -354,121 +303,33 @@ Response: **200-OK** / **400-Bad Request** / **404-Not Found**
     {
       "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
       "inputs": {
-        "AssessmentDate": "2022-08-31",
-        "CashFlowTypes": "Level",
-        "CCF": 0.551,
-        "Contract_IR": 0.223,
-        "LGD": 0.8095,
-        "LoanLimit": 1200000,
-        "NextPaymentDate": "2022-09-30",
-        "ObligorRating": "D",
-        "OutstandingBalance": 325000,
-        "PaymentFreq": 12,
-        "RecoveryLags": 10,
-        "Segment": 1,
-        "Stage_Regular": 2
+        "Height": 4,
+        "Radius": 6
       },
       "outputs": {
-        "PVExpected": 740569.536244822,
-        "ImpairmentRatio": 0.0642155769068361,
-        "PDC": [
-          {
-            "1": 0.108,
-            "13": 0.1108,
-            "25": 0.11,
-            "37": 0.107,
-            "49": 0.103,
-            "61": 0.0985,
-            "73": 0.0939,
-            "85": 0.0894,
-            "97": 0.0851,
-            "109": 0.081,
-            "121": 0.0772,
-            "133": 0.0737,
-            "145": 0.0704,
-            "157": 0.0674,
-            "169": 0.0645,
-            "181": 0.0618,
-            "193": 0.0593,
-            "205": 0.057,
-            "217": 0.0547,
-            "229": 0.0526,
-            "241": 0.0506,
-            "253": 0.0506,
-            "265": 0.0506
-          }
-        ],
-        "Final_ECL": 51829.9975109301,
-        "ExpectedBehaviouralLife": 17,
-        "GrossCarryingAmount": 807125,
-        "PVContractual": 792399.533755752,
-        "ContractualMaturityDate": "2024-01-31"
+        "Volume": 452.389
       },
-      "executed_at": "2023-06-12T22:04:41.211Z",
-      "execution_time": "398.11ms"
+      "executed_at": "2023-01-01T01:37:47.880Z",
+      "execution_time": "2.02ms"
     },
     {
       "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
       "inputs": {
-        "AssessmentDate": "2022-08-31",
-        "CashFlowTypes": "Level",
-        "CCF": 0.551,
-        "Contract_IR": 0.223,
-        "LGD": 0.8095,
-        "LoanLimit": 1200000,
-        "NextPaymentDate": "2022-09-30",
-        "ObligorRating": "D",
-        "OutstandingBalance": 325000,
-        "PaymentFreq": 12,
-        "RecoveryLags": 10,
-        "Segment": 1,
-        "Stage_Regular": 2
+        "Height": 2,
+        "Radius": 3
       },
       "outputs": {
-        "PVExpected": 740569.536244822,
-        "ImpairmentRatio": 0.0642155769068361,
-        "PDC": [
-          {
-            "1": 0.108,
-            "13": 0.1108,
-            "25": 0.11,
-            "37": 0.107,
-            "49": 0.103,
-            "61": 0.0985,
-            "73": 0.0939,
-            "85": 0.0894,
-            "97": 0.0851,
-            "109": 0.081,
-            "121": 0.0772,
-            "133": 0.0737,
-            "145": 0.0704,
-            "157": 0.0674,
-            "169": 0.0645,
-            "181": 0.0618,
-            "193": 0.0593,
-            "205": 0.057,
-            "217": 0.0547,
-            "229": 0.0526,
-            "241": 0.0506,
-            "253": 0.0506,
-            "265": 0.0506
-          }
-        ],
-        "Final_ECL": 51829.9975109301,
-        "ExpectedBehaviouralLife": 17,
-        "GrossCarryingAmount": 807125,
-        "PVContractual": 792399.533755752,
-        "ContractualMaturityDate": "2024-01-31"
+        "Volume": 56.549
       },
-      "executed_at": "2023-06-12T22:04:45.949Z",
-      "execution_time": "11.56ms"
+      "executed_at": "2023-01-01T01:41:31.928Z",
+      "execution_time": "0.99ms"
     }
   ],
   "pagination": {
     "page": 1,
-    "size": 2,
-    "total_items": 6,
-    "total_pages": 3,
+    "size": 100,
+    "total_items": 2,
+    "total_pages": 1,
     "number_of_items": 2
   }
 }
@@ -481,7 +342,7 @@ GET /v1/services/**{version_id}** - Download an existing WASM module.
 This endpoint is used to download an existing WASM module. The response will be
 saved as a zip file.
 
-Response: **200-OK** / **404-Not Found** / **422-Unprocessable Entity**
+Response: **200-OK** / **404-Not Found**
 
 ### Delete an existing WASM module
 
@@ -532,7 +393,7 @@ npm run test # unit tests
 npm run test:e2e # end-to-end tests
 ```
 
-> NOTE: We use the `ConfigModule` to set up the testing environment. The end-to-end
+> **NOTE:** We use the `ConfigModule` to set up the testing environment. The end-to-end
 > test files are located in the `test` directory while the unit tests are located
 > under the `src` directory with the suffix `.spec.ts`.
 
@@ -542,14 +403,15 @@ npm run test:e2e # end-to-end tests
 
 The workflow for a WASM journey involves transferring a zip file through HTTP,
 which is then saved as assets. These assets are later utilized to perform
-sparkified calculations. A record of the upload process is stored in a CSV file
+_sparkified_ calculations. A record of the upload process is stored in a CSV file
 for future references and computations.
 
 When an execution request is made, the WASM file is loaded into memory and
 _cached until invalidated_.
-The provided inputs and version ID are used to run the WASM, and the resulting output
-is returned to the user. As the user submits multiple requests, records of those requests are
-saved in a CSV file, which can be retrieved later as part of the API call history.
+The provided inputs and version ID are used to run the WASM, and the resulting
+output is returned to the user. As the user submits multiple requests, records
+of those requests are saved in a CSV file, which can be retrieved later as part
+of the API call history.
 
 ### Architecture and design
 
@@ -559,8 +421,8 @@ handling the different aspects of the service:
 - **Application layer**: This layer manages the application logic and handles
   communication with the infrastructure layer. It processes HTTP requests and
   responses, and includes interceptors and filters.
-- **Infrastructure layer**: The one is responsible for managing
-  all aspects related to infrastructure, data persistence, and storage systems.
+- **Infrastructure layer**: The one is responsible for managing all aspects related
+  to infrastructure, data persistence, and storage systems.
   This includes interactions with the file system and other relevant components.
 - **Domain layer**: The domain layer handles the core business logic of the system.
   It encompasses the representation of entity models and encapsulates the operations
