@@ -1,0 +1,19 @@
+name: wasm-service
+description: API service for running WASM files
+
+service:
+  port: 8080
+  contextPath: /
+  uploadPath: uploads
+  bodyLimit: 50mb
+
+performance:
+  spark:
+    cacheSize: 8
+    threads: 1
+    replicas: 1
+  health:
+    indicators:
+      disk: 0.75
+      wasm: 512
+      memory: 1024

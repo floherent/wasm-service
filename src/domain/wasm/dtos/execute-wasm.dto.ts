@@ -1,8 +1,18 @@
-import { IsObject } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
-import { JsonValue } from '@shared/utils';
+import { IsJsonValue, JsonValue } from '@shared/utils';
 
 export class ExecuteWasmDto {
-  @IsObject()
-  inputs: JsonValue;
+  @IsJsonValue()
+  inputs: JsonValue | JsonValue[];
+
+  @IsJsonValue()
+  @IsOptional()
+  shared: JsonValue;
+
+  @IsString()
+  @IsOptional()
+  kind: 'single' | 'batch' = 'single';
+
+  format: 'columnar' | 'json';
 }

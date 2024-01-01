@@ -13,6 +13,6 @@ export class DeleteWasmCommandHandler implements ICommandHandler<DeleteWasmComma
   constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo) {}
 
   async execute(cmd: DeleteWasmCommand): Promise<Result<Error, void>> {
-    return Result.safe(async () => await this.repo.delete(cmd.versionId));
+    return Result.safe(async () => await this.repo.deleteWasm(cmd.versionId));
   }
 }

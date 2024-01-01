@@ -13,6 +13,6 @@ export class DownloadWasmQueryHandler implements IQueryHandler<DownloadWasmQuery
   constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo) {}
 
   async execute(query: DownloadWasmQuery): Promise<Result<Error, Buffer>> {
-    return Result.safe(async () => await this.repo.download(query.versionId));
+    return Result.safe(async () => await this.repo.downloadWasm(query.versionId));
   }
 }

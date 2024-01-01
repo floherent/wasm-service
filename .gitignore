@@ -46,3 +46,7 @@ lerna-debug.log*
 # Misc
 /uploads
 /temp
+
+# Husky
+.husky/_
+.eslintcache

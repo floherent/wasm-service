@@ -1,28 +1,23 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { Expose, plainToInstance } from 'class-transformer';
 import { IsString, IsOptional, IsNotEmpty, validateOrReject } from 'class-validator';
 
 import { BadUploadWasmData } from '@shared/errors';
 
 export class UploadWasmDto {
-  @ApiProperty({ name: 'version_id', description: 'version id of the wasm bundle', format: 'uuid' })
   @Expose({ name: 'version_id' })
   @IsString()
   @IsNotEmpty()
   versionId: string;
 
-  @ApiProperty({ required: false, name: 'service_name', description: 'name of the service' })
   @Expose({ name: 'service_name' })
   @IsString()
   @IsOptional()
   serviceName?: string;
 
-  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   revision?: string;
 
-  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   username?: string;

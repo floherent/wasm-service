@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
 import { AppModule } from '@app/modules/app.module';
 import { AppConfig } from '@app/modules/config';
-import { ApiExceptionFilter } from '@shared/errors';
+import { ApiExceptionFilter, ApiValidationPipe } from '@shared/errors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,16 +15,18 @@ async function bootstrap() {
   app.enableCors();
 
   app.setGlobalPrefix(appConfig.props.app.contextPath);
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalPipes(ApiValidationPipe);
   app.useGlobalFilters(new ApiExceptionFilter());
+  app.use(bodyParser.json({ limit: appConfig.props.app.bodyLimit }));
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('wasm-service')
-    .setDescription('API service for running WASM files')
-    .setVersion('0.1.0')
-    .addTag('health', 'endpoints for checking the health of the service')
-    .addTag('config', 'endpoints for viewing the wasm-service configuration')
-    .addTag('services', 'endpoints for managing wasm bundle files')
+    .setTitle(appConfig.props.app.name)
+    .setDescription(appConfig.props.app.description)
+    .setVersion(appConfig.props.app.version)
+    .addTag('health', 'checks the health status of the service')
+    .addTag('config', 'retrieves the service configuration')
+    .addTag('services', 'manages and executes wasm bundle files')
+    .addTag('batch', 'manages batch operations')
     .build();
   const openApidocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, openApidocument);

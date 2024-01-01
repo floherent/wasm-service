@@ -5,15 +5,15 @@ service:
   port: 8080
   contextPath: /
   uploadPath: uploads
-  dataPath: uploads/wasm-data.csv
+  bodyLimit: 50mb
 
 performance:
   spark:
-    cacheSize: 16
-    threads: 1
-    replicas: 2
+    cacheSize: 4
+    threads: 4
+    replicas: 1
   health:
     indicators:
-      disk: 0.75 # percentage
-      wasm: 512 # size in MB
-      memory: 256 # size in MB
+      disk: 0.75
+      wasm: 512
+      memory: 1024

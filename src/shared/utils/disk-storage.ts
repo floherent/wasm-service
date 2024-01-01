@@ -4,7 +4,7 @@ import { readdirSync, statSync } from 'fs';
 import { extname, join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
-import { ONE_KB } from '@shared/constants';
+import { ONE_KB, ONE_MB } from '@shared/constants';
 
 export const dumpOntoDisk = (options?: { dest: string }) => {
   return diskStorage({
@@ -48,4 +48,15 @@ export const getFolderSize = (folderPath: string) => {
     mb: inMegabytes,
     gb: inGigabytes,
   };
+};
+
+export const getMemoryUsage = () => {
+  const { heapTotal, heapUsed, rss } = process.memoryUsage();
+  return { rss, heapTotal, heapUsed };
+};
+
+export const isMemoryOK = (thresholdInMB: number): boolean => {
+  const threshold = thresholdInMB * ONE_MB;
+  const { rss, heapUsed: heap } = getMemoryUsage();
+  return threshold > rss || threshold > heap;
 };
