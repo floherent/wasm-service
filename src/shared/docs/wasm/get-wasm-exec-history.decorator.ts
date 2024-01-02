@@ -47,12 +47,6 @@ function getOkSchema() {
             items: {
               type: 'object',
               properties: {
-                version_id: {
-                  type: 'string',
-                  format: 'uuid',
-                  description: 'wasm bundle id',
-                  example: 'f7b3f2a0-6a7e-4a1a-8f5d-0b9b9b9b9b9b',
-                },
                 inputs: {
                   type: 'object',
                   description: 'execution inputs',

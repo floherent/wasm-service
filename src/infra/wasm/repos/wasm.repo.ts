@@ -111,7 +111,6 @@ export class WasmRepo implements IWasmRepo {
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
       const models = results.map((result) => {
         return new ExecHistoryModelHandler({
-          version_id: versionId,
           inputs: JSON.stringify(result.input.request_data.inputs),
           outputs: JSON.stringify(result.output.response_data.outputs),
           executed_at: Date.now().toString(),

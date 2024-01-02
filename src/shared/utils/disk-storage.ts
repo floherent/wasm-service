@@ -60,3 +60,13 @@ export const isMemoryOK = (thresholdInMB: number): boolean => {
   const { rss, heapUsed: heap } = getMemoryUsage();
   return threshold > rss || threshold > heap;
 };
+
+export function toFileSize(size: number): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let index = 0;
+  while (size >= 1024) {
+    size /= 1024;
+    index++;
+  }
+  return `${size.toFixed(2)} ${units[index]}`;
+}

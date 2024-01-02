@@ -1,6 +1,5 @@
 export class ExecHistoryModel {
   constructor(
-    readonly version_id: string,
     readonly inputs: string,
     readonly outputs: string,
     readonly executed_at: string,
@@ -10,12 +9,11 @@ export class ExecHistoryModel {
 
 export class ExecHistoryModelHandler extends ExecHistoryModel {
   get asDto(): ExecHistoryModel {
-    return new ExecHistoryModel(this.version_id, this.inputs, this.outputs, this.executed_at, this.execution_time);
+    return new ExecHistoryModel(this.inputs, this.outputs, this.executed_at, this.execution_time);
   }
 
   constructor(
     fields: {
-      version_id: string;
       inputs: string;
       outputs: string;
       executed_at: string;
@@ -23,11 +21,11 @@ export class ExecHistoryModelHandler extends ExecHistoryModel {
     },
     public sep = '|',
   ) {
-    super(fields.version_id, fields.inputs, fields.outputs, fields.executed_at, fields.execution_time);
+    super(fields.inputs, fields.outputs, fields.executed_at, fields.execution_time);
   }
 
   toCsv(sep?: string): string {
-    return [this.version_id, this.inputs, this.outputs, this.executed_at, this.execution_time].join(sep ?? this.sep);
+    return [this.inputs, this.outputs, this.executed_at, this.execution_time].join(sep ?? this.sep);
   }
 
   static headers(sep?: string): string {

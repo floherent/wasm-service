@@ -52,20 +52,20 @@ class AppConfig {
         name: config?.name ?? DEFAULT_CONFIG.app.name,
         description: config?.description ?? DEFAULT_CONFIG.app.description,
         version: DEFAULT_CONFIG.app.version,
-        port: parseInt(service?.port, 10) ?? DEFAULT_CONFIG.app.port,
+        port: parseInt(service?.port ?? DEFAULT_CONFIG.app.port, 10),
         contextPath: service?.contextPath ?? DEFAULT_CONFIG.app.contextPath,
         uploadPath: service?.uploadPath ?? DEFAULT_CONFIG.app.uploadPath,
         bodyLimit: service?.bodyLimit ?? DEFAULT_CONFIG.app.bodyLimit,
       },
       spark: {
-        cacheSize: parseInt(performance?.spark?.cacheSize, 10) ?? DEFAULT_CONFIG.spark.cacheSize,
-        threads: parseInt(performance?.spark?.threads, 10) ?? DEFAULT_CONFIG.spark.threads,
-        replicas: parseInt(performance?.spark?.replicas, 10) ?? DEFAULT_CONFIG.spark.replicas,
+        cacheSize: parseInt(performance?.spark?.cacheSize ?? DEFAULT_CONFIG.spark.cacheSize, 10),
+        threads: parseInt(performance?.spark?.threads ?? DEFAULT_CONFIG.spark.threads, 10),
+        replicas: parseInt(performance?.spark?.replicas ?? DEFAULT_CONFIG.spark.replicas, 10),
       },
       health: {
-        diskThresholdPercent: parseFloat(indicators?.disk) ?? DEFAULT_CONFIG.health.diskThresholdPercent,
-        wasmThreshold: parseInt(indicators?.wasm, 10) ?? DEFAULT_CONFIG.health.wasmThreshold,
-        memoryThreshold: parseInt(indicators?.memory, 10) ?? DEFAULT_CONFIG.health.memoryThreshold,
+        diskThresholdPercent: parseFloat(indicators?.disk ?? DEFAULT_CONFIG.health.diskThresholdPercent),
+        wasmThreshold: parseInt(indicators?.wasm ?? DEFAULT_CONFIG.health.wasmThreshold, 10),
+        memoryThreshold: parseInt(indicators?.memory ?? DEFAULT_CONFIG.health.memoryThreshold, 10),
       },
     };
   }

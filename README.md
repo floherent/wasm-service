@@ -75,6 +75,7 @@ The `wasm-service` API includes five basic use cases to help you get started:
 
 | Use Cases                      | Resources                                |
 | ------------------------------ | ---------------------------------------- |
+| API Documentation              | `GET /docs` or `GET /docs-json`          |
 | Upload a WASM module           | `PUT /v1/services[/{version_id}]`        |
 | Execute a WASM module          | `POST /v1/services/{version_id}/execute` |
 | Get the WASM execution history | `GET /v1/services/{version_id}/history`  |

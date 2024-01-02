@@ -78,4 +78,35 @@ export class Duration {
   toString(): string {
     return `Duration in milliseconds: ${this.inMilliseconds}`;
   }
+
+  humanize(type: 'short' | 'medium' | 'long' = 'short') {
+    const hours = Math.floor(this.inHours);
+    const minutes = Math.floor(this.inMinutes % Duration.minutesPerHour);
+    const seconds = Math.floor(this.inSeconds % Duration.secondsPerMinute);
+
+    let timeago = `${this.format(seconds, type, 's')}`;
+    if (minutes > 0) timeago = `${this.format(minutes, type, 'm')} ${timeago}`;
+    if (hours > 0) timeago = `${this.format(hours, type, 'h')} ${timeago}`;
+    return timeago;
+  }
+
+  private format(value: number, type: 'short' | 'medium' | 'long', unit: 'h' | 'm' | 's') {
+    let duration = '';
+    switch (type) {
+      case 'short':
+        duration = unit === 'h' ? 'h' : unit === 'm' ? 'm' : 's';
+        break;
+      case 'medium':
+        duration = unit === 'h' ? 'hr' : unit === 'm' ? 'min' : 'sec';
+        break;
+      case 'long':
+        duration = unit === 'h' ? 'hour' : unit === 'm' ? 'minute' : 'second';
+        break;
+      default:
+        duration = unit === 'h' ? 'hr' : unit === 'm' ? 'min' : 'sec';
+    }
+
+    duration = type === 'short' ? `${value}${duration}` : `${value} ${duration}`;
+    return value > 1 && type !== 'short' ? `${duration}s` : duration;
+  }
 }
