@@ -1,11 +1,11 @@
 export class Paginated<T> {
   private constructor(public content: T[], public pagination: Pagination) {}
 
-  static empty<P>(pagination: QueryPagination & { total: number }): Paginated<P> {
+  static empty<P>(pagination: { page: number; limit: number; total: number }): Paginated<P> {
     return Paginated.from([], pagination);
   }
 
-  static from<P>(data: P[], pagination: QueryPagination & { total: number }): Paginated<P> {
+  static from<P>(data: P[], pagination: { page: number; limit: number; total: number }): Paginated<P> {
     return new Paginated<P>(data, {
       page: pagination.page,
       size: pagination.limit,
@@ -28,9 +28,4 @@ export interface Pagination {
   total_items: number;
   total_pages: number;
   number_of_items: number;
-}
-
-export interface QueryPagination {
-  page: number;
-  limit: number;
 }

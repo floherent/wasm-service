@@ -4,8 +4,7 @@ import { createWriteStream, statSync } from 'fs';
 import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
-import { Spark, ExternalWasm } from '@shared/utils';
-import { ONE_KB } from '@shared/constants';
+import { Spark, ExternalWasm, toFileSize } from '@shared/utils';
 import { BadUploadWasmData } from '@shared/errors';
 
 @Injectable()
@@ -78,7 +77,7 @@ export class WasmService {
         const stats = statSync(filePath);
         const size = stats.isFile() ? stats.size : 0;
 
-        this.logger.log(`external wasm of size ${Math.round(size / ONE_KB)}KB downloaded from ${url}`);
+        this.logger.log(`external wasm of size ${toFileSize(size)} downloaded from ${url}`);
         resolve({ filename, url, path: basePath, size });
       });
 

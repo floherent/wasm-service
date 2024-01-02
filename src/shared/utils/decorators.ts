@@ -17,12 +17,13 @@ export const IsJsonValue = (options: IsJsonValueOptions = {}, validationOptions?
       constraints: [options.maxBatchLength ?? MAX_BATCH_LENGTH, options.maxBatchSize ?? MAX_BATCH_SIZE],
       validator: {
         validate(value: unknown, args: ValidationArguments) {
-          if (args.object['kind'] === 'batch') {
-            if (!Array.isArray(value)) return false;
+          if (Array.isArray(value)) {
+            args.object['kind'] = 'batch';
             const [maxLength, maxSize] = args.constraints;
             const size = Buffer.from(JSON.stringify(value)).length;
             return value.length > 0 && value.length <= maxLength && size <= maxSize && value.every(isNonNullObject);
           } else {
+            args.object['kind'] = 'single';
             return isNonNullObject(value);
           }
         },

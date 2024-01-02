@@ -26,7 +26,7 @@ export const PaginationParams = createParamDecorator((_, ctx: ExecutionContext) 
 const parseNumber = (value: unknown, defaultValue: number): number => {
   try {
     return Math.abs(Number(value)) || defaultValue;
-  } catch (_) {
+  } catch {
     return defaultValue;
   }
 };

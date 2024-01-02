@@ -29,6 +29,6 @@ export class ExecHistoryModelHandler extends ExecHistoryModel {
   }
 
   static headers(sep?: string): string {
-    return ['version_id', 'inputs', 'outputs', 'executed_at', 'execution_time'].join(sep ?? '|');
+    return ['inputs', 'outputs', 'executed_at', 'execution_time'].join(sep ?? '|');
   }
 }
