@@ -62,10 +62,10 @@ function getOkSchema() {
                   description: 'execution date',
                   example: '2021-01-31T00:00:00.000Z',
                 },
-                execution_time: {
-                  type: 'string',
-                  description: 'execution time',
-                  example: '1.72ms',
+                duration: {
+                  type: 'number',
+                  description: 'execution time in milliseconds',
+                  example: 1.72,
                 },
               },
             },

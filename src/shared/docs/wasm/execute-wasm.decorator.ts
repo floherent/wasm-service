@@ -54,42 +54,36 @@ function getSwaggerDefinitions(swagger: Swagger) {
 }
 
 function getBodySchema() {
-  const columnar = {
-    type: 'array',
-    description: 'useful for synchronous batch execution using COLUMNAR data',
-    items: { type: 'array', minItems: 2 },
-    example: [
-      ['one', 'two'],
-      [1, 2],
-      [3, 4],
-    ],
-  };
   return {
     type: 'object',
     additionalProperties: false,
     required: ['inputs'],
     properties: {
-      kind: {
-        type: 'string',
-        enum: ['single', 'batch'],
-        default: 'single',
-      },
       inputs: {
         description: 'corresponding inputs',
         oneOf: [
-          { type: 'object', example: { foo: 'bar', some: 'info' } },
+          { type: 'object', example: { a: 1, b: 2 } },
           {
             type: 'array',
             description: 'useful for synchronous batch execution using JSON data',
             items: { type: 'object' },
-            example: [{ foo: 'bar' }],
+            example: [{ a: 1 }, { b: 2 }, { c: 3 }],
           },
-          columnar,
+          {
+            type: 'array',
+            description: 'useful for synchronous batch execution using COLUMNAR data',
+            items: { type: 'array', minItems: 2 },
+            example: [
+              ['one', 'two'],
+              [1, 2],
+              [3, 4],
+            ],
+          },
         ],
       },
       shared: {
         description: 'shared data to extend every input of a batch execution',
-        oneOf: [{ type: 'null', example: null }, { type: 'object' }, columnar],
+        oneOf: [{ type: 'null', example: null }, { type: 'object' }],
       },
     },
   };
@@ -107,7 +101,7 @@ function getOkSchema() {
           response_data: {
             type: 'object',
             properties: {
-              outputs: { type: 'object', example: { foo: 'bar' } },
+              outputs: { type: 'object', example: { c: 3 } },
               errors: { type: 'array', example: [] },
               warnings: { type: 'array', example: [] },
               service_chain: { type: 'array', example: [] },
@@ -131,8 +125,8 @@ function getOkSchema() {
         properties: {
           version_id: { type: 'string' },
           executed_at: { type: 'string', format: 'date-time' },
-          duration_in_ms: { type: 'number' },
-          execution_times: { type: 'array', items: { type: 'number' } },
+          duration: { type: 'number' },
+          exec_times: { type: 'array', items: { type: 'number' } },
           inputs: { type: 'array', items: { type: 'object' } },
           outputs: { type: 'array', items: { type: 'object' } },
           errors: { type: 'array', items: { type: 'object' } },

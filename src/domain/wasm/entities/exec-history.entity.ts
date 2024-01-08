@@ -5,6 +5,6 @@ export class ExecHistory {
     readonly inputs: JsonValue,
     readonly outputs: JsonValue,
     readonly executed_at: Date | number,
-    readonly execution_time: string,
+    readonly duration: number,
   ) {}
 }

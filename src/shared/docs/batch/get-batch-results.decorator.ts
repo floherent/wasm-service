@@ -40,9 +40,26 @@ function getOkSchema() {
           type: 'object',
           additionalProperties: false,
           properties: {
-            inputs: { type: 'object', example: { a: 1, b: 2 } },
-            outputs: { type: 'object', example: { c: 3 } },
-            process_time: { type: 'string', example: '2021-01-01T00:00:00.000Z' },
+            inputs: {
+              type: 'object',
+              description: 'execution inputs',
+              example: { a: 1, b: 2 },
+            },
+            outputs: {
+              type: 'object',
+              description: 'execution outputs',
+              example: { c: 3 },
+            },
+            executed_at: {
+              type: 'string',
+              description: 'execution date',
+              example: '2021-01-31T00:00:00.000Z',
+            },
+            duration: {
+              type: 'number',
+              description: 'execution time in milliseconds',
+              example: 1.72,
+            },
           },
         },
       },

@@ -94,7 +94,23 @@ export class Spark {
   }
 
   async execute(data: ExecRequestData) {
-    return (await this.runner.execute(data, this.model.id)) as ExecData;
+    try {
+      const result = await this.runner.execute(data, this.model.id);
+      return new ExecData(
+        {
+          outputs: result?.response_data?.outputs ?? {},
+          errors: result?.response_data?.errors ?? [],
+          warnings: result?.response_data?.warnings ?? [],
+          service_chain: result?.response_data?.service_chain ?? [],
+        },
+        result.response_meta,
+      );
+    } catch (errors) {
+      return new ExecData(
+        { outputs: null, errors, warnings: [], service_chain: [] },
+        { version_id: this.model.id, compiler_type: 'Neuron', process_time: 0 },
+      );
+    }
   }
 
   async executeAll(data: ExecRequestData[], predicate?: (processed: ExecResult[]) => void) {

@@ -188,7 +188,7 @@ Response: **200-OK** / **503-Service Unavailable**
   "info": {
     "wasm_data": {
       "status": "up",
-      "sizeInMB": 0.385
+      "size": 405215
     },
     "disk_storage": {
       "status": "up"
@@ -271,7 +271,10 @@ Response: **200-OK** / **400-Bad Request** / **422-Unprocessable Entity**
 {
   "response_data": {
     "outputs": {
-      "Volume": 452.389
+      "Volume": 452.389,
+      "errors": [],
+      "warnings": [],
+      "service_chain": []
     }
   },
   "response_meta": {
@@ -310,7 +313,7 @@ Response: **200-OK** / **404-Not Found**
         "Volume": 452.389
       },
       "executed_at": "2023-01-01T01:37:47.880Z",
-      "execution_time": "2.02ms"
+      "duration": 2.02
     },
     {
       "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
@@ -322,7 +325,7 @@ Response: **200-OK** / **404-Not Found**
         "Volume": 56.549
       },
       "executed_at": "2023-01-01T01:41:31.928Z",
-      "execution_time": "0.99ms"
+      "duration": 0.99
     }
   ],
   "pagination": {

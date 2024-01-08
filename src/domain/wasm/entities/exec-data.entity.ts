@@ -8,13 +8,6 @@ export class ExecData {
       warnings?: JsonValue;
       service_chain?: JsonValue;
     },
-    readonly response_meta?: {
-      version_id: string;
-      correlation_id?: string;
-      service_category?: string;
-      system?: string;
-      compiler_version?: string;
-      process_time?: number;
-    },
+    readonly response_meta?: { [key: string]: any },
   ) {}
 }

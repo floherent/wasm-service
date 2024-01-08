@@ -28,11 +28,9 @@ export class ConfigController {
         replicas: spark.replicas,
       },
       health: {
-        indicators: {
-          disk: health.diskThresholdPercent,
-          wasm: health.wasmThreshold,
-          memory: health.memoryThreshold,
-        },
+        disk: health.diskThresholdPercent,
+        wasm: health.wasmThreshold,
+        memory: health.memoryThreshold,
       },
     };
   }

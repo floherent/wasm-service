@@ -52,14 +52,9 @@ function getSwaggerDefinitions(swagger: Swagger) {
         health: {
           type: 'object',
           properties: {
-            indicators: {
-              type: 'object',
-              properties: {
-                disk: { type: 'number', example: 0.75 },
-                wasm: { type: 'number', example: 512 },
-                memory: { type: 'number', example: 1024 },
-              },
-            },
+            disk: { type: 'number', example: 0.75 },
+            wasm: { type: 'number', example: 512 },
+            memory: { type: 'number', example: 1024 },
           },
         },
       },

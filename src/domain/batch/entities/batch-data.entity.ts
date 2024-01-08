@@ -4,9 +4,9 @@ export class BatchData {
   constructor(
     readonly version_id: string,
     readonly executed_at: string | undefined,
-    readonly duration_in_ms: number,
+    readonly duration: number,
     readonly outputs: JsonValue[],
-    readonly execution_times: number[],
+    readonly exec_times: number[],
     readonly compiler_version?: string,
     readonly service_category?: string,
     readonly correlation_id?: string,
@@ -31,14 +31,14 @@ export class BatchData {
       service_category: string,
       correlation_id: string,
       system: string,
-      duration_in_ms = 0;
+      duration = 0;
 
     for (const r of results) {
       elapsed_times.push(+r.elapsed.toFixed(3));
       outputs.push(r.output.response_data.outputs);
       errors.push(r.output.response_data.errors);
       warnings.push(r.output.response_data.warnings);
-      duration_in_ms += r.elapsed;
+      duration += r.elapsed;
       versionId = r.output.response_meta.version_id;
       compiler_version = r.output.response_meta.compiler_version;
       service_category = r.output.response_meta.service_category;
@@ -49,7 +49,7 @@ export class BatchData {
     return new BatchData(
       versionId,
       new Date().toISOString(),
-      +duration_in_ms.toFixed(3),
+      +duration.toFixed(2),
       outputs,
       elapsed_times,
       compiler_version,

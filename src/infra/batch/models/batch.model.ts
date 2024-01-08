@@ -11,7 +11,7 @@ export class BatchModel {
     readonly total_inputs: string,
     readonly total_processed: string,
     readonly total_outputs: string,
-    readonly duration_in_ms: string | undefined,
+    readonly duration: string | undefined,
   ) {}
 }
 
@@ -26,7 +26,7 @@ export class BatchModelHandler extends BatchModel {
       this.total_inputs,
       this.total_processed,
       this.total_outputs,
-      this.duration_in_ms,
+      this.duration,
     );
   }
 
@@ -40,7 +40,7 @@ export class BatchModelHandler extends BatchModel {
       total_inputs: string;
       total_processed: string;
       total_outputs: string;
-      duration_in_ms: string | undefined;
+      duration: string | undefined;
     },
     public sep = ',',
   ) {
@@ -53,7 +53,7 @@ export class BatchModelHandler extends BatchModel {
       fields.total_inputs,
       fields.total_processed,
       fields.total_outputs,
-      fields.duration_in_ms,
+      fields.duration,
     );
   }
 
@@ -67,7 +67,7 @@ export class BatchModelHandler extends BatchModel {
       this.total_inputs,
       this.total_processed,
       this.total_outputs,
-      this.duration_in_ms,
+      this.duration,
     ].join(sep ?? this.sep);
   }
 
@@ -82,7 +82,7 @@ export class BatchModelHandler extends BatchModel {
       +this.total_inputs,
       +this.total_processed,
       +this.total_outputs,
-      +this.duration_in_ms,
+      +this.duration,
     );
   }
 
@@ -96,7 +96,7 @@ export class BatchModelHandler extends BatchModel {
       'total_inputs',
       'total_processed',
       'total_outputs',
-      'duration_in_ms',
+      'duration',
     ].join(sep);
   }
 }

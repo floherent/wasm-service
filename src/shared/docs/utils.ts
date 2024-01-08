@@ -119,7 +119,7 @@ export function getBatchSchema() {
       'total_inputs',
       'total_processed',
       'total_outputs',
-      'duration_in_ms',
+      'duration',
     ],
     properties: {
       id: { type: 'string', format: 'uuid', example: 'f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e' },
@@ -131,7 +131,7 @@ export function getBatchSchema() {
       total_inputs: { type: 'number', example: 1000 },
       total_processed: { type: 'number', example: 0 },
       total_outputs: { type: 'number', example: 0 },
-      duration_in_ms: { type: 'number', example: 1.23 },
+      duration: { type: 'number', example: 1.23 },
     },
   };
 }

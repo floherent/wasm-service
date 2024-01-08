@@ -120,13 +120,14 @@ To load a custom configuration file:
 
 ```bash
 # on the host machine, create a directory for the config file
+$ mkdir -p /local/path/to/config
 $ cd /local/path/to/config
 
-# create and edit the config file
+# create and edit the custom config file
 $ vim custom-config.yml
 
 # run the service with docker and mount the config file
-$ docker run --name wasm-service -p 8080:8080 -d \
+$ docker run --name wasm-service -p 8080:8080 -v ws-data:/app/uploads -d \
   -v /local/path/to/config:/config \
   -e WS_CONFIG_PATH=/config/custom-config.yml \
   ralflorent/wasm-service

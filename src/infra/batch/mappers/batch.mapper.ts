@@ -17,7 +17,7 @@ export class BatchMapper extends EntityModelMapper<Batch, BatchModelHandler> {
       total_inputs: from.total_inputs.toString(),
       total_processed: from.total_processed.toString(),
       total_outputs: from.total_outputs.toString(),
-      duration_in_ms: from.duration_in_ms?.toString(),
+      duration: from.duration?.toString(),
     });
   }
 
@@ -32,7 +32,7 @@ export class BatchMapper extends EntityModelMapper<Batch, BatchModelHandler> {
       Number(from.total_inputs),
       Number(from.total_processed),
       Number(from.total_outputs),
-      Number(from.duration_in_ms),
+      Number(from.duration),
     );
   }
 }

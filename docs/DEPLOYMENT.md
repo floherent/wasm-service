@@ -228,7 +228,7 @@ sandbox. The following example uses `curl` to send the request.
 ```bash
 # Use the sandbox's IP address or domain name
 $ curl http://ec2-8-8-8-8.compute-1.amazonaws.com:8080/health # or http://10.10.10.10:8080/health
-> {"status":"ok","info":{"wasm_data":{"status":"up","sizeInMB":0},"disk_storage":{"status":"up"},"memory_heap":{"status":"up"},"memory_rss":{"status":"up"}},"error":{},"details":{"wasm_data":{"status":"up","sizeInMB":0},"disk_storage":{"status":"up"},"memory_heap":{"status":"up"},"memory_rss":{"status":"up"}}}
+> {"status":"ok","info":{"wasm_data":{"status":"up","size":0},"disk_storage":{"status":"up"},"memory_heap":{"status":"up"},"memory_rss":{"status":"up"}},"error":{},"details":{"wasm_data":{"status":"up","size":0},"disk_storage":{"status":"up"},"memory_heap":{"status":"up"},"memory_rss":{"status":"up"}}}
 ```
 
 Happy deploying 🎉!

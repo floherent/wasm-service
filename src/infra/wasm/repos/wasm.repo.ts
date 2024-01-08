@@ -114,7 +114,7 @@ export class WasmRepo implements IWasmRepo {
           inputs: JSON.stringify(result.input.request_data.inputs),
           outputs: JSON.stringify(result.output.response_data.outputs),
           executed_at: Date.now().toString(),
-          execution_time: `${result.elapsed.toFixed(2)}ms`,
+          duration: result.elapsed.toFixed(2),
         });
       });
 
@@ -146,7 +146,7 @@ export class WasmRepo implements IWasmRepo {
     const total = parsed.data.length;
     const [start, end] = Paginated.toIndex(params.page, params.limit);
     const dataset = params.order === SortOrder.ASC ? parsed.data : parsed.data.reverse();
-    const models = dataset.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }).asDto);
+    const models = dataset.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }));
     const history = this.execHistoryMapper.reverseAll(models);
     return Paginated.from(history, { ...params, total });
   }

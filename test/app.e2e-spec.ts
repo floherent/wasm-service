@@ -29,8 +29,8 @@ describe('ConfigController', () => {
     expect(spark.threads).toBe(1);
     expect(spark.replicas).toBe(1);
 
-    expect(health.indicators.disk).toBe(0.75);
-    expect(health.indicators.wasm).toBe(512);
-    expect(health.indicators.memory).toBe(1024);
+    expect(health.disk).toBe(0.75);
+    expect(health.wasm).toBe(512);
+    expect(health.memory).toBe(1024);
   });
 });

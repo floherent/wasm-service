@@ -13,7 +13,7 @@ export class WasmDataHealthIndicator extends HealthIndicator {
   async checkSize(key: string, wasmDataThreshold: number): Promise<HealthIndicatorResult> {
     const folderSize = getFolderSize(this.appConfig.props.app.uploadPath);
     const isHealthy = folderSize.mb < wasmDataThreshold;
-    const status = this.getStatus(key, isHealthy, { sizeInMB: +folderSize.mb.toFixed(3) });
+    const status = this.getStatus(key, isHealthy, { size: folderSize.bytes });
 
     if (isHealthy) return status;
     throw new HealthCheckError('too many WASM files; consider deleting unneeded ones!', status);

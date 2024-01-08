@@ -12,7 +12,7 @@ export class Batch {
     readonly total_inputs = 0,
     readonly total_processed = 0,
     readonly total_outputs = 0,
-    readonly duration_in_ms = 0,
+    readonly duration = 0,
   ) {}
 
   static created(serviceId: string, clientId: string, bufferSize: number, totalInputs: number): Batch {
@@ -40,7 +40,7 @@ export class Batch {
 
   toString() {
     return `batch <${this.id}> updated: ${this.total_processed} of ${this.total_inputs} about ${
-      Duration.from(this.duration_in_ms).ago
+      Duration.from(this.duration).ago
     }`;
   }
 }

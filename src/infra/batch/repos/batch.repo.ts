@@ -145,7 +145,8 @@ export class BatchRepo implements IBatchRepo {
           new BatchExecModelHandler({
             inputs: JSON.stringify(result.input.request_data.inputs),
             outputs: JSON.stringify(result.output.response_data.outputs),
-            process_time: `${result.elapsed.toFixed(2)}ms`,
+            executed_at: Date.now().toString(),
+            duration: result.elapsed.toFixed(2),
           }),
       );
 

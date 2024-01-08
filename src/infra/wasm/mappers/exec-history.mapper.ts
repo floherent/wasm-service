@@ -11,7 +11,7 @@ export class ExecHistoryMapper extends AbstractMapper<ExecHistory, ExecHistoryMo
       JSON.stringify(from.inputs),
       JSON.stringify(from.outputs),
       from.executed_at.toString(),
-      from.execution_time,
+      from.duration.toString(),
     );
   }
 
@@ -20,7 +20,7 @@ export class ExecHistoryMapper extends AbstractMapper<ExecHistory, ExecHistoryMo
       JSON.parse(from.inputs),
       JSON.parse(from.outputs),
       new Date(Number(from.executed_at)),
-      from.execution_time,
+      +from.duration,
     );
   }
 }
