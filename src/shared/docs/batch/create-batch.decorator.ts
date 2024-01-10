@@ -22,6 +22,15 @@ function getSwaggerDefinitions(swagger: Swagger) {
   const body = ApiBody({ description: 'Batch of records to execute asynchronously', schema: getBodySchema() });
   const header = ApiHeader({ name: 'Ws-Client-Id', description: 'web socket client id', required: false });
 
+  const BadRequest = swagger.ApiBadRequestResponse({
+    description: 'Bad request',
+    schema: getErrorSchema({
+      status: 400,
+      message: 'validation failed',
+      cause: { inputs: ['must be a valid object'] },
+    }),
+  });
+
   const NotFound = ApiNotFoundResponse({
     description: 'WASM bundle not found',
     schema: getErrorSchema({ status: 404, message: 'WASM bundle not found' }),
@@ -48,20 +57,10 @@ function getSwaggerDefinitions(swagger: Swagger) {
 
   const Ok = ApiCreatedResponse({ description: 'Batch operation created successfully', schema: getBatchSchema() });
 
-  return [param, header, body, NotFound, PayloadTooLarge, TooManyRequests, Unprocessable, Ok];
+  return [param, header, body, BadRequest, NotFound, PayloadTooLarge, TooManyRequests, Unprocessable, Ok];
 }
 
 function getBodySchema() {
-  const columnar = {
-    type: 'array',
-    description: 'useful for synchronous batch execution using COLUMNAR data',
-    items: { type: 'array', minItems: 2 },
-    example: [
-      ['one', 'two'],
-      [1, 2],
-      [3, 4],
-    ],
-  };
   return {
     type: 'object',
     additionalProperties: false,
@@ -76,12 +75,21 @@ function getBodySchema() {
             items: { type: 'object' },
             example: [{ foo: 'bar' }, { bar: 'foo' }],
           },
-          columnar,
+          {
+            type: 'array',
+            description: 'useful for synchronous batch execution using COLUMNAR data',
+            items: { type: 'array', minItems: 2 },
+            example: [
+              ['one', 'two'],
+              [1, 2],
+              [3, 4],
+            ],
+          },
         ],
       },
       shared: {
         description: 'shared data to extend every input of a batch execution',
-        oneOf: [{ type: 'null', example: null }, { type: 'object' }, columnar],
+        oneOf: [{ type: 'null', example: null }, { type: 'object' }],
       },
     },
   };

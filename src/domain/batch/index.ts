@@ -20,6 +20,7 @@ export * from './repos/batch.repo';
 export * from './entities/batch-data.entity';
 export * from './entities/batch.entity';
 export * from './entities/batch.exec.entity';
+export * from './dtos/execute-batch.dto';
 export * from './dtos/ids.dto';
 
 export const CqrsHandlers = [

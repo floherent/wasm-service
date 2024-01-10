@@ -5,8 +5,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Result } from 'typescript-result';
 
-import { ExecuteWasmDto } from '@domain/wasm';
-import { Batch, BatchExec, GetBatchQuery, GetBatchResultQuery, IdsDto } from '@domain/batch';
+import { Batch, BatchExec, GetBatchQuery, GetBatchResultQuery, ExecuteBatchDto, IdsDto } from '@domain/batch';
 import { GetBatchFileQuery, CreateBatchCommand, DeleteBatchResultsCommand } from '@domain/batch';
 import { CreateBatch, GetBatchStatus, GetBatchResuls, DeleteBatchFiles } from '@shared/docs';
 import { QueryType } from '@shared/utils';
@@ -24,7 +23,7 @@ export class BatchController {
     @Res() response: Response,
     @Param('service_id') serviceId: string,
     @Headers('Ws-Client-Id') clientId: string | undefined,
-    @Body() body: ExecuteWasmDto,
+    @Body() body: ExecuteBatchDto,
   ) {
     const command = new CreateBatchCommand(serviceId, clientId, body);
     const result = await this.commandBus.execute<CreateBatchCommand, Result<Error, Batch>>(command);
