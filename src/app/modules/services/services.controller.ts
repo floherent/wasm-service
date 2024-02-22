@@ -31,7 +31,7 @@ export class ServicesController {
     response.status(HttpStatus.OK).send(payload);
   }
 
-  @Put(':version_id')
+  @Put(['', ':version_id'])
   @UseInterceptors(FileInterceptor('wasm', { storage: dumpOntoDisk() }))
   @UploadWasmFile()
   async uploadWasmFile(
@@ -52,7 +52,7 @@ export class ServicesController {
     response.status(HttpStatus.CREATED).send(payload);
   }
 
-  @Patch(':version_id')
+  @Patch(['', ':version_id'])
   @AddWasmFileByUri()
   async addWasmFileByUri(
     @Res() response: Response,
