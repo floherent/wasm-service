@@ -1,4 +1,6 @@
-FROM node:16.14.2-alpine3.14
+FROM node:20.12-alpine3.19
+
+RUN npm install -g npm@^10.5
 
 EXPOSE 8080
 
@@ -6,7 +8,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install --ignore-scripts && yarn run build; rm -rf src test
+RUN npm install --ignore-scripts && npm run build; rm -rf src test
 
 VOLUME /app/uploads
 

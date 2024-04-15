@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.1.2 (2024-04-15)
+
+- Fix vulnerabilities in dependencies (use `Node@20.11.1` and `npm@10.5.2`)
+- Switch package manager from `yarn` to `npm` for docker builds.
+- Fix wrong module imports causing test failure.
+
 ## 0.1.1 (2023-12-15)
 
 - Upgrade `@coherentglobal/wasm-runner` dependency to latest (`v0.0.103`).
