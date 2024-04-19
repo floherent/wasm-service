@@ -15,17 +15,17 @@ export class CreateBatchCommandHandler implements ICommandHandler<CreateBatchCom
 
   async execute(cmd: CreateBatchCommand): Promise<Result<Error, Batch>> {
     const { versionId, clientId, dto } = cmd;
-    const [format, inputs, shared] = Spark.inferFormatFrom(dto.inputs);
+    const [format, inputs, shared] = Spark.inferFormatFrom(dto.inputs, dto.shared);
     const records = inputs as JsonValue[];
     const bufferSize = Buffer.from(JSON.stringify(records)).length;
     dto.format = format;
 
     return Result.safe(async () => {
-      const result = await this.repo.create(versionId, clientId, bufferSize, records.length);
-      if (result?.id) {
-        this.eventBus.publish(new BatchCreatedEvent(result, records, shared));
+      const batch = await this.repo.create(versionId, clientId, bufferSize, records.length);
+      if (batch?.id) {
+        this.eventBus.publish(new BatchCreatedEvent(batch, records, dto.metadata, shared));
       }
-      return result;
+      return batch;
     });
   }
 }

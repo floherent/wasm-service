@@ -87,10 +87,10 @@ export class Spark {
     return [format, data, common];
   }
 
-  static buildRequest(dataInputs: JsonValue, versionId: string, sharedData?: JsonValue): ExecRequestData {
+  static buildRequest(dataInputs: JsonValue, metadata: Record<string, any>, sharedData?: JsonValue): ExecRequestData {
     const shared = isNonNullObject(sharedData) ? { ...(sharedData as object) } : {};
     const inputs = shared ? { ...(dataInputs as object), ...shared } : dataInputs;
-    return { request_data: { inputs }, request_meta: { version_id: versionId } };
+    return { request_data: { inputs }, request_meta: { ...metadata } };
   }
 
   async execute(data: ExecRequestData) {

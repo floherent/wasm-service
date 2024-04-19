@@ -6,7 +6,12 @@ import { IBatchRepo, Batch } from '@domain/batch';
 import { JsonValue } from '@shared/utils';
 
 export class RunBatchCommand {
-  constructor(readonly batch: Batch, readonly records: JsonValue[], readonly shared?: JsonValue) {}
+  constructor(
+    readonly batch: Batch,
+    readonly records: JsonValue[],
+    readonly metadata?: Record<string, any>,
+    readonly shared?: JsonValue,
+  ) {}
 }
 
 @CommandHandler(RunBatchCommand)
@@ -14,9 +19,9 @@ export class RunBatchCommandHandler implements ICommandHandler<RunBatchCommand, 
   constructor(@Inject('IBatchRepo') private readonly repo: IBatchRepo) {}
 
   async execute(cmd: RunBatchCommand): Promise<Result<Error, Batch>> {
-    const { batch, records, shared } = cmd;
+    const { batch, records, metadata, shared } = cmd;
     Logger.log(`starting batch <${batch.id}> of ${batch.total_inputs} records`);
 
-    return Result.safe(async () => await this.repo.executeAsync(batch, records, shared));
+    return Result.safe(async () => await this.repo.executeAsync(batch, records, metadata, shared));
   }
 }

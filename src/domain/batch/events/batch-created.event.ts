@@ -8,7 +8,12 @@ import { RunBatchCommand } from '../commands/run-batch.cmd';
 import { Batch } from '../entities/batch.entity';
 
 export class BatchCreatedEvent implements IEvent {
-  constructor(readonly batch: Batch, readonly inputs: JsonValue[], readonly shared?: JsonValue) {}
+  constructor(
+    readonly batch: Batch,
+    readonly inputs: JsonValue[],
+    readonly metadata?: Record<string, any>,
+    readonly shared?: JsonValue,
+  ) {}
 }
 
 @EventsHandler(BatchCreatedEvent)
@@ -17,7 +22,7 @@ export class BatchCreatedEventHandler implements IEventHandler<BatchCreatedEvent
 
   async handle(event: BatchCreatedEvent) {
     try {
-      const command = new RunBatchCommand(event.batch, event.inputs, event.shared);
+      const command = new RunBatchCommand(event.batch, event.inputs, event.metadata, event.shared);
       const result = await this.commandBus.execute<RunBatchCommand, Result<Error, Batch>>(command);
       const payload = result.getOrThrow();
 

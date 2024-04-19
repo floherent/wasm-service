@@ -30,7 +30,8 @@ export class BatchRepo implements IBatchRepo {
     const results: ExecResult[] = [];
 
     for (const i of inputs) {
-      const input = Spark.buildRequest(i, versionId, dto.shared);
+      const metadata = { ...(dto.metadata ?? {}), version_id: versionId };
+      const input = Spark.buildRequest(i, metadata, dto.shared);
       const start = performance.now();
       const output = await wasm.execute(input);
       const end = performance.now();
@@ -61,9 +62,11 @@ export class BatchRepo implements IBatchRepo {
     }
   }
 
-  async executeAsync(batch: Batch, records: JsonValue[], shared?: JsonValue) {
+  async executeAsync(batch: Batch, records: JsonValue[], metadata: Record<string, any> = {}, shared?: JsonValue) {
     const wasm = await this.wasmRepo.findWasm(batch.service_id);
-    const requests = records.map((record) => Spark.buildRequest(record, batch.service_id, shared));
+    const requests = records.map((record) =>
+      Spark.buildRequest(record, { ...metadata, version_id: batch.service_id }, shared),
+    );
 
     this.updateCsvBatch(Batch.updated(batch));
 

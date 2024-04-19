@@ -11,5 +11,6 @@ export * from './wasm/delete-wasm-file.decorator';
 export * from './wasm/download-wasm-file.decorator';
 export * from './wasm/execute-wasm.decorator';
 export * from './wasm/find-wasm-data.decorator';
+export * from './wasm/get-wasm-validations.decorator';
 export * from './wasm/get-wasm-exec-history.decorator';
 export * from './wasm/upload-wasm-file.decorator';

@@ -1,6 +1,6 @@
 {
   "name": "wasm-service",
-  "version": "0.1.2",
+  "version": "0.1.2+1",
   "description": "API service for running WASM files",
   "author": "Coherent <team@coherent.global>",
   "private": true,
@@ -51,6 +51,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "js-yaml": "^4.1.0",
+    "node-stream-zip": "^1.15.0",
     "papaparse": "^5.4.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",

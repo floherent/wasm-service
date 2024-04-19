@@ -11,5 +11,9 @@ export class ExecuteBatchDto {
   @IsOptional()
   shared: JsonValue;
 
+  @IsOptional()
+  @IsObject({ message: 'must be a valid object' })
+  metadata: Record<string, any>;
+
   format: 'columnar' | 'json';
 }

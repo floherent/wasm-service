@@ -6,12 +6,13 @@ import { ApiTags } from '@nestjs/swagger';
 import { Result } from 'typescript-result';
 import { Response } from 'express';
 
-import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, WasmData } from '@domain/wasm';
+import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, WasmData, WasmValidations } from '@domain/wasm';
 import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
 import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery, GetWasmDataQuery } from '@domain/wasm';
+import { GetValidationsQuery } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { UploadWasmFile, AddWasmFileByUri, DownloadWasmFile, DeleteWasmFile } from '@shared/docs';
-import { FindWasmData, ExecuteWasm, GetWasmExecHistory } from '@shared/docs';
+import { FindWasmData, ExecuteWasm, GetWasmExecHistory, GetWasmValidations } from '@shared/docs';
 import { dumpOntoDisk, QueryType } from '@shared/utils';
 
 @ApiTags('services')
@@ -84,6 +85,16 @@ export class ServicesController {
   async executeWasm(@Res() response: Response, @Param('version_id') versionId: string, @Body() body: ExecuteWasmDto) {
     const command = new ExecuteWasmCommand(versionId, body);
     const result = await this.commandBus.execute<ExecuteWasmCommand, Result<Error, ExecResponseData>>(command);
+    const payload = result.getOrThrow();
+
+    response.status(HttpStatus.OK).send(payload);
+  }
+
+  @Get(':version_id/validation')
+  @GetWasmValidations()
+  async getValidations(@Res() response: Response, @Param('version_id') versionId: string) {
+    const command = new GetValidationsQuery(versionId);
+    const result = await this.queryBus.execute<GetValidationsQuery, Result<Error, WasmValidations>>(command);
     const payload = result.getOrThrow();
 
     response.status(HttpStatus.OK).send(payload);

@@ -10,6 +10,10 @@ export class ExecuteWasmDto {
   @IsOptional()
   shared: JsonValue;
 
+  @IsOptional()
+  @IsObject({ message: 'must be a valid object' })
+  metadata: Record<string, any>;
+
   @IsString()
   @IsOptional()
   kind: 'single' | 'batch';

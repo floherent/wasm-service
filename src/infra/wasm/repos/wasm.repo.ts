@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { existsSync, readFileSync, appendFileSync, unlinkSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
+import * as StreamZip from 'node-stream-zip';
 import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
 import { WasmService } from '@app/common/wasm.service';
 import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
-import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, ExecData, WasmData } from '@domain/wasm';
+import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, ExecData, WasmData, WasmValidations } from '@domain/wasm';
 import { WasmFileNotFound, ExecHistoryNotFound, WasmRecordNotSaved, ExecHistoryNotSaved } from '@shared/errors';
+import { RecordsNotFound } from '@shared/errors';
 import { Paginated, PaginationQueryParams, SortOrder, Spark, ExecResult } from '@shared/utils';
 import { WASM_DATA_PATH } from '@shared/constants';
 
@@ -60,7 +62,8 @@ export class WasmRepo implements IWasmRepo {
   async execute(versionId: string, dto: ExecuteWasmDto): Promise<ExecData> {
     const wasm = await this.findWasm(versionId);
 
-    const input = Spark.buildRequest(dto.inputs, versionId, dto.shared);
+    const metadata = { ...(dto.metadata ?? {}), version_id: versionId };
+    const input = Spark.buildRequest(dto.inputs, metadata, dto.shared);
     const start = performance.now();
     const output = await wasm.execute(input);
     const end = performance.now();
@@ -68,6 +71,31 @@ export class WasmRepo implements IWasmRepo {
     this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
 
     return output;
+  }
+
+  async getValidations(versionId: string): Promise<WasmValidations> {
+    const uploadPath = this.appConfig.props.app.uploadPath;
+    const filePath = join(uploadPath, `${versionId}.zip`);
+    if (!existsSync(filePath)) throw new WasmFileNotFound(versionId);
+
+    const zip = new StreamZip.async({ file: filePath });
+    const entries = await zip.entries();
+    for (const entry of Object.values(entries)) {
+      if (entry.isFile && entry.name.endsWith('DefaultValidations.json')) {
+        const buffer = await zip.entryData(entry);
+        await zip.close();
+
+        try {
+          const json = JSON.parse(buffer.toString());
+          return new WasmValidations(versionId, json);
+        } catch (cause) {
+          throw new RecordsNotFound(versionId, cause);
+        }
+      }
+    }
+
+    await zip.close();
+    throw new RecordsNotFound(versionId);
   }
 
   async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistory>> {

@@ -6,7 +6,12 @@ import { BatchExec } from '../entities/batch.exec.entity';
 
 export interface IBatchRepo {
   executeSync: (serviceId: string, dto: ExecuteWasmDto) => Promise<BatchData>;
-  executeAsync: (batch: Batch, records: JsonValue[], shared?: JsonValue) => Promise<Batch>;
+  executeAsync: (
+    batch: Batch,
+    records: JsonValue[],
+    metadata?: Record<string, any>,
+    shared?: JsonValue,
+  ) => Promise<Batch>;
   create: (serviceId: string, clientId: string, bufferSize: number, totalRecords: number) => Promise<Batch>;
   findOne: (batchId: string) => Promise<Batch>;
   getResult: (batchId: string) => Promise<BatchExec[]>;
