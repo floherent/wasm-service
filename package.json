@@ -1,6 +1,6 @@
 {
   "name": "wasm-service",
-  "version": "0.1.2+1",
+  "version": "0.1.2+2",
   "description": "API service for running WASM files",
   "author": "Coherent <team@coherent.global>",
   "private": true,

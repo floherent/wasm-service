@@ -1,3 +1,8 @@
 export class WasmValidations {
-  constructor(readonly version_id: string, readonly validations: Record<string, any>) {}
+  readonly status = 'Success';
+  readonly error = null;
+  readonly response_meta: Record<string, any> = {};
+  constructor(version_id: string, readonly response_data: Record<string, any>) {
+    this.response_meta.version_id = version_id;
+  }
 }

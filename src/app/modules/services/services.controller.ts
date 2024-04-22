@@ -90,7 +90,7 @@ export class ServicesController {
     response.status(HttpStatus.OK).send(payload);
   }
 
-  @Get(':version_id/validation')
+  @Post(':version_id/validation')
   @GetWasmValidations()
   async getValidations(@Res() response: Response, @Param('version_id') versionId: string) {
     const command = new GetValidationsQuery(versionId);

@@ -20,7 +20,7 @@ function getSwaggerDefinitions(swagger: Swagger) {
 
   const NotFound = ApiNotFoundResponse({
     description: 'WASM not found',
-    schema: getErrorSchema({ status: 404, message: 'no record found for version_id <id>' }),
+    schema: getErrorSchema({ status: 404, message: 'no wasm file found for version_id <id>' }),
   });
 
   const Ok = ApiOkResponse({
@@ -35,11 +35,11 @@ function getOkSchema() {
   return {
     type: 'object',
     description: 'WASM validations',
-    required: ['version_id', 'validations'],
+    required: ['status', 'response_data', 'response_meta'],
     additionalProperties: false,
     properties: {
-      version_id: { type: 'string', description: 'The version ID of the WASM file' },
-      validations: {
+      status: { type: 'string' },
+      response_data: {
         type: 'object',
         required: ['outputs', 'warnings', 'errors', 'service_chain'],
         properties: {
@@ -48,6 +48,17 @@ function getOkSchema() {
           errors: { type: 'array', nullable: true },
           service_chain: { type: 'array', nullable: true },
         },
+      },
+      response_meta: {
+        type: 'object',
+        required: ['version_id'],
+        properties: {
+          version_id: { type: 'string', description: 'The version ID of the WASM' },
+        },
+      },
+      error: {
+        type: 'object',
+        nullable: true,
       },
     },
   };
