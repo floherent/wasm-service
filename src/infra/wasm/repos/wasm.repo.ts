@@ -8,7 +8,8 @@ import { AppConfig } from '@app/modules/config';
 import { WasmService } from '@app/common/wasm.service';
 import { WasmModel, WasmModelHandler, WasmMapper } from '@infra/wasm';
 import { ExecHistoryMapper, ExecHistoryModel, ExecHistoryModelHandler } from '@infra/wasm';
-import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, ExecData, WasmData, WasmValidations } from '@domain/wasm';
+import { IWasmRepo, ExecuteWasmDto, WasmFileDto, ExecHistory, ExecData, WasmData } from '@domain/wasm';
+import { WasmValidations, WasmValidationDto } from '@domain/wasm';
 import { WasmFileNotFound, ExecHistoryNotFound, WasmRecordNotSaved, ExecHistoryNotSaved } from '@shared/errors';
 import { RecordsNotFound } from '@shared/errors';
 import { Paginated, PaginationQueryParams, SortOrder, Spark, ExecResult } from '@shared/utils';
@@ -73,29 +74,16 @@ export class WasmRepo implements IWasmRepo {
     return output;
   }
 
-  async getValidations(versionId: string): Promise<WasmValidations> {
-    const uploadPath = this.appConfig.props.app.uploadPath;
-    const filePath = join(uploadPath, `${versionId}.zip`);
-    if (!existsSync(filePath)) throw new WasmFileNotFound(versionId);
+  async getValidations(versionId: string, dto: WasmValidationDto): Promise<ExecData | WasmValidations> {
+    const wasm = await this.findWasm(versionId);
 
-    const zip = new StreamZip.async({ file: filePath });
-    const entries = await zip.entries();
-    for (const entry of Object.values(entries)) {
-      if (entry.isFile && entry.name.endsWith('DefaultValidations.json')) {
-        const buffer = await zip.entryData(entry);
-        await zip.close();
-
-        try {
-          const json = JSON.parse(buffer.toString());
-          return new WasmValidations(versionId, json);
-        } catch (cause) {
-          throw new RecordsNotFound(versionId, cause);
-        }
-      }
+    try {
+      const metadata = { ...(dto.metadata ?? {}), version_id: versionId, __api_meta: { api: 'dynamic_validation' } };
+      const input = Spark.buildRequest(dto.inputs, metadata);
+      return await wasm.execute(input);
+    } catch (cause) {
+      return await this.getStaticValidations(versionId);
     }
-
-    await zip.close();
-    throw new RecordsNotFound(versionId);
   }
 
   async getHistory(versionId: string, params: PaginationQueryParams): Promise<Paginated<ExecHistory>> {
@@ -177,5 +165,30 @@ export class WasmRepo implements IWasmRepo {
     const models = dataset.slice(start, end).map((row) => new ExecHistoryModelHandler({ ...row }));
     const history = this.execHistoryMapper.reverseAll(models);
     return Paginated.from(history, { ...params, total });
+  }
+
+  private async getStaticValidations(versionId: string): Promise<WasmValidations> {
+    const uploadPath = this.appConfig.props.app.uploadPath;
+    const filePath = join(uploadPath, `${versionId}.zip`);
+    if (!existsSync(filePath)) throw new WasmFileNotFound(versionId);
+
+    const zip = new StreamZip.async({ file: filePath });
+    const entries = await zip.entries();
+    for (const entry of Object.values(entries)) {
+      if (entry.isFile && entry.name.endsWith('DefaultValidations.json')) {
+        const buffer = await zip.entryData(entry);
+        await zip.close();
+
+        try {
+          const json = JSON.parse(buffer.toString());
+          return new WasmValidations(versionId, json);
+        } catch (cause) {
+          throw new RecordsNotFound(versionId, cause);
+        }
+      }
+    }
+
+    await zip.close();
+    throw new RecordsNotFound(versionId);
   }
 }

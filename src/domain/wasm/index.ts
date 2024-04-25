@@ -17,6 +17,7 @@ export * from './dtos/add-wasm-by-uri.dto';
 export * from './dtos/execute-wasm.dto';
 export * from './dtos/upload-wasm.dto';
 export * from './dtos/wasm-file.dto';
+export * from './dtos/wasm-validation.dto';
 export * from './entities/exec-data.entity';
 export * from './entities/exec-history.entity';
 export * from './entities/wasm-data.entity';

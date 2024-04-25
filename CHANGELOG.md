@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.1.3 (2024-04-25)
+
+- Add support for static and dynamic validations
+- Add support for request metadata in the execution endpoint
+
 ## 0.1.2 (2024-04-15)
 
 - Fix vulnerabilities in dependencies (use `Node@20.11.1` and `npm@10.5.2`)

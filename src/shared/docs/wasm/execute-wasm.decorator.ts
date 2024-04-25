@@ -81,6 +81,7 @@ function getBodySchema() {
           },
         ],
       },
+      metadata: { description: 'additional request metadata', type: 'object' },
       shared: {
         description: 'shared data to extend every input of a batch execution',
         oneOf: [{ type: 'null', example: null }, { type: 'object' }],
