@@ -1,4 +1,4 @@
-import { Logger, UploadedFile, UseInterceptors, ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
+import { Logger, UploadedFile, UseInterceptors, HttpStatus } from '@nestjs/common';
 import { Controller, Get, Post, Put, Patch, Delete, Body, Query, Param, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -14,6 +14,7 @@ import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } 
 import { UploadWasmFile, AddWasmFileByUri, DownloadWasmFile, DeleteWasmFile } from '@shared/docs';
 import { FindWasmData, ExecuteWasm, GetWasmExecHistory, GetWasmValidations } from '@shared/docs';
 import { dumpOntoDisk, QueryType } from '@shared/utils';
+import { BadUploadWasmData } from '@shared/errors';
 
 @ApiTags('services')
 @Controller({ path: 'services', version: '1' })
@@ -40,9 +41,11 @@ export class ServicesController {
     @Param('version_id') id: string | undefined,
     @Query('preload') preload: boolean,
     @Body() body: { data?: string },
-    @UploadedFile(new ParseFilePipeBuilder().addFileTypeValidator({ fileType: 'zip' }).build())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
+    if (!file.originalname.endsWith('.zip')) throw new BadUploadWasmData('file must be a zip file', null);
+
     const versionId = id || file.filename.replace('.zip', '');
     const data = await UploadWasmDto.validate(versionId, body?.data);
     const command = new UploadWasmCommand(data, file, !!preload);

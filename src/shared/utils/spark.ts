@@ -1,7 +1,5 @@
 import { Logger } from '@nestjs/common';
 import { WasmRunner, ColumnarSerializer } from '@coherentglobal/wasm-runner';
-import { Worker } from 'worker_threads';
-import { join } from 'path';
 
 import { ExecData } from '@domain/wasm';
 import { ExecRequestData, ExecResult, JsonValue } from './types';
@@ -43,18 +41,16 @@ export class Spark {
 
   private readonly replicas: number;
   private readonly model: Model;
-  private readonly workers: Worker[];
-  private readonly runner: WasmRunner;
+  private readonly runners: WasmRunner[];
 
   get threads(): number {
-    return this.workers.length;
+    return this.runners.length;
   }
 
   private constructor(model: Model, replicas: number) {
     this.replicas = replicas;
     this.model = model;
-    this.workers = [];
-    this.runner = new WasmRunner(model);
+    this.runners = [];
   }
 
   static async create(model: Model, options?: SparkOptions) {
@@ -63,15 +59,15 @@ export class Spark {
     const spark = new this(model, replicas);
 
     try {
-      await spark.runner.initialize();
-
+      // Create multiple WasmRunner instances for parallel processing
       for (let i = 0; i < initialThreads; i++) {
-        const worker = new Worker(join(__dirname, 'runner.js'));
-        spark.workers.push(worker);
+        const runner = new WasmRunner(model);
+        await runner.initialize();
+        spark.runners.push(runner);
       }
     } catch (error) {
       if (spark.threads > 0 && spark.threads < initialThreads) {
-        Logger.warn(`could only create ${spark.threads} workers for <${model.id}>`, 'Spark');
+        Logger.warn(`could only create ${spark.threads} runners for <${model.id}>`, 'Spark');
       } else {
         throw new WasmRunnerNotCreated(`failed to create wasm runner for <${model.id}>`, error);
       }
@@ -95,7 +91,8 @@ export class Spark {
 
   async execute(data: ExecRequestData) {
     try {
-      const result = await this.runner.execute(data, this.model.id);
+      // Use the first runner for single execution
+      const result = await this.runners[0].execute(data, this.model.id);
       return new ExecData(
         {
           outputs: result?.response_data?.outputs ?? {},
@@ -114,29 +111,47 @@ export class Spark {
   }
 
   async executeAll(data: ExecRequestData[], predicate?: (processed: ExecResult[]) => void) {
-    const handlers: Promise<ExecResult[]>[] = [];
+    const results: ExecResult[] = [];
     const batchSize = Math.ceil(data.length / this.threads);
 
+    // Process batches in parallel using the runners
+    const batchPromises = [];
     for (let i = 0; i < this.threads; i++) {
       const batch = data.slice(i * batchSize, (i + 1) * batchSize);
-      const handler = new Promise<ExecResult[]>((resolve) => {
-        this.workers[i].once('message', (data) => {
-          predicate?.(data);
-          resolve(data);
-        });
-        this.workers[i].postMessage({ replicas: this.replicas, model: this.model, records: batch });
-      });
-      handlers.push(handler);
+      const runner = this.runners[i % this.runners.length];
+
+      const batchPromise = Promise.all(
+        batch.map(async (record) => {
+          const start = performance.now();
+          try {
+            const output = await runner.execute(record, this.model.id);
+            return { input: record, output, elapsed: performance.now() - start };
+          } catch (error) {
+            return { input: record, output: error ?? {}, elapsed: performance.now() - start };
+          }
+        }),
+      );
+
+      batchPromises.push(batchPromise);
     }
 
-    return Promise.all(handlers).then((all) => all.flat());
+    // Wait for all batches to complete
+    const batchResults = await Promise.all(batchPromises);
+
+    // Flatten the results
+    for (const batchResult of batchResults) {
+      results.push(...batchResult);
+      predicate?.(batchResult);
+    }
+
+    return results;
   }
 
   async dispose() {
-    await this.runner.remove(this.model.id);
-    for (const worker of this.workers) {
-      worker.terminate();
+    // Clean up all runners
+    for (const runner of this.runners) {
+      await runner.remove(this.model.id);
     }
-    this.workers.length = 0;
+    this.runners.length = 0;
   }
 }

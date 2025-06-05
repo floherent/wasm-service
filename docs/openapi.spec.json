@@ -1,0 +1,2483 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "info": {
+                      "type": "object",
+                      "example": { "database": { "status": "up" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": { "database": { "status": "up" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "error" },
+                    "info": {
+                      "type": "object",
+                      "example": { "database": { "status": "up" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": { "redis": { "status": "down", "message": "Could not connect" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": { "status": "up" },
+                        "redis": { "status": "down", "message": "Could not connect" }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["health"]
+      }
+    },
+    "/health/profile": {
+      "get": {
+        "operationId": "HealthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Get health profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rss": { "type": "number", "description": "resident set size", "example": 73 },
+                    "heap_total": {
+                      "type": "number",
+                      "description": "total size of the allocated heap",
+                      "example": 32
+                    },
+                    "heap_used": { "type": "number", "description": "heap actually used", "example": 28 },
+                    "threshold": {
+                      "type": "object",
+                      "properties": {
+                        "disk": { "type": "number", "description": "disk threshold percent", "example": 0.75 },
+                        "wasm": { "type": "number", "description": "wasm threshold", "example": 512 },
+                        "memory": { "type": "number", "description": "memory threshold", "example": 1024 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["health"]
+      }
+    },
+    "/v1/config": {
+      "get": {
+        "operationId": "ConfigController_findOne",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Get app config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "app": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string", "example": "wasm-service" },
+                        "description": { "type": "string", "example": "API service for running WASM files" },
+                        "port": { "type": "number", "example": 8080 },
+                        "context_path": { "type": "string", "example": "/" },
+                        "upload_path": { "type": "string", "example": "uploads" },
+                        "body_limit": { "type": "string", "example": "50mb" }
+                      }
+                    },
+                    "spark": {
+                      "type": "object",
+                      "properties": {
+                        "cache_size": { "type": "number", "example": 4 },
+                        "threads": {
+                          "type": "number",
+                          "description": "number of threads when using async batch processing",
+                          "example": 4
+                        },
+                        "replicas": { "type": "number", "description": "number of replicas per worker", "example": 1 }
+                      }
+                    },
+                    "health": {
+                      "type": "object",
+                      "properties": {
+                        "disk": { "type": "number", "example": 0.75 },
+                        "wasm": { "type": "number", "example": 512 },
+                        "memory": { "type": "number", "example": 1024 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["config"]
+      }
+    },
+    "/v1/services": {
+      "get": {
+        "operationId": "ServicesController_findAll",
+        "parameters": [
+          { "name": "page", "required": false, "in": "query", "example": 1, "schema": {} },
+          { "name": "limit", "required": false, "in": "query", "example": 100, "schema": {} },
+          { "name": "order", "required": false, "in": "query", "schema": { "enum": ["asc", "desc"], "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of uploaded wasms files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["content", "pagination"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "content": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["version_id", "file_name", "original_name", "file_path", "size", "uploaded_at"],
+                        "properties": {
+                          "version_id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                          },
+                          "file_name": {
+                            "type": "string",
+                            "description": "WASM file name",
+                            "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                          },
+                          "original_name": {
+                            "type": "string",
+                            "description": "original WASM file name",
+                            "example": "wasm-bundle.zip"
+                          },
+                          "file_path": {
+                            "type": "string",
+                            "description": "WASM file path",
+                            "example": "uploads/f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                          },
+                          "size": { "type": "number", "description": "WASM file size in bytes", "example": 1024 },
+                          "uploaded_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "upload date",
+                            "example": "2021-08-26T14:22:01.000Z"
+                          },
+                          "service_name": { "type": "string", "description": "service name", "example": "Pet Rater" },
+                          "revision": { "type": "string", "description": "revision number if any", "example": "1.0.0" },
+                          "username": {
+                            "type": "string",
+                            "description": "who uploaded the file",
+                            "example": "john.doe@example.com"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "required": ["page", "size", "total_items", "total_pages", "number_of_items"],
+                      "properties": {
+                        "page": { "type": "number", "description": "current page", "example": 1 },
+                        "size": { "type": "number", "description": "number of items per page", "example": 100 },
+                        "total_items": { "type": "number", "description": "total number of items", "example": 1000 },
+                        "total_pages": { "type": "number", "description": "total number of pages", "example": 10 },
+                        "number_of_items": {
+                          "type": "number",
+                          "description": "number of items in the current page",
+                          "example": 100
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to find WASM data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "Unable to process the request"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      },
+      "put": {
+        "operationId": "ServicesController_uploadWasmFile",
+        "parameters": [
+          {
+            "name": "version_id",
+            "required": false,
+            "in": "path",
+            "description": "wasm bundle id",
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          { "name": "preload", "required": false, "in": "query", "example": false, "schema": { "type": "boolean" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Upload a WASM bundle",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["wasm", "data"],
+                "additionalProperties": false,
+                "properties": {
+                  "wasm": { "type": "string", "format": "binary", "description": "WASM bundle" },
+                  "data": {
+                    "type": "object",
+                    "description": "additional data to be stored with the wasm file",
+                    "additionalProperties": false,
+                    "properties": {
+                      "service_name": {
+                        "type": "string",
+                        "description": "name of the service",
+                        "example": "Pet Rater"
+                      },
+                      "revision": { "type": "string", "example": "1.0.0" },
+                      "username": { "type": "string", "example": "john.doe@example.com" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "WASM file uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["version_id", "file_name", "original_name", "file_path", "size", "uploaded_at"],
+                  "properties": {
+                    "version_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                    },
+                    "file_name": {
+                      "type": "string",
+                      "description": "WASM file name",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "original_name": {
+                      "type": "string",
+                      "description": "original WASM file name",
+                      "example": "wasm-bundle.zip"
+                    },
+                    "file_path": {
+                      "type": "string",
+                      "description": "WASM file path",
+                      "example": "uploads/f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "size": { "type": "number", "description": "WASM file size in bytes", "example": 1024 },
+                    "uploaded_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "upload date",
+                      "example": "2021-08-26T14:22:01.000Z"
+                    },
+                    "service_name": { "type": "string", "description": "service name", "example": "Pet Rater" },
+                    "revision": { "type": "string", "description": "revision number if any", "example": "1.0.0" },
+                    "username": {
+                      "type": "string",
+                      "description": "who uploaded the file",
+                      "example": "john.doe@example.com"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "File is required"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to create wasm runner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "failed to create wasm runner"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      },
+      "patch": {
+        "operationId": "ServicesController_addWasmFileByUri",
+        "parameters": [
+          {
+            "name": "version_id",
+            "required": false,
+            "in": "path",
+            "description": "wasm bundle id",
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          { "name": "preload", "required": false, "in": "query", "example": false, "schema": { "type": "boolean" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Upload a WASM bundle by URI",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["url"],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "url",
+                    "description": "where to download the wasm file from",
+                    "example": "https://example.com/wasm.zip"
+                  },
+                  "service_name": { "type": "string", "description": "name of the service", "example": "Pet Rater" },
+                  "revision": { "type": "string", "example": "1.0.0" },
+                  "username": { "type": "string", "example": "john.doe@example.com" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "WASM file uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["version_id", "file_name", "original_name", "file_path", "size", "uploaded_at"],
+                  "properties": {
+                    "version_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                    },
+                    "file_name": {
+                      "type": "string",
+                      "description": "WASM file name",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "original_name": {
+                      "type": "string",
+                      "description": "original WASM file name",
+                      "example": "wasm-bundle.zip"
+                    },
+                    "file_path": {
+                      "type": "string",
+                      "description": "WASM file path",
+                      "example": "uploads/f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "size": { "type": "number", "description": "WASM file size in bytes", "example": 1024 },
+                    "uploaded_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "upload date",
+                      "example": "2021-08-26T14:22:01.000Z"
+                    },
+                    "service_name": { "type": "string", "description": "service name", "example": "Pet Rater" },
+                    "revision": { "type": "string", "description": "revision number if any", "example": "1.0.0" },
+                    "username": {
+                      "type": "string",
+                      "description": "who uploaded the file",
+                      "example": "john.doe@example.com"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "cannot download wasm from <url>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": "invalid url",
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to create wasm runner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "failed to create wasm runner"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      }
+    },
+    "/v1/services/{version_id}": {
+      "put": {
+        "operationId": "ServicesController_uploadWasmFile",
+        "parameters": [
+          {
+            "name": "version_id",
+            "required": false,
+            "in": "path",
+            "description": "wasm bundle id",
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          { "name": "preload", "required": false, "in": "query", "example": false, "schema": { "type": "boolean" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Upload a WASM bundle",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["wasm", "data"],
+                "additionalProperties": false,
+                "properties": {
+                  "wasm": { "type": "string", "format": "binary", "description": "WASM bundle" },
+                  "data": {
+                    "type": "object",
+                    "description": "additional data to be stored with the wasm file",
+                    "additionalProperties": false,
+                    "properties": {
+                      "service_name": {
+                        "type": "string",
+                        "description": "name of the service",
+                        "example": "Pet Rater"
+                      },
+                      "revision": { "type": "string", "example": "1.0.0" },
+                      "username": { "type": "string", "example": "john.doe@example.com" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "WASM file uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["version_id", "file_name", "original_name", "file_path", "size", "uploaded_at"],
+                  "properties": {
+                    "version_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                    },
+                    "file_name": {
+                      "type": "string",
+                      "description": "WASM file name",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "original_name": {
+                      "type": "string",
+                      "description": "original WASM file name",
+                      "example": "wasm-bundle.zip"
+                    },
+                    "file_path": {
+                      "type": "string",
+                      "description": "WASM file path",
+                      "example": "uploads/f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "size": { "type": "number", "description": "WASM file size in bytes", "example": 1024 },
+                    "uploaded_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "upload date",
+                      "example": "2021-08-26T14:22:01.000Z"
+                    },
+                    "service_name": { "type": "string", "description": "service name", "example": "Pet Rater" },
+                    "revision": { "type": "string", "description": "revision number if any", "example": "1.0.0" },
+                    "username": {
+                      "type": "string",
+                      "description": "who uploaded the file",
+                      "example": "john.doe@example.com"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "File is required"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to create wasm runner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "failed to create wasm runner"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      },
+      "patch": {
+        "operationId": "ServicesController_addWasmFileByUri",
+        "parameters": [
+          {
+            "name": "version_id",
+            "required": false,
+            "in": "path",
+            "description": "wasm bundle id",
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          { "name": "preload", "required": false, "in": "query", "example": false, "schema": { "type": "boolean" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Upload a WASM bundle by URI",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["url"],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "url",
+                    "description": "where to download the wasm file from",
+                    "example": "https://example.com/wasm.zip"
+                  },
+                  "service_name": { "type": "string", "description": "name of the service", "example": "Pet Rater" },
+                  "revision": { "type": "string", "example": "1.0.0" },
+                  "username": { "type": "string", "example": "john.doe@example.com" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "WASM file uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["version_id", "file_name", "original_name", "file_path", "size", "uploaded_at"],
+                  "properties": {
+                    "version_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                    },
+                    "file_name": {
+                      "type": "string",
+                      "description": "WASM file name",
+                      "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "original_name": {
+                      "type": "string",
+                      "description": "original WASM file name",
+                      "example": "wasm-bundle.zip"
+                    },
+                    "file_path": {
+                      "type": "string",
+                      "description": "WASM file path",
+                      "example": "uploads/f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e.zip"
+                    },
+                    "size": { "type": "number", "description": "WASM file size in bytes", "example": 1024 },
+                    "uploaded_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "upload date",
+                      "example": "2021-08-26T14:22:01.000Z"
+                    },
+                    "service_name": { "type": "string", "description": "service name", "example": "Pet Rater" },
+                    "revision": { "type": "string", "description": "revision number if any", "example": "1.0.0" },
+                    "username": {
+                      "type": "string",
+                      "description": "who uploaded the file",
+                      "example": "john.doe@example.com"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "cannot download wasm from <url>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": "invalid url",
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to create wasm runner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "failed to create wasm runner"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      },
+      "get": {
+        "operationId": "ServicesController_downloadWasmFile",
+        "parameters": [{ "name": "version_id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "description": "WASM file downloaded successfully",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary", "description": "WASM file as zip" }
+              },
+              "application/zip": {
+                "schema": { "type": "string", "format": "binary", "description": "WASM file as zip" }
+              }
+            }
+          },
+          "404": {
+            "description": "WASM file not found",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no wasm file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "application/zip": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no wasm file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      },
+      "delete": {
+        "operationId": "ServicesController_deleteWasmFile",
+        "parameters": [{ "name": "version_id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "description": "WASM deleted successfully" },
+          "404": {
+            "description": "WASM not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no wasm file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      }
+    },
+    "/v1/services/{version_id}/execute": {
+      "post": {
+        "operationId": "ServicesController_executeWasm",
+        "parameters": [{ "name": "version_id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "description": "Upload a WASM bundle by URI",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["inputs"],
+                "properties": {
+                  "inputs": {
+                    "description": "corresponding inputs",
+                    "oneOf": [
+                      { "type": "object", "example": { "a": 1, "b": 2 } },
+                      {
+                        "type": "array",
+                        "description": "useful for synchronous batch execution using JSON data",
+                        "items": { "type": "object" },
+                        "example": [{ "a": 1 }, { "b": 2 }, { "c": 3 }]
+                      },
+                      {
+                        "type": "array",
+                        "description": "useful for synchronous batch execution using COLUMNAR data",
+                        "items": { "type": "array", "minItems": 2 },
+                        "example": [
+                          ["one", "two"],
+                          [1, 2],
+                          [3, 4]
+                        ]
+                      }
+                    ]
+                  },
+                  "metadata": { "description": "additional request metadata", "type": "object" },
+                  "shared": {
+                    "description": "shared data to extend every input of a batch execution",
+                    "oneOf": [{ "example": null }, { "type": "object" }]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "WASM executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "corresponding outputs",
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["response_data", "response_meta"],
+                      "properties": {
+                        "response_data": {
+                          "type": "object",
+                          "properties": {
+                            "outputs": { "type": "object", "example": { "c": 3 } },
+                            "errors": { "type": "array", "example": [] },
+                            "warnings": { "type": "array", "example": [] },
+                            "service_chain": { "type": "array", "example": [] }
+                          }
+                        },
+                        "response_meta": {
+                          "type": "object",
+                          "properties": {
+                            "version_id": { "type": "string" },
+                            "correlation_id": { "type": "string" },
+                            "service_category": { "type": "string" },
+                            "system": { "type": "string" },
+                            "compiler_version": { "type": "string" },
+                            "process_time": { "type": "number" }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "version_id": { "type": "string" },
+                        "executed_at": { "type": "string", "format": "date-time" },
+                        "duration": { "type": "number" },
+                        "exec_times": { "type": "array", "items": { "type": "number" } },
+                        "inputs": { "type": "array", "items": { "type": "object" } },
+                        "outputs": { "type": "array", "items": { "type": "object" } },
+                        "errors": { "type": "array", "items": { "type": "object" } },
+                        "warnings": { "type": "array", "items": { "type": "object" } },
+                        "compiler_version": { "type": "string" },
+                        "system": { "type": "string" }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "validation failed"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": { "inputs": ["must be a valid object"] },
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "WASM not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no wasm file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 413 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "request entity too large"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": { "length": 1843, "limit": 1024 },
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to execute WASM bundle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "failed to save wasm execution history <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      }
+    },
+    "/v1/services/{version_id}/validation": {
+      "post": {
+        "operationId": "ServicesController_getValidations",
+        "parameters": [{ "name": "version_id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "description": "Request data and metadata",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "inputs": { "description": "corresponding inputs", "type": "object", "example": { "a": 1, "b": 2 } },
+                  "metadata": { "description": "additional request metadata", "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "WASM validations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "WASM validations",
+                  "required": ["response_data", "response_meta"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": { "type": "string", "nullable": true },
+                    "response_data": {
+                      "type": "object",
+                      "required": ["outputs", "warnings", "errors", "service_chain"],
+                      "properties": {
+                        "outputs": { "type": "object", "description": "List of validations" },
+                        "warnings": { "type": "array", "nullable": true },
+                        "errors": { "type": "array", "nullable": true },
+                        "service_chain": { "type": "array", "nullable": true }
+                      }
+                    },
+                    "response_meta": {
+                      "type": "object",
+                      "required": ["version_id"],
+                      "properties": { "version_id": { "type": "string", "description": "The version ID of the WASM" } }
+                    },
+                    "error": { "type": "object", "nullable": true }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "validation failed"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": { "inputs": ["must be a valid object"] },
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "WASM not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no wasm file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      }
+    },
+    "/v1/services/{version_id}/history": {
+      "get": {
+        "operationId": "ServicesController_getWasmExecHistory",
+        "parameters": [
+          { "name": "version_id", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "data by default",
+            "schema": { "enum": ["data", "file"], "type": "string" }
+          },
+          { "name": "page", "required": false, "in": "query", "example": 1, "schema": {} },
+          { "name": "limit", "required": false, "in": "query", "example": 100, "schema": {} },
+          { "name": "order", "required": false, "in": "query", "schema": { "enum": ["asc", "desc"], "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "WASM execution history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["content", "pagination"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "content": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "inputs": {
+                                "type": "object",
+                                "description": "execution inputs",
+                                "example": { "a": 1, "b": 2 }
+                              },
+                              "outputs": {
+                                "type": "object",
+                                "description": "execution outputs",
+                                "example": { "c": 3 }
+                              },
+                              "executed_at": {
+                                "type": "string",
+                                "description": "execution date",
+                                "example": "2021-01-31T00:00:00.000Z"
+                              },
+                              "duration": {
+                                "type": "number",
+                                "description": "execution time in milliseconds",
+                                "example": 1.72
+                              }
+                            }
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "required": ["page", "size", "total_items", "total_pages", "number_of_items"],
+                          "properties": {
+                            "page": { "type": "number", "description": "current page", "example": 1 },
+                            "size": { "type": "number", "description": "number of items per page", "example": 100 },
+                            "total_items": {
+                              "type": "number",
+                              "description": "total number of items",
+                              "example": 1000
+                            },
+                            "total_pages": { "type": "number", "description": "total number of pages", "example": 10 },
+                            "number_of_items": {
+                              "type": "number",
+                              "description": "number of items in the current page",
+                              "example": 100
+                            }
+                          }
+                        }
+                      }
+                    },
+                    { "type": "string", "format": "binary", "description": "CSV file" }
+                  ]
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["content", "pagination"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "content": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "inputs": {
+                                "type": "object",
+                                "description": "execution inputs",
+                                "example": { "a": 1, "b": 2 }
+                              },
+                              "outputs": {
+                                "type": "object",
+                                "description": "execution outputs",
+                                "example": { "c": 3 }
+                              },
+                              "executed_at": {
+                                "type": "string",
+                                "description": "execution date",
+                                "example": "2021-01-31T00:00:00.000Z"
+                              },
+                              "duration": {
+                                "type": "number",
+                                "description": "execution time in milliseconds",
+                                "example": 1.72
+                              }
+                            }
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "required": ["page", "size", "total_items", "total_pages", "number_of_items"],
+                          "properties": {
+                            "page": { "type": "number", "description": "current page", "example": 1 },
+                            "size": { "type": "number", "description": "number of items per page", "example": 100 },
+                            "total_items": {
+                              "type": "number",
+                              "description": "total number of items",
+                              "example": 1000
+                            },
+                            "total_pages": { "type": "number", "description": "total number of pages", "example": 10 },
+                            "number_of_items": {
+                              "type": "number",
+                              "description": "number of items in the current page",
+                              "example": 100
+                            }
+                          }
+                        }
+                      }
+                    },
+                    { "type": "string", "format": "binary", "description": "CSV file" }
+                  ]
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["content", "pagination"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "content": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "inputs": {
+                                "type": "object",
+                                "description": "execution inputs",
+                                "example": { "a": 1, "b": 2 }
+                              },
+                              "outputs": {
+                                "type": "object",
+                                "description": "execution outputs",
+                                "example": { "c": 3 }
+                              },
+                              "executed_at": {
+                                "type": "string",
+                                "description": "execution date",
+                                "example": "2021-01-31T00:00:00.000Z"
+                              },
+                              "duration": {
+                                "type": "number",
+                                "description": "execution time in milliseconds",
+                                "example": 1.72
+                              }
+                            }
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "required": ["page", "size", "total_items", "total_pages", "number_of_items"],
+                          "properties": {
+                            "page": { "type": "number", "description": "current page", "example": 1 },
+                            "size": { "type": "number", "description": "number of items per page", "example": 100 },
+                            "total_items": {
+                              "type": "number",
+                              "description": "total number of items",
+                              "example": 1000
+                            },
+                            "total_pages": { "type": "number", "description": "total number of pages", "example": 10 },
+                            "number_of_items": {
+                              "type": "number",
+                              "description": "number of items in the current page",
+                              "example": 100
+                            }
+                          }
+                        }
+                      }
+                    },
+                    { "type": "string", "format": "binary", "description": "CSV file" }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No execution history found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no execution history file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no execution history file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no execution history file found for version_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["services"]
+      }
+    },
+    "/v1/batch/{service_id}": {
+      "post": {
+        "operationId": "BatchController_createBatch",
+        "parameters": [
+          {
+            "name": "service_id",
+            "required": true,
+            "in": "path",
+            "description": "wasm bundle id",
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          {
+            "name": "Ws-Client-Id",
+            "required": false,
+            "in": "header",
+            "description": "web socket client id",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Batch of records to execute asynchronously",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["inputs"],
+                "properties": {
+                  "inputs": {
+                    "description": "corresponding inputs",
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "description": "useful for synchronous batch execution using JSON data",
+                        "items": { "type": "object" },
+                        "example": [{ "foo": "bar" }, { "bar": "foo" }]
+                      },
+                      {
+                        "type": "array",
+                        "description": "useful for synchronous batch execution using COLUMNAR data",
+                        "items": { "type": "array", "minItems": 2 },
+                        "example": [
+                          ["one", "two"],
+                          [1, 2],
+                          [3, 4]
+                        ]
+                      }
+                    ]
+                  },
+                  "shared": {
+                    "description": "shared data to extend every input of a batch execution",
+                    "oneOf": [{ "example": null }, { "type": "object" }]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Batch operation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "status",
+                    "service_id",
+                    "client_id",
+                    "executed_at",
+                    "buffer_size",
+                    "total_inputs",
+                    "total_processed",
+                    "total_outputs",
+                    "duration"
+                  ],
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid", "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e" },
+                    "status": {
+                      "type": "string",
+                      "enum": ["created", "processing", "completed", "failed"],
+                      "example": "created"
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "efb6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                    },
+                    "client_id": { "type": "string", "example": "ws_YLoWvMX_l5m_cmOHAAAB" },
+                    "executed_at": { "type": "string", "format": "date-time", "example": "2021-08-26T14:22:01.000Z" },
+                    "buffer_size": { "type": "number", "example": 1024 },
+                    "total_inputs": { "type": "number", "example": 1000 },
+                    "total_processed": { "type": "number", "example": 0 },
+                    "total_outputs": { "type": "number", "example": 0 },
+                    "duration": { "type": "number", "example": 1.23 }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "validation failed"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": { "inputs": ["must be a valid object"] },
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "WASM bundle not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "WASM bundle not found"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 413 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "request entity too large"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": { "length": 1843, "limit": 1024 },
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unable to create batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 422 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "failed to save batch submission for wasm <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Batch limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 429 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "rate limit exceeded"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["batch"]
+      }
+    },
+    "/v1/batch/{batch_id}/status": {
+      "get": {
+        "operationId": "BatchController_getBatchStatus",
+        "parameters": [
+          { "name": "batch_id", "required": true, "in": "path", "schema": { "format": "uuid", "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current batch status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "status",
+                    "service_id",
+                    "client_id",
+                    "executed_at",
+                    "buffer_size",
+                    "total_inputs",
+                    "total_processed",
+                    "total_outputs",
+                    "duration"
+                  ],
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid", "example": "f0b6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e" },
+                    "status": {
+                      "type": "string",
+                      "enum": ["created", "processing", "completed", "failed"],
+                      "example": "created"
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "efb6d6a0-06b0-4a5a-9b3f-9c4a2c9b6a2e"
+                    },
+                    "client_id": { "type": "string", "example": "ws_YLoWvMX_l5m_cmOHAAAB" },
+                    "executed_at": { "type": "string", "format": "date-time", "example": "2021-08-26T14:22:01.000Z" },
+                    "buffer_size": { "type": "number", "example": 1024 },
+                    "total_inputs": { "type": "number", "example": 1000 },
+                    "total_processed": { "type": "number", "example": 0 },
+                    "total_outputs": { "type": "number", "example": 0 },
+                    "duration": { "type": "number", "example": 1.23 }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Batch not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "No records found for <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["batch"]
+      }
+    },
+    "/v1/batch/{batch_id}/results": {
+      "get": {
+        "operationId": "BatchController_getBatchResults",
+        "parameters": [
+          { "name": "batch_id", "required": true, "in": "path", "schema": { "type": "string" } },
+          { "name": "type", "required": false, "in": "query", "schema": { "enum": ["data", "file"], "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "inputs": {
+                            "type": "object",
+                            "description": "execution inputs",
+                            "example": { "a": 1, "b": 2 }
+                          },
+                          "outputs": { "type": "object", "description": "execution outputs", "example": { "c": 3 } },
+                          "executed_at": {
+                            "type": "string",
+                            "description": "execution date",
+                            "example": "2021-01-31T00:00:00.000Z"
+                          },
+                          "duration": {
+                            "type": "number",
+                            "description": "execution time in milliseconds",
+                            "example": 1.72
+                          }
+                        }
+                      }
+                    },
+                    { "type": "string", "format": "binary", "description": "CSV file" }
+                  ]
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "inputs": {
+                            "type": "object",
+                            "description": "execution inputs",
+                            "example": { "a": 1, "b": 2 }
+                          },
+                          "outputs": { "type": "object", "description": "execution outputs", "example": { "c": 3 } },
+                          "executed_at": {
+                            "type": "string",
+                            "description": "execution date",
+                            "example": "2021-01-31T00:00:00.000Z"
+                          },
+                          "duration": {
+                            "type": "number",
+                            "description": "execution time in milliseconds",
+                            "example": 1.72
+                          }
+                        }
+                      }
+                    },
+                    { "type": "string", "format": "binary", "description": "CSV file" }
+                  ]
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "inputs": {
+                            "type": "object",
+                            "description": "execution inputs",
+                            "example": { "a": 1, "b": 2 }
+                          },
+                          "outputs": { "type": "object", "description": "execution outputs", "example": { "c": 3 } },
+                          "executed_at": {
+                            "type": "string",
+                            "description": "execution date",
+                            "example": "2021-01-31T00:00:00.000Z"
+                          },
+                          "duration": {
+                            "type": "number",
+                            "description": "execution time in milliseconds",
+                            "example": 1.72
+                          }
+                        }
+                      }
+                    },
+                    { "type": "string", "format": "binary", "description": "CSV file" }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Batch ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no results found for batch_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no results found for batch_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 404 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "no results found for batch_id <id>"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["batch"]
+      }
+    },
+    "/v1/batch": {
+      "delete": {
+        "operationId": "BatchController_deleteFiles",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "set of batch IDs to delete",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["ids"],
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "description": "list of batch IDs to delete",
+                    "items": { "type": "string", "format": "uuid" },
+                    "example": ["f1c1f3a0-8f0f-4d2b-9e4d-1d3e5f2a3b7c", "f1c1f3a0-8f0f-4d2b-9e4d-1d3e5f2a3b7c"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Batch files deleted successfully" },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 400 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "validation failed"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": { "ids": ["ids must contain at least 1 elements"] },
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Batch limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["status", "message"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "status": { "type": "number", "description": "HTTP status code", "example": 429 },
+                        "message": {
+                          "type": "string",
+                          "description": "message describing the failure",
+                          "example": "rate limit exceeded"
+                        },
+                        "cause": {
+                          "type": "object",
+                          "description": "description of the failure if any",
+                          "example": null,
+                          "oneOf": [
+                            { "type": "object" },
+                            { "type": "array", "items": { "type": "string" } },
+                            { "type": "string" }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["batch"]
+      }
+    }
+  },
+  "info": {
+    "title": "wasm-service",
+    "description": "API service for running WASM files",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    { "name": "health", "description": "checks the health status of the service" },
+    { "name": "config", "description": "retrieves the service configuration" },
+    { "name": "services", "description": "manages and executes wasm bundle files" },
+    { "name": "batch", "description": "manages batch operations" }
+  ],
+  "servers": [],
+  "components": { "schemas": {} }
+}
