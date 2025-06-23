@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.2.0 (2025-06-23)
+
+- Upgrade `Node` engine to use `v20.11.1`
+- Upgrade `@coherentglobal/wasm-runner` dependency to latest (`v0.1.19`).
+- Upgrade `@nestjs` dependencies and their peer dependencies to latest (`v11.1.3`).
+  - `@nestjs/cli`
+  - `@nestjs/schematics`
+  - `@nestjs/testing`
+  - `@nestjs/platform-express`
+  - `@nestjs/platform-socket.io`
+  - `@nestjs/swagger`
+  - `@nestjs/terminus`
+  - `@nestjs/websockets`
+
 ## 0.1.4 (2025-06-05)
 
 - Fix bug in uploading WASM modules.

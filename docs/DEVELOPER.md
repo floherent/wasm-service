@@ -13,8 +13,8 @@ This guide will walk you through:
 ## Introduction
 
 `wasm-service` is a sample RESTful API that lets you run WASM modules generated
-by Coherent Spark. It is built with [Node@16.14](https://nodejs.org/en/download)
-and [NestJS@9.0](https://docs.nestjs.com/). Though it is built to be used as a
+by Coherent Spark. It is built with [Node@20.11.1](https://nodejs.org/en/download)
+and [NestJS@11.1.3](https://docs.nestjs.com/). Though it is built to be used as a
 standalone service, this service is also microservice-friendly.
 
 As NestJS's philosophy dictates, the service is built with modularity in mind.
@@ -22,7 +22,7 @@ It is composed of several modules that can be easily extended or updated to suit
 your needs. Those modules include a `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
 The `ServicesModule` is a simple module that exposes a few endpoints, among them,
-one that relies heavily on the [@coherentglobal/wasm-runner@0.0.102][wasm-runner]
+one that relies heavily on the [@coherentglobal/wasm-runner@^0.1.19][wasm-runner]
 Node.js package's core logic.
 
 Some other coding techniques and practices considered throughout this service
@@ -50,7 +50,7 @@ IDE. It is free, open source, and has a great community.
 
 ### Set up your development environment
 
-Install [Node][nodejs.org] (we use `16.14.2` in our example) and dependencies,
+Install [Node][nodejs.org] (we use `20.11.1` in our example) and dependencies,
 then run the service.
 
 ```bash

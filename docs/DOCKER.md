@@ -20,8 +20,7 @@ This Docker image isn't officially supported by Coherent. It originally started 
 a sample API service I built for demo purposes. I then thought, "Why not share it
 with the community?" So, here we are!
 
-If you encounter any bumps while using it, please report them [here][github-issue]
-by creating a new issue.
+If you encounter any bumps while using it, please report them [by creating a new issue][github-issue].
 
 ## Usage
 
