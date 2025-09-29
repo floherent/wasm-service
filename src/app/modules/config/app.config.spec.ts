@@ -4,7 +4,12 @@ describe('AppConfig', () => {
   describe('loadConfig', () => {
     it('should use default config', () => {
       const config: Config = loadConfig();
-      expect(config).toEqual(DEFAULT_CONFIG);
+
+      const copy = JSON.parse(JSON.stringify(config));
+      copy.health.appDir = DEFAULT_CONFIG.health.appDir; // this is resolved to an absolute path.
+      delete copy.connectivity; // there's NO default connectivity settings.
+
+      expect(copy).toEqual(DEFAULT_CONFIG); // everything else should be the same.
     });
   });
 

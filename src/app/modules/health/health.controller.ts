@@ -7,11 +7,12 @@ import { ONE_MB } from '@shared/constants';
 import { getMemoryUsage } from '@shared/utils';
 import { HealthProfile } from '@shared/docs';
 import { WasmDataHealthIndicator } from './wasm-data.health';
+import { SaasServiceHealthIndicator } from './saas-service.health';
 
 @ApiTags('health')
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
-  private readonly PLATFORM_PATH = process.platform === 'win32' ? 'C:\\' : '/'; // FIXME: use external config
+  private readonly PLATFORM_PATH: string;
   private readonly DISK_THRESHOLD_PERCENT: number;
   private readonly MEMORY_THRESHOLD_IN_MB: number;
   private readonly WASM_DATA_THRESHOLD_IN_MB: number;
@@ -21,8 +22,10 @@ export class HealthController {
     private readonly disk: DiskHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
     private readonly wasm: WasmDataHealthIndicator,
+    private readonly saas: SaasServiceHealthIndicator,
     private readonly appConfig: AppConfig,
   ) {
+    this.PLATFORM_PATH = this.appConfig.props.health.appDir;
     this.DISK_THRESHOLD_PERCENT = this.appConfig.props.health.diskThresholdPercent;
     this.MEMORY_THRESHOLD_IN_MB = this.appConfig.props.health.memoryThreshold * ONE_MB;
     this.WASM_DATA_THRESHOLD_IN_MB = this.appConfig.props.health.wasmThreshold * ONE_MB;
@@ -45,6 +48,9 @@ export class HealthController {
       // The used memory heap and RSS/RAM should not exceed this threshold.
       () => this.memory.checkHeap('memory_heap', this.MEMORY_THRESHOLD_IN_MB),
       () => this.memory.checkRSS('memory_rss', this.MEMORY_THRESHOLD_IN_MB),
+
+      // This app should be able to establish connectivity with the SaaS service (when enabled)
+      () => this.saas.healthCheck('connectivity'),
     ]);
   }
 

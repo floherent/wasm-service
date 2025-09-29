@@ -1,5 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { readFileSync as read, existsSync } from 'fs';
+import { Config as SaasConfig, SparkError } from '@cspark/sdk';
+import { resolve } from 'path';
 import * as yaml from 'js-yaml';
 
 const configPath: string = process.env['WS_CONFIG_PATH'] ?? '.config/default.yml';
@@ -20,9 +22,17 @@ interface Config {
     replicas: number;
   };
   health: {
+    appDir: string;
     wasmThreshold: number;
     diskThresholdPercent: number;
     memoryThreshold: number;
+  };
+  connectivity?: {
+    enabled: boolean;
+    baseUrl: string;
+    token?: { header: string; value: string };
+    apiKey?: { header: string; value: string };
+    oauth2?: { clientId: string; clientSecret: string };
   };
 }
 
@@ -47,6 +57,7 @@ class AppConfig {
     const service = config?.service;
     const performance = config?.performance;
     const indicators = performance?.health?.indicators;
+    const connectivity = service?.connectivity;
     this._config = {
       app: {
         name: config?.name ?? DEFAULT_CONFIG.app.name,
@@ -63,9 +74,17 @@ class AppConfig {
         replicas: parseInt(performance?.spark?.replicas ?? DEFAULT_CONFIG.spark.replicas, 10),
       },
       health: {
+        appDir: resolve(performance?.health?.appDir ?? DEFAULT_CONFIG.health.appDir),
         diskThresholdPercent: parseFloat(indicators?.disk ?? DEFAULT_CONFIG.health.diskThresholdPercent),
         wasmThreshold: parseInt(indicators?.wasm ?? DEFAULT_CONFIG.health.wasmThreshold, 10),
         memoryThreshold: parseInt(indicators?.memory ?? DEFAULT_CONFIG.health.memoryThreshold, 10),
+      },
+      connectivity: {
+        enabled: connectivity?.enabled ?? false,
+        baseUrl: connectivity?.baseUrl ?? '', // will throw an error if not set.
+        token: connectivity?.token ? { ...connectivity.token } : undefined,
+        apiKey: connectivity?.apiKey ? { ...connectivity.apiKey } : undefined,
+        oauth2: connectivity?.oauth2 ? { ...connectivity.oauth2 } : undefined,
       },
     };
   }
@@ -78,11 +97,26 @@ class AppConfig {
     const { app } = this._config;
     const description = app.description ? `(${app.description})` : '';
     Logger.log(`${app.name} ${description} running on port ${app.port}...`);
+    this.printConnectivity(verbose);
     if (verbose) this.printVerbose();
   }
 
   printVerbose(): void {
     this.logger.log(`Printing app config: \n${JSON.stringify(this._config, null, 2)}`);
+  }
+
+  printConnectivity(verbose = false): void {
+    const { connectivity } = this._config;
+    if (!connectivity.enabled) return;
+
+    try {
+      const { baseUrl, token, apiKey, oauth2: oauth } = connectivity;
+      const config = new SaasConfig({ baseUrl, token: token?.value, apiKey: apiKey?.value, oauth, logger: false });
+      this.logger.log(`Spark connectivity enabled using ${config.baseUrl} (${config.auth.type})`);
+    } catch (error) {
+      this.logger.warn(`Spark connectivity has been enabled but wrongly configured (${error.message})`);
+      if (verbose && error instanceof SparkError) this.logger.warn(error.details);
+    }
   }
 }
 
@@ -102,6 +136,7 @@ const DEFAULT_CONFIG: Config = {
     replicas: 1,
   },
   health: {
+    appDir: '.',
     diskThresholdPercent: 0.75, // 75%
     wasmThreshold: 512, // 512MB
     memoryThreshold: 1024, // 1GB
