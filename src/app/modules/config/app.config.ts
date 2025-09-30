@@ -34,6 +34,9 @@ interface Config {
     apiKey?: { header: string; value: string };
     oauth2?: { clientId: string; clientSecret: string };
   };
+  history: {
+    enabled: boolean;
+  };
 }
 
 class AppConfig {
@@ -85,6 +88,9 @@ class AppConfig {
         token: connectivity?.token ? { ...connectivity.token } : undefined,
         apiKey: connectivity?.apiKey ? { ...connectivity.apiKey } : undefined,
         oauth2: connectivity?.oauth2 ? { ...connectivity.oauth2 } : undefined,
+      },
+      history: {
+        enabled: performance?.history?.enabled ?? DEFAULT_CONFIG.history.enabled,
       },
     };
   }
@@ -140,6 +146,9 @@ const DEFAULT_CONFIG: Config = {
     diskThresholdPercent: 0.75, // 75%
     wasmThreshold: 512, // 512MB
     memoryThreshold: 1024, // 1GB
+  },
+  history: {
+    enabled: false,
   },
 } as const;
 

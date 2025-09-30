@@ -47,15 +47,20 @@ export class WasmRepo implements IWasmRepo {
   }
 
   async findWasm(versionId: string) {
-    let wasm = this.wasmService.getWasm(versionId);
+    let wasm = this.wasmService.getWasm(versionId); // first, check if the WASM is already in the cache.
 
     if (!wasm) {
       const { uploadPath } = this.appConfig.props.app;
       const data = this.loadCsvWasm(join(uploadPath, WASM_DATA_PATH));
-      const model = data.find((m) => m.version_id === versionId);
-      if (!model) throw new WasmFileNotFound(versionId);
+      const model = data.find((m) => m.version_id === versionId); // then, check if the WASM exists locally.
+      let modelPath = model?.file_path;
 
-      wasm = await this.wasmService.setWasm(versionId, model.file_path);
+      if (!model && this.appConfig.props.connectivity.enabled) {
+        const downloaded = await this.wasmService.download('', versionId); // finally, fetch the WASM from the SaaS (if enabled).
+        modelPath = downloaded.path;
+      } else throw new WasmFileNotFound(versionId);
+
+      wasm = await this.wasmService.setWasm(versionId, modelPath);
     }
     return wasm;
   }

@@ -1,20 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpModule } from '@nestjs/axios';
 
 import { AppConfig, DEFAULT_CONFIG } from '@app/modules/config';
 import { WasmService } from './wasm.service';
+import { SaasService } from './saas.service';
 
 describe('WasmService', () => {
-  let service: WasmService;
-
-  beforeEach(async () => {
+  it('should be defined with no wasm in cache', async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule],
-      providers: [WasmService, { provide: AppConfig, useValue: { props: DEFAULT_CONFIG } }],
+      providers: [
+        WasmService,
+        SaasService,
+        { provide: AppConfig, useValue: { props: { ...DEFAULT_CONFIG, connectivity: { enabled: false } } } },
+      ],
     }).compile();
 
-    service = module.get<WasmService>(WasmService);
+    const wasmService = module.get<WasmService>(WasmService);
+    expect(wasmService).toBeDefined();
+    expect(wasmService.getWasm('some-version-id')).toBeUndefined(); // no wasm in cache yet
   });
-
-  it('should be defined', () => expect(service).toBeDefined());
 });

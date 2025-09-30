@@ -107,6 +107,19 @@
       "description": "Performance configuration",
       "type": "object",
       "properties": {
+        "history": {
+          "description": "API Execution History configuration",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "description": "Save the API execution results to the local CSVfile system when enabled",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
         "spark": {
           "description": "Spark runner configuration",
           "type": "object",

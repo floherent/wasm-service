@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
 import { createWriteStream, statSync } from 'fs';
 import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
 import { Spark, ExternalWasm, toFileSize } from '@shared/utils';
 import { BadUploadWasmData } from '@shared/errors';
+import { SaasService } from './saas.service';
 
 @Injectable()
 export class WasmService {
@@ -13,7 +13,7 @@ export class WasmService {
   private readonly bucket: string[] = [];
   private readonly wasms: Map<string, Spark> = new Map(); // could use redis or something else.
 
-  constructor(private readonly appConfig: AppConfig, private readonly httpService: HttpService) {}
+  constructor(private readonly appConfig: AppConfig, readonly saasService: SaasService) {}
 
   getWasm(versionId: string): Spark | undefined {
     const wasm = this.wasms.get(versionId);
@@ -65,8 +65,12 @@ export class WasmService {
     const writer = createWriteStream(filePath);
 
     try {
-      const response = await this.httpService.axiosRef.get(url, { responseType: 'stream' });
-      response.data.pipe(writer);
+      if (URL.canParse(url)) {
+        (await this.saasService.download(url)).pipe(writer);
+      } else {
+        url = this.saasService.client?.config.baseUrl.full;
+        (await this.saasService.client?.wasm.download({ versionId })).buffer.pipe(writer);
+      }
     } catch (error) {
       this.logger.error(`failed to download external wasm <${versionId}> from ${url}`);
       throw new BadUploadWasmData(`cannot download wasm from ${url}`, error?.message ?? error);
