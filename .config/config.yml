@@ -1,4 +1,16 @@
+service:
+  connectivity:
+    enabled: true
+    baseUrl: https://excel.uat.us.coherent.global/my-tenant
+    token:
+      header: Authorization
+      value: Bearer some-access-token
+
 performance:
+  history:
+    enabled: false
   spark:
     cacheSize: 4
     threads: 4
+  health:
+    appDir: .

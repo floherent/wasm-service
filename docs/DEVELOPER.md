@@ -119,36 +119,48 @@ $ docker run --name wasm-service -p 8080:8080 -d \
 
 The service configuration section includes the following parameters:
 
-- `name`: specifies the name of the WASM service (e.g., **wasm-service**).
-- `description`: provides a brief description of the service's purpose.
-- `service.port`: specifies the port number on which the service will listen for
+- `name`: the name of the WASM service (e.g., **wasm-service**).
+- `description`: a brief description of the service's purpose.
+- `service.port`: the port number on which the service will listen for
   incoming requests. The default port is set to **8080**.
-- `service.contextPath`: defines the context path for the service. Requests to
+- `service.contextPath`: the context path for the service. Requests to
   the service's API endpoints will be prefixed with this path. By default, the
   context path is set to `/`.
-- `service.uploadPath`: specifies the directory path where the uploaded files
+- `service.uploadPath`: the directory path where the uploaded files
   will be stored. The default upload path is set to `uploads`.
-- `service.bodyLimit`: specifies the request's payload size limit. By default,
+- `service.bodyLimit`: the request's payload size limit. By default,
   the size limit is **50 MB**, due to batch operations.
+
+If you would like to enable automatic fetching of the WASM bundle from Coherent Spark (SaaS),
+you can do so by setting the `service.connectivity.enabled` to **true** and providing
+the necessary credentials:
+
+- `service.connectivity.enabled`: whether the service should connect to Coherent Spark (SaaS).
+- `service.connectivity.baseUrl`: the base URL (including the tenant) of Coherent Spark.
+- `service.connectivity.token.header`: the header of the token (e.g. `Authorization`).
+- `service.connectivity.token.value`: the bearer token (e.g. `Bearer some-access-token`) extracted from Spark UI.
+- `service.connectivity.apiKey.header`: the header of the API key (e.g. `x-synthetic-key`).
+- `service.connectivity.apiKey.value`: the value of the API key (e.g. `some-api-key`).
+- `service.connectivity.oauth2.client_id`: the client ID of the OAuth2 client credentials.
+- `service.connectivity.oauth2.client_secret`: the client secret of the OAuth2 client credentials.
 
 ### Performance configuration
 
 The performance configuration section includes the following parameters:
 
-- `performance.spark.cacheSize`: specifies the number of service instances to cache.
+- `performance.history.enabled`: whether the service should save the execution history (defaults to **false**).
+- `performance.spark.cacheSize`: the number of service instances to cache.
   The cache is used to store frequently accessed wasms to improve performance. By
   default, the cache size is set to **8**.
-- `performance.spark.threads`: default to 1, specifies the number of parallel threads
-  to use for the WASM execution.
-- `performance.spark.replicas`: default to 1, specifies the number of replicas to
-  use for the WASM execution.
-- `performance.health.indicators.disk`: sets the threshold in percentage
+- `performance.spark.threads`: the number of parallel threads (defaults to 1) to use for the WASM execution.
+- `performance.spark.replicas`: the number of replicas (defaults to 1) to use for the WASM execution.
+- `performance.health.indicators.disk`: the threshold in percentage
   (between 0.0 and 1.0) for the disk usage. By default, it is set to 0.75%.
-- `performance.health.indicators.wasm`: sets the threshold size in megabytes
+- `performance.health.indicators.wasm`: the threshold size in megabytes
   for the health check related to the WASM data. If the size of the data
   exceeds this threshold, it may indicate potential performance issues. The default
   threshold is set to 512 MB.
-- `performance.health.indicators.memory`: sets the threshold size in megabytes
+- `performance.health.indicators.memory`: the threshold size in megabytes
   for the health check related to memory usage. If the memory consumption exceeds
   this threshold, it may affect the service's performance. The default value is
   set to 1024 MB.

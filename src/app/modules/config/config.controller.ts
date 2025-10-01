@@ -12,7 +12,7 @@ export class ConfigController {
   @Get()
   @GetAppConfig()
   findOne() {
-    const { app, spark, health } = this.appConfig.props;
+    const { app, spark, health, connectivity: conn, history } = this.appConfig.props;
     return {
       app: {
         name: app.name,
@@ -32,6 +32,16 @@ export class ConfigController {
         wasm: health.wasmThreshold,
         memory: health.memoryThreshold,
       },
+      connectivity: conn
+        ? {
+            enabled: conn.enabled,
+            base_url: !conn.enabled ? undefined : conn.baseUrl,
+            token: conn?.token ? { header: conn.token.header, value: '[secure]' } : undefined,
+            api_key: conn?.apiKey ? { header: conn.apiKey.header, value: '[secure]' } : undefined,
+            oauth2: conn?.oauth2 ? { client_id: '[secure]', client_secret: '[secure]' } : undefined,
+          }
+        : undefined,
+      history,
     };
   }
 }

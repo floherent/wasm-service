@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.2.1 (2025-10-01)
+
+- Enable/disable execution history using external configuration.
+- Add support for fetching the WASM bundle from Coherent Spark (SaaS).
+- Update documentation for API reference.
+- Update documentation for developer guide.
+
 ## 0.2.0 (2025-06-23)
 
 - Upgrade `Node` engine to use `v20.11.1`

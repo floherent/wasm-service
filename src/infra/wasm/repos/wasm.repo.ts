@@ -46,18 +46,32 @@ export class WasmRepo implements IWasmRepo {
     }
   }
 
+  /**
+   * Finds the WASM for the given version ID.
+   *
+   * Finding the WASM involves the following steps:
+   * - first, checks if the WASM is already in the cache.
+   * - then, checks if the WASM exists locally.
+   * - finally, fetches the WASM from the SaaS if enabled.
+   * @param versionId - The version ID of the WASM to find.
+   * @returns a cached WASM with a local copy saved on disk for future use.
+   */
   async findWasm(versionId: string) {
-    let wasm = this.wasmService.getWasm(versionId);
+    const cachedWasm = this.wasmService.getWasm(versionId);
+    if (cachedWasm) return cachedWasm;
 
-    if (!wasm) {
-      const { uploadPath } = this.appConfig.props.app;
-      const data = this.loadCsvWasm(join(uploadPath, WASM_DATA_PATH));
-      const model = data.find((m) => m.version_id === versionId);
-      if (!model) throw new WasmFileNotFound(versionId);
+    const data = this.loadCsvWasm(join(this.appConfig.props.app.uploadPath, WASM_DATA_PATH));
+    const model = data.find((m) => m.version_id === versionId);
+    if (model) return await this.wasmService.setWasm(versionId, model.file_path);
 
-      wasm = await this.wasmService.setWasm(versionId, model.file_path);
+    if (this.appConfig.props.connectivity.enabled) {
+      const file = await this.wasmService.download('', versionId);
+      const wasm = new WasmFileDto(versionId, file.filename, file.path, file.url, file.size, Date.now());
+      await this.saveWasm(wasm);
+      return await this.wasmService.setWasm(versionId, file.path);
     }
-    return wasm;
+
+    throw new WasmFileNotFound(versionId);
   }
 
   async execute(versionId: string, dto: ExecuteWasmDto): Promise<ExecData> {
@@ -69,7 +83,9 @@ export class WasmRepo implements IWasmRepo {
     const output = await wasm.execute(input);
     const end = performance.now();
 
-    this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
+    if (this.appConfig.props.history.enabled) {
+      this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
+    }
 
     return output;
   }
