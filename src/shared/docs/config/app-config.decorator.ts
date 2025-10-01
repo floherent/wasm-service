@@ -21,6 +21,7 @@ function getSwaggerDefinitions(swagger: Swagger) {
     description: 'Get app config',
     schema: {
       type: 'object',
+      required: ['app', 'spark', 'health'],
       properties: {
         app: {
           type: 'object',
@@ -55,6 +56,41 @@ function getSwaggerDefinitions(swagger: Swagger) {
             disk: { type: 'number', example: 0.75 },
             wasm: { type: 'number', example: 512 },
             memory: { type: 'number', example: 1024 },
+          },
+        },
+        connectivity: {
+          type: 'object',
+          required: ['enabled', 'base_url'],
+          properties: {
+            enabled: { type: 'boolean', example: true },
+            base_url: { type: 'string', example: 'https://excel.uat.us.coherent.global/fieldengineering' },
+            token: {
+              type: 'object',
+              properties: {
+                header: { type: 'string', example: 'Authorization' },
+                value: { type: 'string', example: '[secure]' },
+              },
+            },
+            api_key: {
+              type: 'object',
+              properties: {
+                header: { type: 'string', example: 'x-synthetic-key' },
+                value: { type: 'string', example: '[secure]' },
+              },
+            },
+            oauth2: {
+              type: 'object',
+              properties: {
+                client_id: { type: 'string', example: '[secure]' },
+                client_secret: { type: 'string', example: '[secure]' },
+              },
+            },
+          },
+        },
+        history: {
+          type: 'object',
+          properties: {
+            enabled: { type: 'boolean', example: true },
           },
         },
       },
