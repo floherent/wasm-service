@@ -6,9 +6,13 @@ EXPOSE 8080
 
 WORKDIR /app
 
+COPY package*.json ./
+
+RUN npm ci --ignore-scripts
+
 COPY . .
 
-RUN npm install --ignore-scripts && npm run build; rm -rf src test
+RUN npm run build && rm -rf src test
 
 VOLUME /app/uploads
 
