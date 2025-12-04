@@ -1,6 +1,6 @@
 {
   "name": "wasm-service",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "API service for running WASM files",
   "author": "Coherent <team@coherent.global>",
   "private": true,
@@ -36,7 +36,7 @@
     "*.{md,ts,json,yml}": "prettier --write"
   },
   "dependencies": {
-    "@coherentglobal/wasm-runner": "^0.1.19",
+    "@coherentglobal/wasm-runner": "^0.2.4",
     "@cspark/sdk": "^0.4.0",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.1.3",
@@ -47,6 +47,7 @@
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/websockets": "^11.1.3",
+    "@udlearn/duration": "^1.3.2",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "class-transformer": "^0.5.1",

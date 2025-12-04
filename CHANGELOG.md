@@ -4,16 +4,24 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.2.2 (2025-12-04)
+
+- Fix security vulnerabilities in dependencies.
+- Upgrade dependencies to fix vulnerabilities.
+- Upgrade `@coherentglobal/wasm-runner` to latest (`v0.2.4`).
+- Use `@udlearn/duration` library for duration calculations.
+
 ## 0.2.1 (2025-10-01)
 
 - Enable/disable execution history using external configuration.
 - Add support for fetching the WASM bundle from Coherent Spark (SaaS).
+- Use `@cspark/sdk` library for SaaS integration.
 - Update documentation for API reference.
 - Update documentation for developer guide.
 
 ## 0.2.0 (2025-06-23)
 
-- Upgrade `Node` engine to use `v20.11.1`
+- Upgrade `Node` engine to use `v20.11.1`.
 - Upgrade `@coherentglobal/wasm-runner` dependency to latest (`v0.1.19`).
 - Upgrade `@nestjs` dependencies and their peer dependencies to latest (`v11.1.3`).
   - `@nestjs/cli`
@@ -33,12 +41,12 @@ for commit guidelines.
 
 ## 0.1.3 (2024-04-25)
 
-- Add support for static and dynamic validations
-- Add support for request metadata in the execution endpoint
+- Add support for static and dynamic validations.
+- Add support for request metadata in the execution endpoint.
 
 ## 0.1.2 (2024-04-15)
 
-- Fix vulnerabilities in dependencies (use `Node@20.11.1` and `npm@10.5.2`)
+- Fix vulnerabilities in dependencies (use `Node@20.11.1` and `npm@10.5.2`).
 - Switch package manager from `yarn` to `npm` for docker builds.
 - Fix wrong module imports causing test failure.
 
