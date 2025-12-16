@@ -7,7 +7,7 @@ import { AppModule } from '@app/modules/app.module';
 import { AppConfig } from '@app/modules/config';
 import { ApiExceptionFilter, ApiValidationPipe } from '@shared/errors';
 
-async function bootstrap() {
+(async () => {
   const app = await NestFactory.create(AppModule);
   const appConfig = app.get(AppConfig);
 
@@ -28,10 +28,9 @@ async function bootstrap() {
     .addTag('services', 'manages and executes wasm bundle files')
     .addTag('batch', 'manages batch operations')
     .build();
-  const openApidocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, openApidocument);
+
+  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, swaggerConfig));
 
   await app.listen(appConfig.props.app.port);
   appConfig.printUsage();
-}
-bootstrap();
+})();

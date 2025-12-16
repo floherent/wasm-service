@@ -83,9 +83,7 @@ export class WasmRepo implements IWasmRepo {
     const output = await wasm.execute(input);
     const end = performance.now();
 
-    if (this.appConfig.props.history.enabled) {
-      this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
-    }
+    this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
 
     return output;
   }
@@ -139,6 +137,8 @@ export class WasmRepo implements IWasmRepo {
   }
 
   saveHistory(versionId: string, results: ExecResult[]): void {
+    if (!this.appConfig.props.history.enabled) return;
+
     try {
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
       const models = results.map((result) => {

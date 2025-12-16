@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createWriteStream, statSync } from 'fs';
+import { Uri } from '@cspark/sdk';
 import { join } from 'path';
 
 import { AppConfig } from '@app/modules/config';
@@ -66,10 +67,11 @@ export class WasmService {
 
     try {
       if (URL.canParse(url)) {
-        (await this.saasService.download(url)).pipe(writer);
+        (await this.saasService.download(url, this.saasService.client?.config.auth)).pipe(writer);
       } else {
-        url = this.saasService.client?.config.baseUrl.full;
-        (await this.saasService.client?.wasm.download({ versionId })).buffer.pipe(writer);
+        const uri = Uri.validate(url); // fabricated versionId won't cut it; so must come from body instead.
+        (await this.saasService.client?.wasm.download(uri)).buffer.pipe(writer);
+        url = `${url} (${this.saasService.client?.config.baseUrl.full})`; // add more context origin of the file
       }
     } catch (error) {
       this.logger.error(`failed to download external wasm <${versionId}> from ${url}`);

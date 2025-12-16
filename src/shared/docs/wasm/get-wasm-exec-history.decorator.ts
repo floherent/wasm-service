@@ -29,7 +29,7 @@ function getSwaggerDefinitions(swagger: Swagger) {
     schema: getErrorSchema({ status: 404, message: 'no execution history file found for version_id <id>' }),
   });
 
-  const Ok = ApiOkResponse({ description: 'WASM execution history', schema: getOkSchema() });
+  const Ok = ApiOkResponse({ description: 'WASM execution history (if enabled)', schema: getOkSchema() });
 
   return [page, limit, order, queryType, header, NotFound, Ok];
 }

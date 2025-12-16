@@ -19,14 +19,9 @@ export class SaasServiceHealthIndicator {
 
     if (!this.saasService.client) {
       const { enabled: isEnabled } = this.appConfig.props.connectivity;
-
-      if (!isEnabled) {
-        const warning = 'Spark connectivity is disabled; health check is not possible';
-        this.logger.warn(warning);
-        return indicator.up({ warning });
-      }
-
-      return indicator.down({ warning: 'SaaS configuration invalid; check connectivity settings' });
+      return !isEnabled
+        ? indicator.up({ warning: 'SaaS connectivity is disabled; health check is not possible' })
+        : indicator.down({ warning: 'SaaS configuration invalid; check connectivity settings' });
     }
 
     const info = {
@@ -37,6 +32,7 @@ export class SaasServiceHealthIndicator {
       const isOk = await this.saasService.client.health.ok();
       return !isOk ? indicator.down(info) : indicator.up(info);
     } catch (error) {
+      this.logger.warn(`SaaS health check failed ${error?.message}`);
       return indicator.down({ ...info, error: error?.message });
     }
   }
