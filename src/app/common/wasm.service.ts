@@ -34,9 +34,11 @@ export class WasmService {
     }
 
     const wasm = await this.sparkify(versionId, filePath);
-    this.wasms.set(versionId, wasm);
-    this.bucket.unshift(versionId);
-    this.logger.log(`wasm <${versionId}> has been cached`);
+    if (this.appConfig.props.spark.cacheSize > 0) {
+      this.wasms.set(versionId, wasm);
+      this.bucket.unshift(versionId);
+      this.logger.log(`wasm <${versionId}> has been cached`);
+    }
     return wasm;
   }
 

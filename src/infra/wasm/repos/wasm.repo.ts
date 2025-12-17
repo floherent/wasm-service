@@ -65,7 +65,7 @@ export class WasmRepo implements IWasmRepo {
     if (model) return await this.wasmService.setWasm(versionId, model.file_path);
 
     if (this.appConfig.props.connectivity.enabled) {
-      const file = await this.wasmService.download('', versionId);
+      const file = await this.wasmService.download(`version/${versionId}`, versionId);
       const wasm = new WasmFileDto(versionId, file.filename, file.path, file.url, file.size, Date.now());
       await this.saveWasm(wasm);
       return await this.wasmService.setWasm(versionId, file.path);

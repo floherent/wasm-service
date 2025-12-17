@@ -55,19 +55,19 @@ the API documentation (OpenAPI 3.0 - Swagger UI) at `http://localhost:8080/docs`
 The service is also shipped with a built-in WASM bundle (volume of cylinder) that
 you may use to test the service.
 
-| Use Cases                  | Resources                                   |
-| -------------------------- | ------------------------------------------- |
-| API Documentation          | `GET /docs` or `GET /docs-json`             |
-| Health check               | `GET /health`                               |
-| Get current configuration  | `GET /v1/config`                            |
-| List all WASM modules      | `GET /v1/services`                          |
-| Upload a WASM module       | `PUT /v1/services[/{version_id}]`           |
-| Add WASM module by URL     | `PATCH /v1/services[/{version_id}]`         |
-| Execute a WASM module      | `POST /v1/services/{version_id}/execute`    |
-| Fetch WASM validations     | `POST /v1/services/{version_id}/validation` |
-| Get WASM execution history | `GET /v1/services/{version_id}/history`     |
-| Download a WASM module     | `GET /v1/services/{version_id}`             |
-| Delete a WASM module       | `DELETE /v1/services/{version_id}`          |
+| Use Cases                  | Resources                                 |
+| -------------------------- | ----------------------------------------- |
+| API Documentation          | `GET /docs` or `GET /docs-json`           |
+| Health check               | `GET /health`                             |
+| Get current configuration  | `GET /v1/config`                          |
+| List all WASM modules      | `GET /v1/services`                        |
+| Upload a WASM module       | `PUT /v1/services[/{version_id}]`         |
+| Add WASM module by URL     | `PATCH /v1/services[/{version_id}]`       |
+| Execute a WASM module      | `POST /v1/services/{version_id}/execute`  |
+| Fetch WASM validations     | `POST /v1/services/{version_id}/validate` |
+| Get WASM execution history | `GET /v1/services/{version_id}/history`   |
+| Download a WASM module     | `GET /v1/services/{version_id}`           |
+| Delete a WASM module       | `DELETE /v1/services/{version_id}`        |
 
 For batch operations, use the following endpoints:
 

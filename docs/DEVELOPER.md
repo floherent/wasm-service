@@ -22,7 +22,7 @@ It is composed of several modules that can be easily extended or updated to suit
 your needs. Those modules include a `HealthModule`, `ServicesModule`, and `ConfigModule`.
 
 The `ServicesModule` is a simple module that exposes a few endpoints, among them,
-one that relies heavily on the [@coherentglobal/wasm-runner@^0.1.19][wasm-runner]
+one that relies heavily on the [@coherentglobal/wasm-runner@^0.2.4][wasm-runner]
 Node.js package's core logic.
 
 Some other coding techniques and practices considered throughout this service
@@ -62,7 +62,7 @@ $ npm run start:dev
 ```
 
 > Confirm that NPM is installed (e.g., `npm -v` this will output its version).
-> Feel free to use other Node package managers like `yarn` to proceed.
+> Feel free to use other Node package managers like `yarn` or `pnpm` to proceed.
 
 ### Download the WASM from Spark
 
@@ -81,10 +81,40 @@ make sure the following files are present:
 - `your-service.js`
 - and some other files (e.g. checksums, etc.)
 
+> [!NOTE]
 > You may write down the `versionId` of the WASM that you downloaded if you intend
 > to use it as a unique identifier for the downloaded WASM bundle. For testing purposes,
 > we provide the [wasm file (volume of cylinder)](../examples/volume-cylinder.zip)
 > (and its versionId `e57f48e7-fe8c-4202-b8bc-5d366cf1eee9`).
+
+Understandably, this whole offline deployment process is so that there's no need
+to rely on the SaaS platform to be up and running. However, this service includes
+a feature to download the WASM bundle from the SaaS platform on demand. That way,
+you can still use the SaaS platform to manage your WASM bundles and execute them
+offline. Here's how this works:
+
+1. Set up the SaaS connectivity in the service's config file (ie., base URL, token, etc.)
+2. Use the **Add WASM by URI** (`PATCH /v1/services/[{version_id}]`) endpoint
+3. With one of the following URI formats to specify the location of the WASM bundle in the body of the request:
+   - `{folder-name}/{service-name}[{optional-version}]`, `service/{serviceId}`, or `version/{versionId}`
+   - or a valid Entity Store URL (using bearer token or oauth2 credentials)
+   - or any other valid URL that points to a WASM bundle (without any form of authentication)
+
+Bear in mind that the [Coherent Spark SDK](https://www.npmjs.com/package/@cspark/sdk) is
+used to perform the download operation. Hence, the expected URI format.
+
+> ![TIP]
+> In the `wasm-service`, `versionId` is used as the unique identifier for the WASM bundle
+> internally (and independently of the SaaS platform); so, no need to provide one.
+> However, if you intend to use this automatic WASM bundle download feature from
+> the SaaS platform, you should use the SaaS version ID as the `version_id` in the
+> request body.
+>
+> This also applies to executing the WASM module. Meaning, if the provided `versionId`
+> is from the SaaS platform and you set up the SaaS connectivity, the service will
+> automatically download the WASM bundle from the SaaS platform, cache it, and execute it.
+> The order of precendence for wasm bundle retrieval is: in-memory cache (if enabled),
+> local file system, and SaaS platform (if enabled).
 
 ### Execute the WASM offline
 

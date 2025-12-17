@@ -1412,7 +1412,7 @@ paths:
                           - type: string
       tags:
         - services
-  /v1/services/{version_id}/validation:
+  /v1/services/{version_id}/validate:
     post:
       operationId: ServicesController_getValidations
       parameters:

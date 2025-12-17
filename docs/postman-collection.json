@@ -1,156 +1,435 @@
 {
   "info": {
-    "_postman_id": "bdb7ce88-d84a-43df-abb2-4b4873f4ab3b",
-    "name": "wasm-service",
+    "_postman_id": "c8c06686-7330-4037-a8f4-26c83f3be8f9",
+    "name": "WASM Service",
     "description": "# API Reference\n\nThis API covers some basic use cases to help you get started:\n\n| Use case | Resources |\n| --- | --- |\n| Upload a WASM module | `PUT /v1/services/{version_id}` |\n| Execute a WASM module | `POST /v1/services/{version_id}/execute` |\n| Get the WASM execution history | `GET /v1/services/{version_id}/history` |\n| Download a WASM module | `GET /v1/services/{version_id}` |\n| Delete a WASM module | `DELETE /v1/services/{version_id}` |\n\nAdditionally, the service includes a health check endpoint to verify that the service is up and running: `GET /health`.\n\nFind more details about the API endpoints in the API reference section of the Developer Guide on GitHub.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "26663095"
   },
   "item": [
     {
-      "name": "health check",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/health",
-          "host": ["{{base_url}}"],
-          "path": ["health"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "current config",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/v1/config",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "config"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "upload wasm",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "formdata",
-          "formdata": [
-            {
-              "key": "wasm",
-              "type": "file",
-              "src": "/path/to/wasms/volume-cylinder.zip"
-            },
-            {
-              "key": "data",
-              "value": "{\"service_name\": \"volme of cylinder\",  \"revision\": \"0.1.0\", \"username\": \"john.doe@coherent.global\"}",
-              "contentType": "application/json",
-              "type": "default"
+      "name": "basics",
+      "item": [
+        {
+          "name": "health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
             }
-          ]
+          },
+          "response": []
         },
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "execute wasm",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"inputs\": { \"Height\": 4, \"Radius\": 6,\n  }\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+        {
+          "name": "upload wasm",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "wasm",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "data",
+                  "value": "{\"service_name\": \"volume of cylinder\",\"revision\": \"0.1.0\",\"username\": \"john.doe@coherent.global\"}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}"],
+              "query": [
+                {
+                  "key": "preload",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}", "execute"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "fetch execution history",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}/history",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}", "history"],
-          "query": [
-            {
-              "key": "page",
-              "value": "1",
-              "disabled": true
+        {
+          "name": "execute wasm",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"inputs\": {\n        \"radius\": 2.2,\n        \"height\": 1.4\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            {
-              "key": "limit",
-              "value": "2",
-              "disabled": true
-            },
-            {
-              "key": "order",
-              "value": "desc",
-              "disabled": true
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}", "execute"]
             }
-          ]
+          },
+          "response": []
+        },
+        {
+          "name": "execution history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}/history?limit=10&order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}", "history"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                },
+                {
+                  "key": "type",
+                  "value": "file",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "download wasm",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete wasm",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}"]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "download wasm",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}"]
+      "name": "bonus",
+      "item": [
+        {
+          "name": "health profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/profile",
+              "host": ["{{base_url}}"],
+              "path": ["health", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "current config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/config",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "config"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "fetch wasm data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/services?order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "2",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "fetch wasm validations",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"inputs\": {\n        \"01_letter\": \"a\",\n        \"02_number\": \"1\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}/validation",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}", "validation"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "add wasm by url",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"url\": \"https://example.com/link/to/wasm.zip\",\n    \"service_name\": \"external-wasm\",\n    \"revision\": \"0.1.0\",\n    \"username\": \"john.doe@coherent.global\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/services",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services"]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "download execution history file",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}/history/file",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}", "history", "file"]
+      "name": "batch",
+      "item": [
+        {
+          "name": "execute sync",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"inputs\": [\n        { \"height\": 40 },\n        { \"height\": 50 },\n        { \"height\": 60 }\n    ],\n    \"shared\": { \"radius\": 5 }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}", "execute"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create batch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Ws-Client-Id",
+                "value": "{{ws_client_id}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"inputs\": [\n        { \"Height\": 1, \"Radius\": 1 },\n        { \"Height\": 1, \"Radius\": 2 },\n        { \"Height\": 1, \"Radius\": 3 },\n        { \"Height\": 1, \"Radius\": 4 },\n        { \"Height\": 1, \"Radius\": 5 }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/batch/{{version_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "batch", "{{version_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "batch status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "ws-client-id",
+                "value": "{{ws_client_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/batch/{{batch_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "batch", "{{batch_id}}", "status"],
+              "query": [
+                {
+                  "key": "flat",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "batch results",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "ws-client-id",
+                "value": "ws_m6YqU9QrCYwzeA5kAAAB",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/batch/{{base_url}}/results",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "batch", "{{base_url}}", "results"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "file",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete batch results",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ids\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/batch",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "batch"],
+              "query": [
+                {
+                  "key": "flat",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ],
+      "description": "Batch operations"
     },
     {
-      "name": "delete wasm",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/v1/services/{{version_id}}",
-          "host": ["{{base_url}}"],
-          "path": ["v1", "services", "{{version_id}}"]
+      "name": "saas",
+      "item": [
+        {
+          "name": "add wasm by service uri",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"url\": \"my-folder/volume-cylinder\",\n    \"service_name\": \"volume of cylinder\",\n    \"revision\": \"0.0.1\",\n    \"username\": \"john.doe@coherent.global\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/services",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "add wasm by url",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"url\": \"https://excel.uat.us.coherent.global/api/filemanager/DownloadDocument/file_uuid/filename.zip\",\n    \"service_name\": \"wasm from entity store (won't work with API key)\",\n    \"revision\": \"0.0.2\",\n    \"username\": \"john.doe@coherent.global\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/services",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services"]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     }
   ]
 }

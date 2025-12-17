@@ -1340,7 +1340,7 @@
         "tags": ["services"]
       }
     },
-    "/v1/services/{version_id}/validation": {
+    "/v1/services/{version_id}/validate": {
       "post": {
         "operationId": "ServicesController_getValidations",
         "parameters": [{ "name": "version_id", "required": true, "in": "path", "schema": { "type": "string" } }],
