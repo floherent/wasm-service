@@ -65,7 +65,7 @@ export class WasmRepo implements IWasmRepo {
     if (model) return await this.wasmService.setWasm(versionId, model.file_path);
 
     if (this.appConfig.props.connectivity.enabled) {
-      const file = await this.wasmService.download('', versionId);
+      const file = await this.wasmService.download(`version/${versionId}`, versionId);
       const wasm = new WasmFileDto(versionId, file.filename, file.path, file.url, file.size, Date.now());
       await this.saveWasm(wasm);
       return await this.wasmService.setWasm(versionId, file.path);
@@ -83,9 +83,7 @@ export class WasmRepo implements IWasmRepo {
     const output = await wasm.execute(input);
     const end = performance.now();
 
-    if (this.appConfig.props.history.enabled) {
-      this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
-    }
+    this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
 
     return output;
   }
@@ -139,6 +137,8 @@ export class WasmRepo implements IWasmRepo {
   }
 
   saveHistory(versionId: string, results: ExecResult[]): void {
+    if (!this.appConfig.props.history.enabled) return;
+
     try {
       const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
       const models = results.map((result) => {

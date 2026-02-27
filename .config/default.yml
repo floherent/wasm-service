@@ -8,6 +8,8 @@ service:
   bodyLimit: 50mb
 
 performance:
+  history:
+    enabled: false
   spark:
     cacheSize: 8
     threads: 1

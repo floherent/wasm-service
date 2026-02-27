@@ -13,7 +13,7 @@ export class SaasService {
     const { connectivity } = this.appConfig.props;
     const { baseUrl, token, apiKey, oauth2: oauth } = connectivity;
     try {
-      if (!connectivity.enabled) throw new Error('Spark connectivity is disabled; health check is not possible');
+      if (!connectivity.enabled) throw new Error('SaaS connectivity is disabled');
       const options = { baseUrl, token: token?.value, apiKey: apiKey?.value, oauth, logger: false, timeout };
       this.client = new SparkClient(options);
     } catch (error) {

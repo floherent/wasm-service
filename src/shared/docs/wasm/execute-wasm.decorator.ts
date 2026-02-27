@@ -15,18 +15,19 @@ export const ExecuteWasm = ({ swaggerDocs }: EndpointOptions = { swaggerDocs: tr
 };
 
 function getSwaggerDefinitions(swagger: Swagger) {
-  const { ApiBody, ApiOkResponse, ApiBadRequestResponse, ApiNotFoundResponse } = swagger;
+  const { ApiParam, ApiBody, ApiOkResponse, ApiBadRequestResponse, ApiNotFoundResponse } = swagger;
   const { ApiUnprocessableEntityResponse, ApiPayloadTooLargeResponse } = swagger;
 
-  const body = ApiBody({ description: 'Upload a WASM bundle by URI', schema: getBodySchema() });
+  const param = ApiParam({ name: 'version_id', description: 'id used during upload process', format: 'uuid' });
+  const body = ApiBody({ description: 'Execute a WASM bundle', schema: getBodySchema() });
 
   const NotFound = ApiNotFoundResponse({
-    description: 'WASM not found',
+    description: 'WASM bundle not found',
     schema: getErrorSchema({ status: 404, message: 'no wasm file found for version_id <id>' }),
   });
 
   const BadRequest = ApiBadRequestResponse({
-    description: 'Bad request',
+    description: 'Wrong inputs or parameters',
     schema: getErrorSchema({
       status: 400,
       message: 'validation failed',
@@ -50,7 +51,7 @@ function getSwaggerDefinitions(swagger: Swagger) {
 
   const Ok = ApiOkResponse({ description: 'WASM executed successfully', schema: getOkSchema() });
 
-  return [body, PayloadTooLarge, NotFound, BadRequest, Unprocessable, Ok];
+  return [param, body, PayloadTooLarge, NotFound, BadRequest, Unprocessable, Ok];
 }
 
 function getBodySchema() {
