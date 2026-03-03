@@ -1,5 +1,6 @@
 import { AddWasmByUriCommandHandler } from './commands/add-wasm-by-uri.cmd';
 import { DeleteWasmCommandHandler } from './commands/delete-wasm.cmd';
+import { DeleteHistoryCommandHandler } from './commands/delete-history.cmd';
 import { ExecuteWasmCommandHandler } from './commands/execute-wasm.cmd';
 import { UploadWasmCommandHandler } from './commands/upload-wasm.cmd';
 
@@ -10,6 +11,7 @@ import { GetWasmDataQueryHandler } from './queries/get-wasm-data.query';
 import { GetValidationsQueryHandler } from './queries/get-validations.query';
 
 export * from './commands/add-wasm-by-uri.cmd';
+export * from './commands/delete-history.cmd';
 export * from './commands/delete-wasm.cmd';
 export * from './commands/execute-wasm.cmd';
 export * from './commands/upload-wasm.cmd';
@@ -33,6 +35,7 @@ export * from './repos/wasm.repo';
 export const CqrsHandlers = [
   AddWasmByUriCommandHandler,
   DeleteWasmCommandHandler,
+  DeleteHistoryCommandHandler,
   ExecuteWasmCommandHandler,
   UploadWasmCommandHandler,
   DownloadWasmQueryHandler,

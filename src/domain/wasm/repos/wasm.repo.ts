@@ -18,4 +18,5 @@ export interface IWasmRepo {
   saveHistory: (id: string, data: ExecResult[]) => void;
   getHistory: (id: string, params: PaginationQueryParams) => Promise<Paginated<ExecHistory>>;
   downloadHistory: (id: string) => Promise<Buffer>;
+  deleteHistory: (id: string) => Promise<void>;
 }
