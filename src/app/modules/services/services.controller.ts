@@ -7,11 +7,17 @@ import { Result } from 'typescript-result';
 import { Response } from 'express';
 
 import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, WasmData, ExecData } from '@domain/wasm';
-import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
+import {
+  UploadWasmCommand,
+  ExecuteWasmCommand,
+  DeleteWasmCommand,
+  AddWasmByUriCommand,
+  DeleteHistoryCommand,
+} from '@domain/wasm';
 import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery, GetWasmDataQuery } from '@domain/wasm';
 import { GetValidationsQuery, WasmValidationDto, WasmValidations } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
-import { UploadWasmFile, AddWasmFileByUri, DownloadWasmFile, DeleteWasmFile } from '@shared/docs';
+import { UploadWasmFile, AddWasmFileByUri, DownloadWasmFile, DeleteWasmFile, DeleteHistoryFile } from '@shared/docs';
 import { FindWasmData, ExecuteWasm, GetWasmExecHistory, GetWasmValidations } from '@shared/docs';
 import { dumpOntoDisk, QueryType } from '@shared/utils';
 import { BadUploadWasmData } from '@shared/errors';
@@ -44,7 +50,8 @@ export class ServicesController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    if (!file.originalname.endsWith('.zip')) throw new BadUploadWasmData('file must be a zip file', null);
+    if (!file) throw new BadUploadWasmData('wasm bundle is required', "no 'wasm' bundle submitted as 'form-data'");
+    if (!file.originalname?.endsWith('.zip')) throw new BadUploadWasmData('file must be a zip');
 
     const versionId = id || file.filename.replace('.zip', '');
     const data = await UploadWasmDto.validate(versionId, body?.data);
@@ -132,10 +139,26 @@ export class ServicesController {
     }
   }
 
+  @Delete(':version_id/history')
+  @DeleteHistoryFile()
+  async deleteWasmExecHistory(@Res() response: Response, @Param('version_id') versionId: string) {
+    const result = await this.commandBus.execute<DeleteHistoryCommand, Result<Error, void>>(
+      new DeleteHistoryCommand(versionId),
+    );
+    result.getOrThrow();
+
+    this.logger.log(`execution history file <${versionId}> has been deleted`);
+    response.status(HttpStatus.NO_CONTENT).send();
+  }
+
   @Delete(':version_id')
   @DeleteWasmFile()
   async deleteWasmFile(@Res() response: Response, @Param('version_id') versionId: string) {
-    await this.commandBus.execute<DeleteWasmCommand, Result<Error, void>>(new DeleteWasmCommand(versionId));
+    const result = await this.commandBus.execute<DeleteWasmCommand, Result<Error, void>>(
+      new DeleteWasmCommand(versionId),
+    );
+    result.getOrThrow();
+
     this.logger.log(`wasm file <${versionId}> has been deleted`);
     response.status(HttpStatus.NO_CONTENT).send();
   }

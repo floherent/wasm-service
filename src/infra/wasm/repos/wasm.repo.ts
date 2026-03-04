@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { existsSync, readFileSync, appendFileSync, unlinkSync } from 'fs';
+import { Injectable, Logger } from '@nestjs/common';
+import { existsSync, readFileSync } from 'fs';
+import { unlink, readFile, appendFile } from 'fs/promises';
 import { parse as csvParse } from 'papaparse';
 import * as StreamZip from 'node-stream-zip';
 import { join } from 'path';
@@ -38,8 +39,8 @@ export class WasmRepo implements IWasmRepo {
     const model = this.wasmMapper.toModel(data);
     const path = join(this.appConfig.props.app.uploadPath, WASM_DATA_PATH);
     try {
-      if (!existsSync(path)) appendFileSync(path, `${model.headers()}`);
-      appendFileSync(path, `\n${model.toCsv()}`);
+      if (!existsSync(path)) await appendFile(path, `${model.headers()}`);
+      await appendFile(path, `\n${model.toCsv()}`);
       return model.asDto;
     } catch (cause) {
       throw new WasmRecordNotSaved(data.versionId, cause);
@@ -83,7 +84,7 @@ export class WasmRepo implements IWasmRepo {
     const output = await wasm.execute(input);
     const end = performance.now();
 
-    this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
+    await this.saveHistory(versionId, [{ input, output, elapsed: end - start }]);
 
     return output;
   }
@@ -109,34 +110,45 @@ export class WasmRepo implements IWasmRepo {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
     if (!existsSync(path)) throw new WasmFileNotFound(versionId);
 
-    return readFileSync(path);
+    return await readFile(path);
   }
 
   async downloadHistory(versionId: string): Promise<Buffer> {
     const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
     if (!existsSync(path)) throw new ExecHistoryNotFound(versionId);
 
-    return readFileSync(path);
+    return await readFile(path);
   }
 
+  /**
+   * Deletes the WASM file and the CSV history file for the given version ID.
+   * @param versionId of the WASM bundle to delete.
+   *
+   * To avoid side effects, deleting a WASM bundle brings down with it its execution history
+   * if available. If no history is found, no error is thrown as it is deleted to avoid side effects
+   * or unexpected behavior. Hence, an end-user encouraged to download the logs before deleting
+   * the WASM bundle.
+   * @throws {WasmFileNotFound} if the WASM file is not found.
+   */
   async deleteWasm(versionId: string): Promise<void> {
     const wasmFilePath = join(this.appConfig.props.app.uploadPath, `${versionId}.zip`);
     const historyFilePath = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
     const wasmDataPath = join(process.cwd(), this.appConfig.props.app.uploadPath, WASM_DATA_PATH);
 
     this.wasmService.remove(versionId); // remove from cache
-    if (existsSync(wasmFilePath)) unlinkSync(wasmFilePath); // delete the WASM file
-    if (existsSync(historyFilePath)) unlinkSync(historyFilePath); // delete the CSV history file
+    if (!existsSync(wasmFilePath)) throw new WasmFileNotFound(versionId);
+    else await unlink(wasmFilePath); // delete the WASM file
+    if (existsSync(historyFilePath)) await unlink(historyFilePath); // delete the CSV history file
 
-    const models = csvParse<WasmModel>(readFileSync(wasmDataPath, 'utf8'), { header: true });
+    const models = csvParse<WasmModel>(await readFile(wasmDataPath, 'utf8'), { header: true });
     const filtered = models.data.filter((row) => row.version_id !== versionId);
     const updated = filtered.map((row) => new WasmModelHandler({ ...row }).toCsv()).join('\n');
 
-    unlinkSync(wasmDataPath);
-    appendFileSync(wasmDataPath, `${models.meta.fields.join(',')}\n${updated}`); // update the WASM data file
+    if (existsSync(wasmDataPath)) await unlink(wasmDataPath); // in case of corruption.
+    await appendFile(wasmDataPath, `${models.meta.fields.join(',')}\n${updated}`); // update the WASM data file
   }
 
-  saveHistory(versionId: string, results: ExecResult[]): void {
+  async saveHistory(versionId: string, results: ExecResult[]): Promise<void> {
     if (!this.appConfig.props.history.enabled) return;
 
     try {
@@ -150,30 +162,48 @@ export class WasmRepo implements IWasmRepo {
         });
       });
 
-      if (!existsSync(path)) appendFileSync(path, `${ExecHistoryModelHandler.headers()}`);
+      if (!existsSync(path)) await appendFile(path, `${ExecHistoryModelHandler.headers()}`);
       const csv = models.map((m) => m.toCsv()).join('\n');
-      appendFileSync(path, `\n${csv}`);
+      await appendFile(path, `\n${csv}`);
     } catch (cause) {
       throw new ExecHistoryNotSaved(versionId, cause);
     }
   }
 
+  async deleteHistory(versionId: string): Promise<void> {
+    const path = join(this.appConfig.props.app.uploadPath, `${versionId}.csv`);
+    if (existsSync(path)) await unlink(path);
+    else throw new ExecHistoryNotFound(versionId);
+  }
+
   private loadCsvWasm(filePath: string): WasmModelHandler[] {
     const url = join(process.cwd(), filePath);
-    if (!existsSync(url)) return [];
+    if (!existsSync(url)) {
+      Logger.warn(`WASM data file <${filePath}> not found`);
+      return [];
+    }
 
     const parsed = csvParse<WasmModel>(readFileSync(url, 'utf8'), { header: true, skipEmptyLines: true });
-    if (parsed.errors.length > 0) return [];
+    if (parsed.errors.length > 0) {
+      Logger.warn(`WASM data file <${filePath}> contains errors: ${parsed.errors.join(', ')}`);
+      return [];
+    }
 
     return parsed.data.map((row) => new WasmModelHandler({ ...row }));
   }
 
   private loadCsvHistory(filePath: string, params: PaginationQueryParams): Paginated<ExecHistory> {
     const url = join(process.cwd(), filePath);
-    if (!existsSync(url)) return Paginated.empty({ ...params, total: 0 });
+    if (!existsSync(url)) {
+      Logger.warn(`execution history file <${filePath}> not found`);
+      return Paginated.empty({ ...params, total: 0 });
+    }
 
     const parsed = csvParse<ExecHistoryModel>(readFileSync(url, 'utf8'), { header: true, delimiter: '|' });
-    if (parsed.errors.length > 0) return Paginated.empty({ ...params, total: 0 });
+    if (parsed.errors.length > 0) {
+      Logger.warn(`execution history file <${filePath}> contains errors: ${parsed.errors.join(', ')}`);
+      return Paginated.empty({ ...params, total: 0 });
+    }
 
     const total = parsed.data.length;
     const [start, end] = Paginated.toIndex(params.page, params.limit);

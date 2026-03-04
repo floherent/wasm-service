@@ -7,6 +7,7 @@ export * from './config/app-config.decorator';
 export * from './health/health-profile.decorator';
 
 export * from './wasm/add-wasm-file-by-uri.decorator';
+export * from './wasm/delete-history-file.decorator';
 export * from './wasm/delete-wasm-file.decorator';
 export * from './wasm/download-wasm-file.decorator';
 export * from './wasm/execute-wasm.decorator';

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.2.4 (2026-03-04)
+
+- Add delete execution history endpoint.
+- Apply minor fixes and improvements (Async IO, error handling, etc.).
+- Update API documentation and related content.
+
 ## 0.2.3 (2026-02-27)
 
 - Upgrade `@coherentglobal/wasm-runner` to latest (`v0.4.1`).

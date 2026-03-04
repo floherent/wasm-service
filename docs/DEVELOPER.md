@@ -147,58 +147,41 @@ $ docker run --name wasm-service -p 8080:8080 -d \
 
 ### Service configuration
 
-The service configuration section includes the following parameters:
+| Parameter             | Description                                                            | Default   |
+| --------------------- | ---------------------------------------------------------------------- | --------- |
+| `name`                | Name of the WASM service (e.g. **wasm-service**)                       | —         |
+| `description`         | Brief description of the service's purpose                             | —         |
+| `service.port`        | Port on which the service listens for incoming requests                | **8080**  |
+| `service.contextPath` | Context path for the service; API requests are prefixed with this path | `/`       |
+| `service.uploadPath`  | Directory where uploaded files are stored                              | `uploads` |
+| `service.bodyLimit`   | Request payload size limit (batch operations)                          | **50 MB** |
 
-- `name`: the name of the WASM service (e.g., **wasm-service**).
-- `description`: a brief description of the service's purpose.
-- `service.port`: the port number on which the service will listen for
-  incoming requests. The default port is set to **8080**.
-- `service.contextPath`: the context path for the service. Requests to
-  the service's API endpoints will be prefixed with this path. By default, the
-  context path is set to `/`.
-- `service.uploadPath`: the directory path where the uploaded files
-  will be stored. The default upload path is set to `uploads`.
-- `service.bodyLimit`: the request's payload size limit. By default,
-  the size limit is **50 MB**, due to batch operations.
+To enable automatic fetching of the WASM bundle from Coherent Spark (SaaS), set `service.connectivity.enabled` to **true** and configure:
 
-If you would like to enable automatic fetching of the WASM bundle from Coherent Spark (SaaS),
-you can do so by setting the `service.connectivity.enabled` to **true** and providing
-the necessary credentials:
-
-- `service.connectivity.enabled`: whether the service should connect to Coherent Spark (SaaS).
-- `service.connectivity.baseUrl`: the base URL (including the tenant) of Coherent Spark.
-- `service.connectivity.token.header`: the header of the token (e.g. `Authorization`).
-- `service.connectivity.token.value`: the bearer token (e.g. `Bearer some-access-token`) extracted from Spark UI.
-- `service.connectivity.apiKey.header`: the header of the API key (e.g. `x-synthetic-key`).
-- `service.connectivity.apiKey.value`: the value of the API key (e.g. `some-api-key`).
-- `service.connectivity.oauth2.client_id`: the client ID of the OAuth2 client credentials.
-- `service.connectivity.oauth2.client_secret`: the client secret of the OAuth2 client credentials.
+| Parameter                                   | Description                                                  |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| `service.connectivity.enabled`              | Whether the service connects to Coherent Spark (SaaS)        |
+| `service.connectivity.baseUrl`              | Base URL (including tenant) of Coherent Spark                |
+| `service.connectivity.token.header`         | Token header (e.g. `Authorization`)                          |
+| `service.connectivity.token.value`          | Bearer token (e.g. `Bearer some-access-token`) from Spark UI |
+| `service.connectivity.apiKey.header`        | API key header (e.g. `x-synthetic-key`)                      |
+| `service.connectivity.apiKey.value`         | API key value (e.g. `some-api-key`)                          |
+| `service.connectivity.oauth2.client_id`     | OAuth2 client credentials client ID                          |
+| `service.connectivity.oauth2.client_secret` | OAuth2 client credentials client secret                      |
 
 ### Performance configuration
 
-The performance configuration section includes the following parameters:
+| Parameter                              | Description                                                                               | Default     |
+| -------------------------------------- | ----------------------------------------------------------------------------------------- | ----------- |
+| `performance.history.enabled`          | Whether to save execution history                                                         | **false**   |
+| `performance.spark.cacheSize`          | Number of service instances to cache (frequently accessed WASMs)                          | **8**       |
+| `performance.spark.threads`            | Number of parallel threads for WASM execution                                             | **1**       |
+| `performance.spark.replicas`           | Number of replicas for WASM execution                                                     | **1**       |
+| `performance.health.indicators.disk`   | Disk usage threshold (0.0–1.0) for health check                                           | **0.75**    |
+| `performance.health.indicators.wasm`   | WASM data size threshold (MB) for health check; exceeding may indicate performance issues | **512 MB**  |
+| `performance.health.indicators.memory` | Memory usage threshold (MB) for health check; exceeding may affect performance            | **1024 MB** |
 
-- `performance.history.enabled`: whether the service should save the execution history (defaults to **false**).
-- `performance.spark.cacheSize`: the number of service instances to cache.
-  The cache is used to store frequently accessed wasms to improve performance. By
-  default, the cache size is set to **8**.
-- `performance.spark.threads`: the number of parallel threads (defaults to 1) to use for the WASM execution.
-- `performance.spark.replicas`: the number of replicas (defaults to 1) to use for the WASM execution.
-- `performance.health.indicators.disk`: the threshold in percentage
-  (between 0.0 and 1.0) for the disk usage. By default, it is set to 0.75%.
-- `performance.health.indicators.wasm`: the threshold size in megabytes
-  for the health check related to the WASM data. If the size of the data
-  exceeds this threshold, it may indicate potential performance issues. The default
-  threshold is set to 512 MB.
-- `performance.health.indicators.memory`: the threshold size in megabytes
-  for the health check related to memory usage. If the memory consumption exceeds
-  this threshold, it may affect the service's performance. The default value is
-  set to 1024 MB.
-
-**NOTE**: These configuration parameters can be modified as per requirements of the
-deployment environment and the specific needs of the WASM service. It is important
-to review and adjust these settings appropriately to ensure optimal performance
-and reliability.
+**NOTE**: Adjust these parameters for your deployment and workload to ensure optimal performance and reliability.
 
 ## API reference
 
@@ -218,6 +201,7 @@ This endpoint checks the following health indicators:
 - **disk_storage**: checks the disk storage.
 - **memory_heap**: checks the memory heap.
 - **memory_rss**: checks the memory rss (resident set size).
+- **connectivity**: checks the connectivity to the SaaS platform.
 
 It can also be used by a Kubernetes cluster to determine whether the service is
 up and running or not.
@@ -230,7 +214,8 @@ Response: **200-OK** / **503-Service Unavailable**
   "info": {
     "wasm_data": {
       "status": "up",
-      "size": 405215
+      "size": 0,
+      "info": "currently using 0.00 b / 512.00 mb => 0%"
     },
     "disk_storage": {
       "status": "up"
@@ -240,9 +225,35 @@ Response: **200-OK** / **503-Service Unavailable**
     },
     "memory_rss": {
       "status": "up"
+    },
+    "connectivity": {
+      "status": "up",
+      "baseUrl": "https://excel.uat.us.coherent.global/fieldengineering",
+      "authType": "token"
     }
   },
-  "error": {}
+  "error": {},
+  "details": {
+    "wasm_data": {
+      "status": "up",
+      "size": 0,
+      "info": "currently using 0.00 b / 512.00 mb => 0%"
+    },
+    "disk_storage": {
+      "status": "up"
+    },
+    "memory_heap": {
+      "status": "up"
+    },
+    "memory_rss": {
+      "status": "up"
+    },
+    "connectivity": {
+      "status": "up",
+      "baseUrl": "https://excel.uat.us.coherent.global/fieldengineering",
+      "authType": "token"
+    }
+  }
 }
 ```
 
@@ -298,8 +309,8 @@ Body: **application/json**
 ```json
 {
   "inputs": {
-    "Height": 4,
-    "Radius": 6
+    "height": 4,
+    "radius": 6
   }
 }
 ```
@@ -313,7 +324,7 @@ Response: **200-OK** / **400-Bad Request** / **422-Unprocessable Entity**
 {
   "response_data": {
     "outputs": {
-      "Volume": 452.389,
+      "volume": 452.389,
       "errors": [],
       "warnings": [],
       "service_chain": []
@@ -348,11 +359,11 @@ Response: **200-OK** / **404-Not Found**
     {
       "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
       "inputs": {
-        "Height": 4,
-        "Radius": 6
+        "height": 4,
+        "radius": 6
       },
       "outputs": {
-        "Volume": 452.389
+        "volume": 452.389
       },
       "executed_at": "2023-01-01T01:37:47.880Z",
       "duration": 2.02
@@ -360,11 +371,11 @@ Response: **200-OK** / **404-Not Found**
     {
       "version_id": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
       "inputs": {
-        "Height": 2,
-        "Radius": 3
+        "height": 2,
+        "radius": 3
       },
       "outputs": {
-        "Volume": 56.549
+        "volume": 56.549
       },
       "executed_at": "2023-01-01T01:41:31.928Z",
       "duration": 0.99
@@ -478,36 +489,32 @@ handling the different aspects of the service:
 
 ### Service compliance and delivery
 
-| feature                 | compliance |
-| ----------------------- | ---------- |
-| basic documentation     | ✅         |
-| api documentation       | ✅         |
-| developer guide         | ✅         |
-| usage and examples      | ✅         |
-| release notes           | ✅         |
-| -                       | -          |
-| versioning              | ✅         |
-| UX/DX                   | ✅         |
-| service level agreement | ✅         |
-| -                       | -          |
-| devOps-ready            | ✅         |
-| CI/CD-ready             | ✅         |
-| -                       | -          |
-| RESTful API             | ✅         |
-| version-controlled      | ✅         |
-| clean code              | ✅         |
-| modular                 | ✅         |
-| app config              | ✅         |
-| logging                 | ✅         |
-| error handling          | ✅         |
-| 5+ use cases            | ✅         |
-| testing                 | ❌         |
-| linting                 | ✅         |
-| formatting              | ✅         |
-| -                       | -          |
-| caching/memoization     | ✅         |
-| file management         | ✅         |
-| security layer          | ❌         |
+| Category          | Feature                 | Status |
+| ----------------- | ----------------------- | ------ |
+| **Documentation** | Basic documentation     | ✅ Yes |
+|                   | API documentation       | ✅ Yes |
+|                   | Developer guide         | ✅ Yes |
+|                   | Usage and examples      | ✅ Yes |
+|                   | Release notes           | ✅ Yes |
+| **Release**       | Versioning              | ✅ Yes |
+|                   | UX/DX                   | ✅ Yes |
+|                   | Service level agreement | ✅ Yes |
+| **DevOps**        | DevOps-ready            | ✅ Yes |
+|                   | CI/CD-ready             | ✅ Yes |
+| **API & code**    | RESTful API             | ✅ Yes |
+|                   | Version-controlled      | ✅ Yes |
+|                   | Clean code              | ✅ Yes |
+|                   | Modular design          | ✅ Yes |
+|                   | App config              | ✅ Yes |
+|                   | Logging                 | ✅ Yes |
+|                   | Error handling          | ✅ Yes |
+|                   | 5+ use cases            | ✅ Yes |
+| **Quality**       | Testing                 | ❌ No  |
+|                   | Linting                 | ✅ Yes |
+|                   | Formatting              | ✅ Yes |
+| **Capabilities**  | Caching / memoization   | ✅ Yes |
+|                   | File management         | ✅ Yes |
+|                   | Security layer          | ❌ No  |
 
 <!-- References -->
 

@@ -4,25 +4,25 @@
   "values": [
     {
       "key": "base_url",
-      "value": "",
+      "value": "http://localhost:8080",
       "type": "default",
       "enabled": true
     },
     {
       "key": "version_id",
-      "value": "",
+      "value": "e57f48e7-fe8c-4202-b8bc-5d366cf1eee9",
       "type": "default",
       "enabled": true
     },
     {
       "key": "ws_client_id",
-      "value": "",
+      "value": "[paste client socket id here]",
       "type": "default",
       "enabled": true
     },
     {
       "key": "batch_id",
-      "value": "",
+      "value": "[this will be set by the batch creation response]",
       "type": "default",
       "enabled": true
     }

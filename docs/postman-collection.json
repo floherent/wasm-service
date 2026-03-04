@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "c8c06686-7330-4037-a8f4-26c83f3be8f9",
     "name": "WASM Service",
-    "description": "# API Reference\n\nThis API covers some basic use cases to help you get started:\n\n| Use case | Resources |\n| --- | --- |\n| Upload a WASM module | `PUT /v1/services/{version_id}` |\n| Execute a WASM module | `POST /v1/services/{version_id}/execute` |\n| Get the WASM execution history | `GET /v1/services/{version_id}/history` |\n| Download a WASM module | `GET /v1/services/{version_id}` |\n| Delete a WASM module | `DELETE /v1/services/{version_id}` |\n\nAdditionally, the service includes a health check endpoint to verify that the service is up and running: `GET /health`.\n\nFind more details about the API endpoints in the API reference section of the Developer Guide on GitHub.",
+    "description": "# API Reference\n\nThis API covers some basic use cases to help you get started:\n\n| Use case | Resources |\n| --- | --- |\n| Upload a WASM module | `PUT /v1/services/{version_id}` |\n| Execute a WASM module | `POST /v1/services/{version_id}/execute` |\n| Get the WASM execution history | `GET /v1/services/{version_id}/history` |\n| Download a WASM module | `GET /v1/services/{version_id}` |\n| Delete a WASM module | `DELETE /v1/services/{version_id}` |\n\nAdditionally, the service includes a health check endpoint to verify that the service is up and running: `GET /health`.\n\nFind more details about the API endpoints in the API reference section of the [Developer Guide on GitHub](https://github.com/floherent/wasm-service).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "26663095"
   },
@@ -21,7 +21,83 @@
               "path": ["health"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - service healthy",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"status\": \"ok\",\n    \"info\": {\n        \"wasm_data\": {\n            \"status\": \"up\",\n            \"size\": 0,\n            \"info\": \"currently using 0.00 b / 512.00 mb => 0%\"\n        },\n        \"disk_storage\": {\n            \"status\": \"up\"\n        },\n        \"memory_heap\": {\n            \"status\": \"up\"\n        },\n        \"memory_rss\": {\n            \"status\": \"up\"\n        },\n        \"connectivity\": {\n            \"status\": \"up\",\n            \"warning\": \"SaaS connectivity is disabled; health check is not possible\"\n        }\n    },\n    \"error\": {},\n    \"details\": {\n        \"wasm_data\": {\n            \"status\": \"up\",\n            \"size\": 0,\n            \"info\": \"currently using 0.00 b / 512.00 mb => 0%\"\n        },\n        \"disk_storage\": {\n            \"status\": \"up\"\n        },\n        \"memory_heap\": {\n            \"status\": \"up\"\n        },\n        \"memory_rss\": {\n            \"status\": \"up\"\n        },\n        \"connectivity\": {\n            \"status\": \"up\",\n            \"warning\": \"SaaS connectivity is disabled; health check is not possible\"\n        }\n    }\n}"
+            },
+            {
+              "name": "200 - SaaS connectivity enabled",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"status\": \"ok\",\n    \"info\": {\n        \"wasm_data\": {\n            \"status\": \"up\",\n            \"size\": 0,\n            \"info\": \"currently using 0.00 b / 512.00 mb => 0%\"\n        },\n        \"disk_storage\": {\n            \"status\": \"up\"\n        },\n        \"memory_heap\": {\n            \"status\": \"up\"\n        },\n        \"memory_rss\": {\n            \"status\": \"up\"\n        },\n        \"connectivity\": {\n            \"status\": \"up\",\n            \"baseUrl\": \"https://excel.uat.us.coherent.global/fieldengineering\",\n            \"authType\": \"token\"\n        }\n    },\n    \"error\": {},\n    \"details\": {\n        \"wasm_data\": {\n            \"status\": \"up\",\n            \"size\": 0,\n            \"info\": \"currently using 0.00 b / 512.00 mb => 0%\"\n        },\n        \"disk_storage\": {\n            \"status\": \"up\"\n        },\n        \"memory_heap\": {\n            \"status\": \"up\"\n        },\n        \"memory_rss\": {\n            \"status\": \"up\"\n        },\n        \"connectivity\": {\n            \"status\": \"up\",\n            \"baseUrl\": \"https://excel.uat.us.coherent.global/fieldengineering\",\n            \"authType\": \"token\"\n        }\n    }\n}"
+            },
+            {
+              "name": "503 - service unhealthy",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"error\": {\n        \"status\": 503,\n        \"message\": \"service unhealthy\",\n        \"cause\": {\n            \"wasm_data\": {\n                \"status\": \"down\",\n                \"size\": 695820032,\n                \"info\": \"too many WASM files; consider deleting unused ones (663.59 mb / 512.00 mb => 130%)\"\n            }\n        }\n    }\n}"
+            }
+          ]
         },
         {
           "name": "upload wasm",
@@ -33,30 +109,138 @@
               "formdata": [
                 {
                   "key": "wasm",
+                  "description": "wasm bundle as downloaded from Coherent Spark",
                   "type": "file",
-                  "src": []
+                  "value": null
                 },
                 {
                   "key": "data",
-                  "value": "{\"service_name\": \"volume of cylinder\",\"revision\": \"0.1.0\",\"username\": \"john.doe@coherent.global\"}",
-                  "type": "text"
+                  "description": "Additional info for more context",
+                  "type": "text",
+                  "value": "{\"service_name\": \"volume of cylinder\",\"revision\": \"0.1.0\",\"username\": \"john.doe@coherent.global\"}"
                 }
               ]
             },
             "url": {
-              "raw": "{{base_url}}/v1/services/{{version_id}}",
+              "raw": "{{base_url}}/v1/services/{{version_id}}?preload=true",
               "host": ["{{base_url}}"],
               "path": ["v1", "services", "{{version_id}}"],
               "query": [
                 {
                   "key": "preload",
-                  "value": "true",
-                  "disabled": true
+                  "value": "true"
                 }
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "201 - WASM uploaded",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "wasm",
+                      "description": "wasm bundle as downloaded from Coherent Spark",
+                      "type": "file",
+                      "src": "/Users/john.doe/wasms/volume-cylinder [0.1.0] (Wasm).zip"
+                    },
+                    {
+                      "key": "data",
+                      "description": "Additional info for more context",
+                      "type": "text",
+                      "value": "{\"service_name\": \"volume of cylinder\",\"revision\": \"0.1.0\",\"username\": \"john.doe@coherent.global\"}"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}"],
+                  "query": [
+                    {
+                      "key": "preload",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"version_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n    \"file_name\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip\",\n    \"file_path\": \"uploads/e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip\",\n    \"original_name\": \"volume-cylinder [0.1.0] (Wasm).zip\",\n    \"size\": 430304,\n    \"uploaded_at\": \"2026-03-03T23:01:38.830Z\",\n    \"service_name\": \"volume of cylinder\",\n    \"revision\": \"0.1.0\",\n    \"username\": \"john.doe@coherent.global\"\n}"
+            },
+            {
+              "name": "400 - WASM required",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "wasm",
+                      "description": "wasm bundle as downloaded from Coherent Spark",
+                      "type": "file",
+                      "value": null
+                    },
+                    {
+                      "key": "data",
+                      "description": "Additional info for more context",
+                      "type": "text",
+                      "value": "{\"service_name\": \"volume of cylinder\",\"revision\": \"0.1.0\",\"username\": \"john.doe@coherent.global\"}"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}"],
+                  "query": [
+                    {
+                      "key": "preload",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"error\": {\n        \"status\": 400,\n        \"message\": \"wasm bundle is required\",\n        \"cause\": \"no 'wasm' bundle submitted as 'form-data\"\n    }\n}"
+            }
+          ]
         },
         {
           "name": "execute wasm",
@@ -65,7 +249,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"inputs\": {\n        \"radius\": 2.2,\n        \"height\": 1.4\n    }\n}",
+              "raw": "{\n    \"inputs\": {}\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -78,7 +262,168 @@
               "path": ["v1", "services", "{{version_id}}", "execute"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - single input execution",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": {\n        \"height\": 10,\n        \"radius\": 11\n    },\n    \"metadata\": {\n        \"correlation_id\": \"some-id\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "execute"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"response_data\": {\n        \"outputs\": {\n            \"volume\": 3801.327\n        },\n        \"errors\": [],\n        \"warnings\": [],\n        \"service_chain\": []\n    },\n    \"response_meta\": {\n        \"version_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n        \"correlation_id\": \"some-id\",\n        \"allow_range_address\": false,\n        \"compiler_type\": \"Neuron\",\n        \"system\": \"SPARK\",\n        \"compiler_version\": \"1.24.1\",\n        \"process_time\": 4\n    }\n}"
+            },
+            {
+              "name": "200 - multi input execution",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": [\n        { \"height\": 10 },\n        { \"height\": 11 },\n        { \"height\": 12 }\n    ],\n    \"shared\": {\n        \"radius\": 10\n    },\n    \"metadata\": {\n        \"correlation_id\": \"some-other-id\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "execute"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"version_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n    \"executed_at\": \"2026-03-03T23:40:57.822Z\",\n    \"duration\": 2.34,\n    \"outputs\": [\n        {\n            \"volume\": 3141.593\n        },\n        {\n            \"volume\": 3455.752\n        },\n        {\n            \"volume\": 3769.911\n        }\n    ],\n    \"exec_times\": [\n        1.167,\n        0.762,\n        0.41\n    ],\n    \"compiler_version\": \"1.24.1\",\n    \"correlation_id\": \"some-other-id\",\n    \"system\": \"SPARK\",\n    \"errors\": [\n        [],\n        [],\n        []\n    ],\n    \"warnings\": [\n        [],\n        [],\n        []\n    ]\n}"
+            },
+            {
+              "name": "404 - WASM not found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": {\n        \"height\": 10,\n        \"radius\": 11\n    },\n    \"metadata\": {\n        \"correlation_id\": \"some-id\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "execute"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"error\": {\n        \"status\": 404,\n        \"message\": \"no wasm file found for version_id <e57f48e7-fe8c-4202-b8bc-5d366cf1eee9x>\"\n    }\n}"
+            },
+            {
+              "name": "400 - validation failed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": {\n        \"height\": 10,\n        \"radius\": 11\n    },\n    \"metadata\": {\n        \"correlation_id\": \"some-id\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "execute"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"error\": {\n        \"status\": 400,\n        \"message\": \"validation failed\",\n        \"cause\": {\n            \"inputs\": [\n                \"must be an array of 1-10000 objects (or <= 26214400 bytes)\"\n            ]\n        }\n    }\n}"
+            },
+            {
+              "name": "413 - payload too large",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": {} // huge payload > appConfig.service.bodyLimit (default 25 MB)\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "execute"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"error\": {\n        \"status\": 413,\n        \"message\": \"request entity too large\",\n        \"cause\": {\n            \"message\": \"request entity too large\",\n            \"expected\": 52428801,\n            \"length\": 52428801,\n            \"limit\": 52428800,\n            \"type\": \"entity.too.large\",\n            \"expose\": true,\n            \"statusCode\": 413,\n            \"status\": 413\n        }\n    }\n}"
+            }
+          ]
         },
         {
           "name": "execution history",
@@ -111,7 +456,94 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - history fetched",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/history?limit=10&order=desc",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "history"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "order",
+                      "value": "desc"
+                    },
+                    {
+                      "key": "type",
+                      "value": "file",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"inputs\": {\n                \"height\": 12,\n                \"radius\": 10\n            },\n            \"outputs\": {\n                \"volume\": 3769.911\n            },\n            \"executed_at\": \"2026-03-04T15:54:08.771Z\",\n            \"duration\": 1.62\n        },\n        {\n            \"inputs\": {\n                \"height\": 11,\n                \"radius\": 10\n            },\n            \"outputs\": {\n                \"volume\": 3455.752\n            },\n            \"executed_at\": \"2026-03-04T15:54:08.771Z\",\n            \"duration\": 0.85\n        },\n        {\n            \"inputs\": {\n                \"height\": 10,\n                \"radius\": 10\n            },\n            \"outputs\": {\n                \"volume\": 3141.593\n            },\n            \"executed_at\": \"2026-03-04T15:54:08.771Z\",\n            \"duration\": 1.03\n        },\n        {\n            \"inputs\": {\n                \"height\": 10,\n                \"radius\": 11\n            },\n            \"outputs\": {\n                \"volume\": 3801.327\n            },\n            \"executed_at\": \"2026-03-04T15:53:55.116Z\",\n            \"duration\": 9.62\n        }\n    ],\n    \"pagination\": {\n        \"page\": 1,\n        \"size\": 10,\n        \"total_items\": 4,\n        \"total_pages\": 1,\n        \"number_of_items\": 4\n    }\n}"
+            },
+            {
+              "name": "200 - no history found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/services/wrong-version-id/history?limit=10&order=desc",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "wrong-version-id", "history"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "order",
+                      "value": "desc"
+                    },
+                    {
+                      "key": "type",
+                      "value": "file",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [],\n    \"pagination\": {\n        \"page\": 1,\n        \"size\": 10,\n        \"total_items\": 0,\n        \"total_pages\": 0,\n        \"number_of_items\": 0\n    }\n}"
+            }
+          ]
         },
         {
           "name": "download wasm",
@@ -138,6 +570,19 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "delete history",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/services/{{version_id}}/history",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "services", "{{version_id}}", "history"]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -155,7 +600,37 @@
               "path": ["health", "profile"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - health profile",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health/profile",
+                  "host": ["{{base_url}}"],
+                  "path": ["health", "profile"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"rss\": 26,\n    \"heap_total\": 35,\n    \"heap_used\": 32,\n    \"threshold\": {\n        \"disk\": 0.75,\n        \"wasm\": 512,\n        \"memory\": 1024\n    }\n}"
+            }
+          ]
         },
         {
           "name": "current config",
@@ -168,7 +643,54 @@
               "path": ["v1", "config"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - default config",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/config",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "config"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"app\": {\n        \"name\": \"wasm-service\",\n        \"description\": \"API service for running WASM files\",\n        \"port\": 8080,\n        \"context_path\": \"/\",\n        \"upload_path\": \"uploads\",\n        \"body_limit\": \"50mb\"\n    },\n    \"spark\": {\n        \"cache_size\": 8,\n        \"threads\": 1,\n        \"replicas\": 1\n    },\n    \"health\": {\n        \"disk\": 0.75,\n        \"wasm\": 512,\n        \"memory\": 1024\n    },\n    \"connectivity\": {\n        \"enabled\": false\n    },\n    \"history\": {\n        \"enabled\": false\n    }\n}"
+            },
+            {
+              "name": "200 - custom config",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/config",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "config"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"app\": {\n        \"name\": \"wasm-server\",\n        \"description\": \"Standalone WebAssembly server\",\n        \"port\": 5000,\n        \"context_path\": \"/\",\n        \"upload_path\": \"/tmp/models\",\n        \"body_limit\": \"50mb\"\n    },\n    \"spark\": {\n        \"cache_size\": 4,\n        \"threads\": 2,\n        \"replicas\": 1\n    },\n    \"health\": {\n        \"disk\": 0.85,\n        \"wasm\": 512,\n        \"memory\": 1024\n    },\n    \"connectivity\": {\n        \"enabled\": true,\n        \"base_url\": \"https://excel.my-env.coherent.global/my-tenant\",\n        \"token\": {\n            \"header\": \"Authorization\",\n            \"value\": \"[secure]\"\n        }\n    },\n    \"history\": {\n        \"enabled\": true\n    }\n}"
+            }
+          ]
         },
         {
           "name": "fetch wasm data",
@@ -197,7 +719,47 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200- list uploaded WASMs",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/services?order=desc",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "order",
+                      "value": "desc"
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"version_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n            \"file_name\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip\",\n            \"file_path\": \"uploads/e57f48e7-fe8c-4202-b8bc-5d366cf1eee9.zip\",\n            \"original_name\": \"volume-cylinder [0.1.0] (Wasm).zip\",\n            \"size\": 430304,\n            \"uploaded_at\": \"2026-03-04T16:39:27.625Z\",\n            \"service_name\": \"volume of cylinder\",\n            \"revision\": \"0.1.0\",\n            \"username\": \"john.doe@coherent.global\"\n        }\n    ],\n    \"pagination\": {\n        \"page\": 1,\n        \"size\": 100,\n        \"total_items\": 1,\n        \"total_pages\": 1,\n        \"number_of_items\": 1\n    }\n}"
+            }
+          ]
         },
         {
           "name": "fetch wasm validations",
@@ -206,7 +768,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"inputs\": {\n        \"01_letter\": \"a\",\n        \"02_number\": \"1\"\n    }\n}",
+              "raw": "{\n    \"inputs\": {\n        \"radius\": -1,\n        \"height\": -1 \n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -219,29 +781,46 @@
               "path": ["v1", "services", "{{version_id}}", "validation"]
             }
           },
-          "response": []
-        },
-        {
-          "name": "add wasm by url",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"url\": \"https://example.com/link/to/wasm.zip\",\n    \"service_name\": \"external-wasm\",\n    \"revision\": \"0.1.0\",\n    \"username\": \"john.doe@coherent.global\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+          "response": [
+            {
+              "name": "200 - static validations",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": {\n        \"radius\": -1,\n        \"height\": -1 \n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services/{{version_id}}/validation",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services", "{{version_id}}", "validation"]
                 }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/v1/services",
-              "host": ["{{base_url}}"],
-              "path": ["v1", "services"]
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"response_data\": {\n        \"outputs\": {\n            \"height\": {\n                \"validation_allow\": \"Decimal\",\n                \"ignore_blank\": true,\n                \"min\": 0,\n                \"max\": null,\n                \"options\": null,\n                \"dependent_inputs\": null,\n                \"validation_type\": \"static\"\n            },\n            \"radius\": {\n                \"validation_allow\": \"Decimal\",\n                \"ignore_blank\": true,\n                \"min\": 0,\n                \"max\": null,\n                \"options\": null,\n                \"dependent_inputs\": null,\n                \"validation_type\": \"static\"\n            }\n        },\n        \"errors\": [],\n        \"warnings\": [],\n        \"service_chain\": []\n    },\n    \"response_meta\": {\n        \"version_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n        \"allow_range_address\": false,\n        \"compiler_type\": \"Neuron\",\n        \"system\": \"SPARK\",\n        \"compiler_version\": \"1.24.1\",\n        \"process_time\": 1\n    }\n}"
             }
-          },
-          "response": []
+          ]
         }
       ]
     },
@@ -249,36 +828,34 @@
       "name": "batch",
       "item": [
         {
-          "name": "execute sync",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"inputs\": [\n        { \"height\": 40 },\n        { \"height\": 50 },\n        { \"height\": 60 }\n    ],\n    \"shared\": { \"radius\": 5 }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/v1/services/{{version_id}}/execute",
-              "host": ["{{base_url}}"],
-              "path": ["v1", "services", "{{version_id}}", "execute"]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "create batch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Update access token whenever a new token gets created.",
+                  "const response = pm.response.json();",
+                  "if (response && response.id) {",
+                  "    pm.environment.set(\"batch_id\", response.id);",
+                  "} else {",
+                  "    console.warn('no batch_id found in response');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
               {
-                "key": "Ws-Client-Id",
+                "key": "ws-client-id",
                 "value": "{{ws_client_id}}",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               }
             ],
             "body": {
@@ -296,7 +873,98 @@
               "path": ["v1", "batch", "{{version_id}}"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - batch creation",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ws-client-Id",
+                    "value": "{{ws_client_id}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": [\n        { \"Height\": 1, \"Radius\": 1 },\n        { \"Height\": 1, \"Radius\": 2 },\n        { \"Height\": 1, \"Radius\": 3 },\n        { \"Height\": 1, \"Radius\": 4 },\n        { \"Height\": 1, \"Radius\": 5 }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/batch/{{version_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "batch", "{{version_id}}"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"id\": \"2d729176-31c2-4079-81c9-f1ff6f2ae8f9\",\n    \"status\": \"created\",\n    \"service_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n    \"executed_at\": \"2026-03-04T17:06:41.808Z\",\n    \"buffer_size\": 121,\n    \"total_inputs\": 5,\n    \"total_processed\": 0,\n    \"total_outputs\": 0,\n    \"duration\": 0\n}"
+            },
+            {
+              "name": "400 - validation failed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ws-client-Id",
+                    "value": "{{ws_client_id}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"inputs\": []\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/batch/{{version_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "batch", "{{version_id}}"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"error\": {\n        \"status\": 400,\n        \"message\": \"validation failed\",\n        \"cause\": {\n            \"inputs\": [\n                \"must not be empty\"\n            ]\n        }\n    }\n}"
+            }
+          ]
         },
         {
           "name": "batch status",
@@ -306,23 +974,104 @@
               {
                 "key": "ws-client-id",
                 "value": "{{ws_client_id}}",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               }
             ],
             "url": {
               "raw": "{{base_url}}/v1/batch/{{batch_id}}/status",
               "host": ["{{base_url}}"],
-              "path": ["v1", "batch", "{{batch_id}}", "status"],
-              "query": [
-                {
-                  "key": "flat",
-                  "value": "true",
-                  "disabled": true
-                }
-              ]
+              "path": ["v1", "batch", "{{batch_id}}", "status"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - batch completed",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ws-client-id",
+                    "value": "{{ws_client_id}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/v1/batch/{{batch_id}}/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "batch", "{{batch_id}}", "status"],
+                  "query": [
+                    {
+                      "key": "flat",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"id\": \"a07f3ed7-f9b9-4321-84b5-cad0598328ba\",\n    \"status\": \"completed\",\n    \"service_id\": \"e57f48e7-fe8c-4202-b8bc-5d366cf1eee9\",\n    \"executed_at\": \"2026-03-04T17:11:42.643Z\",\n    \"buffer_size\": 121,\n    \"total_inputs\": 5,\n    \"total_processed\": 5,\n    \"total_outputs\": 5,\n    \"duration\": 5.71\n}"
+            },
+            {
+              "name": "404 - no record found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ws-client-id",
+                    "value": "{{ws_client_id}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/v1/batch/{{batch_id}}/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "batch", "{{batch_id}}", "status"],
+                  "query": [
+                    {
+                      "key": "flat",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"error\": {\n        \"status\": 404,\n        \"message\": \"no records found for id <a07f3ed7-f9b9-4321-84b5-cad0598328ba>\"\n    }\n}"
+            }
+          ]
         },
         {
           "name": "batch results",
@@ -336,9 +1085,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/v1/batch/{{base_url}}/results",
+              "raw": "{{base_url}}/v1/batch/{{batch_id}}/results",
               "host": ["{{base_url}}"],
-              "path": ["v1", "batch", "{{base_url}}", "results"],
+              "path": ["v1", "batch", "{{batch_id}}", "results"],
               "query": [
                 {
                   "key": "type",
@@ -348,7 +1097,50 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - results ready",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ws-client-id",
+                    "value": "ws_m6YqU9QrCYwzeA5kAAAB",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/v1/batch/{{batch_id}}/results",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "batch", "{{batch_id}}", "results"],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "file",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "[\n    {\n        \"inputs\": {\n            \"Height\": 1,\n            \"Radius\": 1\n        },\n        \"outputs\": {\n            \"volume\": 3.142\n        },\n        \"executed_at\": \"2026-03-04T17:11:42.652Z\",\n        \"duration\": 5.44\n    },\n    {\n        \"inputs\": {\n            \"Height\": 1,\n            \"Radius\": 2\n        },\n        \"outputs\": {\n            \"volume\": 12.566\n        },\n        \"executed_at\": \"2026-03-04T17:11:42.652Z\",\n        \"duration\": 5.18\n    },\n    {\n        \"inputs\": {\n            \"Height\": 1,\n            \"Radius\": 3\n        },\n        \"outputs\": {\n            \"volume\": 28.274\n        },\n        \"executed_at\": \"2026-03-04T17:11:42.652Z\",\n        \"duration\": 4.87\n    },\n    {\n        \"inputs\": {\n            \"Height\": 1,\n            \"Radius\": 4\n        },\n        \"outputs\": {\n            \"volume\": 50.265\n        },\n        \"executed_at\": \"2026-03-04T17:11:42.652Z\",\n        \"duration\": 4.3\n    },\n    {\n        \"inputs\": {\n            \"Height\": 1,\n            \"Radius\": 5\n        },\n        \"outputs\": {\n            \"volume\": 78.54\n        },\n        \"executed_at\": \"2026-03-04T17:11:42.652Z\",\n        \"duration\": 3.98\n    }\n]"
+            }
+          ]
         },
         {
           "name": "delete batch results",
@@ -357,7 +1149,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"ids\": []\n}",
+              "raw": "{\n    \"ids\": [\"{{batch_id}}\"]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -367,14 +1159,7 @@
             "url": {
               "raw": "{{base_url}}/v1/batch",
               "host": ["{{base_url}}"],
-              "path": ["v1", "batch"],
-              "query": [
-                {
-                  "key": "flat",
-                  "value": "true",
-                  "disabled": true
-                }
-              ]
+              "path": ["v1", "batch"]
             }
           },
           "response": []
@@ -405,7 +1190,84 @@
               "path": ["v1", "services"]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - WASM downloaded from SaaS",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"url\": \"my-folder/volume-cylinder\",\n    \"service_name\": \"volume of cylinder\",\n    \"revision\": \"0.0.1\",\n    \"username\": \"john.doe@coherent.global\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"version_id\": \"dfd8da56-ee34-489d-9107-5c3498abcae1\",\n    \"file_name\": \"dfd8da56-ee34-489d-9107-5c3498abcae1.zip\",\n    \"file_path\": \"uploads/dfd8da56-ee34-489d-9107-5c3498abcae1.zip\",\n    \"original_name\": \"Postman/volume-cube (https://excel.uat.us.coherent.global/fieldengineering)\",\n    \"size\": 430250,\n    \"uploaded_at\": \"2026-03-04T17:41:39.176Z\",\n    \"service_name\": \"volume of cube\",\n    \"revision\": \"0.0.1\",\n    \"username\": \"john.doe@coherent.global\"\n}"
+            },
+            {
+              "name": "400 - unable to download from SaaS",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"url\": \"my-folder/volume-cylinder\",\n    \"service_name\": \"volume of cylinder\",\n    \"revision\": \"0.0.1\",\n    \"username\": \"john.doe@coherent.global\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/v1/services",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "services"]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"error\": {\n        \"status\": 400,\n        \"message\": \"cannot download wasm from Postman/volume-cube\",\n        \"cause\": \"401 failed to fetch <https://excel.uat.us.coherent.global/fieldengineering/api/v3/nodegen/getnodegenzipbyId/folders/Postman/services/volume-cube>\"\n    }\n}"
+            }
+          ]
         },
         {
           "name": "add wasm by url",
@@ -414,7 +1276,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"url\": \"https://excel.uat.us.coherent.global/api/filemanager/DownloadDocument/file_uuid/filename.zip\",\n    \"service_name\": \"wasm from entity store (won't work with API key)\",\n    \"revision\": \"0.0.2\",\n    \"username\": \"john.doe@coherent.global\"\n}",
+              "raw": "{\n    \"url\": \"https://excel.uat.us.coherent.global/api/filemanager/DownloadDocument/file_uuid/filename.zip\",\n    \"service_name\": \"wasm from entity store (won't work with API keys)\",\n    \"revision\": \"0.0.2\",\n    \"username\": \"john.doe@coherent.global\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
