@@ -50,7 +50,8 @@ export class ServicesController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    if (!file.originalname.endsWith('.zip')) throw new BadUploadWasmData('file must be a zip file', null);
+    if (!file) throw new BadUploadWasmData('wasm bundle is required', "no 'wasm' bundle submitted as 'form-data'");
+    if (!file.originalname?.endsWith('.zip')) throw new BadUploadWasmData('file must be a zip');
 
     const versionId = id || file.filename.replace('.zip', '');
     const data = await UploadWasmDto.validate(versionId, body?.data);

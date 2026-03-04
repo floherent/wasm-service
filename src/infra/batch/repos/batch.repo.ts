@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { existsSync, appendFileSync, writeFileSync, readFileSync, unlinkSync } from 'fs';
+import { readFile, writeFile, appendFile, unlink } from 'fs/promises';
+import { existsSync } from 'fs';
 import { parse as csvParse } from 'papaparse';
 import { join } from 'path';
 
@@ -54,8 +55,8 @@ export class BatchRepo implements IBatchRepo {
       const path = join(this.appConfig.props.app.uploadPath, BATCH_PATH);
       const model = this.batchMapper.toModel(batch);
 
-      if (!existsSync(path)) appendFileSync(path, `${BatchModelHandler.headers()}`);
-      appendFileSync(path, `\n${model.toCsv()}`);
+      if (!existsSync(path)) await appendFile(path, `${BatchModelHandler.headers()}`);
+      await appendFile(path, `\n${model.toCsv()}`);
       return batch;
     } catch (cause) {
       throw new BatchSubmissionNotSaved(serviceId, cause);
@@ -93,7 +94,7 @@ export class BatchRepo implements IBatchRepo {
 
   async findOne(batchId: string): Promise<Batch> {
     const dataPath = join(this.appConfig.props.app.uploadPath, BATCH_PATH);
-    const data = this.loadCsvBatch(dataPath);
+    const data = await this.loadCsvBatch(dataPath);
     const model = data.find((m) => m.id === batchId);
     if (!model) throw new RecordsNotFound(batchId);
 
@@ -104,7 +105,7 @@ export class BatchRepo implements IBatchRepo {
     const path = join(this.appConfig.props.app.uploadPath, `b_${batchId}.csv`);
     if (!existsSync(path)) throw new BatchResultsNotFound(batchId);
 
-    const parsed = csvParse<BatchExecModel>(readFileSync(path, 'utf8'), { header: true, delimiter: '|' });
+    const parsed = csvParse<BatchExecModel>(await readFile(path, 'utf8'), { header: true, delimiter: '|' });
     if (parsed.errors.length > 0) return [];
     return this.batchExecMapper.reverseAll(parsed.data);
   }
@@ -113,13 +114,14 @@ export class BatchRepo implements IBatchRepo {
     const path = join(this.appConfig.props.app.uploadPath, `b_${batchId}.csv`);
     if (!existsSync(path)) throw new BatchResultsNotFound(batchId);
 
-    return readFileSync(path);
+    return await readFile(path);
   }
 
   async deleteResults(batchIds: string[]): Promise<number> {
     let deleted = 0;
-    const dataPath = join(this.appConfig.props.app.uploadPath, BATCH_PATH);
-    const data = this.loadCsvBatch(dataPath).filter((m) => {
+    const { uploadPath } = this.appConfig.props.app;
+    const dataPath = join(uploadPath, BATCH_PATH);
+    const data = (await this.loadCsvBatch(dataPath)).filter((m) => {
       if (m.status === 'processing' || m.status === 'created') {
         throw new RateLimitExceeded(`batch <${m.id}> is still processing`);
       }
@@ -127,20 +129,20 @@ export class BatchRepo implements IBatchRepo {
     });
 
     for (const batchId of batchIds) {
-      const batchFile = join(this.appConfig.props.app.uploadPath, `b_${batchId}.csv`);
-      if (existsSync(batchFile)) {
-        unlinkSync(batchFile);
-        deleted++;
-      }
+      const batchFile = join(uploadPath, `b_${batchId}.csv`);
+      console.log('deleting batch file', batchFile);
+      if (!existsSync(batchFile)) continue;
+      await unlink(batchFile);
+      deleted++;
     }
 
     let updated = data.map((row) => row.toCsv()).join('\n');
     if (updated.trim().length > 0) updated = '\n' + updated;
-    writeFileSync(dataPath, `${BatchModelHandler.headers()}${updated}`);
+    await writeFile(dataPath, `${BatchModelHandler.headers()}${updated}`);
     return deleted;
   }
 
-  private saveBatchExec(batchId: string, results: ExecResult[]): void {
+  private async saveBatchExec(batchId: string, results: ExecResult[]): Promise<void> {
     try {
       const path = join(this.appConfig.props.app.uploadPath, `b_${batchId}.csv`);
       const models = results.map(
@@ -154,25 +156,25 @@ export class BatchRepo implements IBatchRepo {
       );
 
       const content = BatchExecModelHandler.headers() + '\n' + models.map((m) => m.toCsv()).join('\n');
-      appendFileSync(path, content);
+      await appendFile(path, content);
     } catch (cause) {
       throw new BatchExecNotSaved(batchId, cause);
     }
   }
 
-  private loadCsvBatch(filePath: string): BatchModelHandler[] {
+  private async loadCsvBatch(filePath: string): Promise<BatchModelHandler[]> {
     const url = join(process.cwd(), filePath);
     if (!existsSync(url)) return [];
 
-    const parsed = csvParse<BatchModel>(readFileSync(url, 'utf8'), { header: true });
+    const parsed = csvParse<BatchModel>(await readFile(url, 'utf8'), { header: true });
     if (parsed.errors.length > 0) return [];
 
     return parsed.data.map((row) => new BatchModelHandler({ ...row }));
   }
 
-  private updateCsvBatch(batch: Batch): void {
+  private async updateCsvBatch(batch: Batch): Promise<void> {
     const dataPath = join(this.appConfig.props.app.uploadPath, BATCH_PATH);
-    const data = this.loadCsvBatch(dataPath);
+    const data = await this.loadCsvBatch(dataPath);
 
     for (const i in data) {
       if (data[i].id === batch.id) {
@@ -182,15 +184,14 @@ export class BatchRepo implements IBatchRepo {
     }
 
     const updated = data.map((row) => row.toCsv()).join('\n');
-    writeFileSync(dataPath, `${BatchModelHandler.headers()}\n${updated}`);
+    await writeFile(dataPath, `${BatchModelHandler.headers()}\n${updated}`);
   }
 
-  private canCreateBatch(): boolean {
+  private async canCreateBatch(): Promise<boolean> {
     const dataPath = join(this.appConfig.props.app.uploadPath, BATCH_PATH);
-    const processing = this.loadCsvBatch(dataPath)
+    const processing = (await this.loadCsvBatch(dataPath))
       .map((m) => m.toBatch())
       .filter((b) => b.status === 'processing');
-
     return processing.length < 1;
   }
 }
