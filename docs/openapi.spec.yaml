@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.0
 paths:
   /health:
     get:
@@ -154,7 +154,7 @@ paths:
         - health
   /v1/config:
     get:
-      operationId: ConfigController_findOne
+      operationId: ConfigController_findOne_v1
       parameters: []
       responses:
         '200':
@@ -163,6 +163,10 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - app
+                  - spark
+                  - health
                 properties:
                   app:
                     type: object
@@ -211,22 +215,67 @@ paths:
                       memory:
                         type: number
                         example: 1024
+                  connectivity:
+                    type: object
+                    required:
+                      - enabled
+                      - base_url
+                    properties:
+                      enabled:
+                        type: boolean
+                        example: true
+                      base_url:
+                        type: string
+                        example: https://excel.uat.us.coherent.global/fieldengineering
+                      token:
+                        type: object
+                        properties:
+                          header:
+                            type: string
+                            example: Authorization
+                          value:
+                            type: string
+                            example: '[secure]'
+                      api_key:
+                        type: object
+                        properties:
+                          header:
+                            type: string
+                            example: x-synthetic-key
+                          value:
+                            type: string
+                            example: '[secure]'
+                      oauth2:
+                        type: object
+                        properties:
+                          client_id:
+                            type: string
+                            example: '[secure]'
+                          client_secret:
+                            type: string
+                            example: '[secure]'
+                  history:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        example: true
       tags:
         - config
   /v1/services:
     get:
-      operationId: ServicesController_findAll
+      operationId: ServicesController_findAll_v1
       parameters:
         - name: page
           required: false
           in: query
-          example: 1
-          schema: {}
+          schema:
+            example: 1
         - name: limit
           required: false
           in: query
-          example: 100
-          schema: {}
+          schema:
+            example: 100
         - name: order
           required: false
           in: query
@@ -358,16 +407,24 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
     put:
-      operationId: ServicesController_uploadWasmFile2
+      operationId: ServicesController_uploadWasmFile[0]_v1
       parameters:
+        - name: version_id
+          required: false
+          in: path
+          description: wasm bundle id
+          schema:
+            format: uuid
+            type: string
         - name: preload
           required: false
           in: query
-          example: false
           schema:
+            example: false
             type: boolean
       requestBody:
         required: true
@@ -485,6 +542,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '422':
           description: Unable to create wasm runner
           content:
@@ -518,16 +576,24 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
     patch:
-      operationId: ServicesController_addWasmFileByUri2
+      operationId: ServicesController_addWasmFileByUri[0]_v1
       parameters:
+        - name: version_id
+          required: false
+          in: path
+          description: wasm bundle id
+          schema:
+            format: uuid
+            type: string
         - name: preload
           required: false
           in: query
-          example: false
           schema:
+            example: false
             type: boolean
       requestBody:
         required: true
@@ -640,6 +706,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '422':
           description: Unable to create wasm runner
           content:
@@ -673,14 +740,15 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
   /v1/services/{version_id}:
     put:
-      operationId: ServicesController_uploadWasmFile
+      operationId: ServicesController_uploadWasmFile[1]_v1
       parameters:
         - name: version_id
-          required: true
+          required: false
           in: path
           description: wasm bundle id
           schema:
@@ -689,8 +757,8 @@ paths:
         - name: preload
           required: false
           in: query
-          example: false
           schema:
+            example: false
             type: boolean
       requestBody:
         required: true
@@ -808,6 +876,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '422':
           description: Unable to create wasm runner
           content:
@@ -841,13 +910,14 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
     patch:
-      operationId: ServicesController_addWasmFileByUri
+      operationId: ServicesController_addWasmFileByUri[1]_v1
       parameters:
         - name: version_id
-          required: true
+          required: false
           in: path
           description: wasm bundle id
           schema:
@@ -856,8 +926,8 @@ paths:
         - name: preload
           required: false
           in: query
-          example: false
           schema:
+            example: false
             type: boolean
       requestBody:
         required: true
@@ -970,6 +1040,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '422':
           description: Unable to create wasm runner
           content:
@@ -1003,10 +1074,11 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
     get:
-      operationId: ServicesController_downloadWasmFile
+      operationId: ServicesController_downloadWasmFile_v1
       parameters:
         - name: version_id
           required: true
@@ -1016,17 +1088,17 @@ paths:
       responses:
         '200':
           description: WASM file downloaded successfully
+          schema:
+            type: string
+            format: binary
+            description: WASM file as zip
           content:
             application/octet-stream:
               schema:
-                type: string
-                format: binary
-                description: WASM file as zip
+                $ref: '#/components/schemas/WasmFile'
             application/zip:
               schema:
-                type: string
-                format: binary
-                description: WASM file as zip
+                $ref: '#/components/schemas/WasmFile'
         '404':
           description: WASM file not found
           content:
@@ -1060,6 +1132,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
             application/zip:
               schema:
                 type: object
@@ -1090,10 +1163,11 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
     delete:
-      operationId: ServicesController_deleteWasmFile
+      operationId: ServicesController_deleteWasmFile_v1
       parameters:
         - name: version_id
           required: true
@@ -1136,20 +1210,23 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
   /v1/services/{version_id}/execute:
     post:
-      operationId: ServicesController_executeWasm
+      operationId: ServicesController_executeWasm_v1
       parameters:
         - name: version_id
           required: true
           in: path
+          description: id used during upload process
           schema:
+            format: uuid
             type: string
       requestBody:
         required: true
-        description: Upload a WASM bundle by URI
+        description: Execute a WASM bundle
         content:
           application/json:
             schema:
@@ -1174,25 +1251,29 @@ paths:
                         - b: 2
                         - c: 3
                     - type: array
-                      description: useful for synchronous batch execution using COLUMNAR data
-                    - items:
+                      description: >-
+                        useful for synchronous batch execution using COLUMNAR
+                        data
+                      items:
                         type: array
                         minItems: 2
                       example:
-                        - one
-                          two
-                        - 1
-                          2
-                        - 3
-                          4
+                        - - one
+                          - two
+                        - - 1
+                          - 2
+                        - - 3
+                          - 4
                 metadata:
                   description: additional request metadata
                   type: object
                 shared:
                   description: shared data to extend every input of a batch execution
                   oneOf:
-                    - example: null
                     - type: object
+                      example:
+                        a: 1
+                        b: 2
       responses:
         '200':
           description: WASM executed successfully
@@ -1216,15 +1297,12 @@ paths:
                               c: 3
                           errors:
                             type: array
-                            items: {}
                             example: []
                           warnings:
                             type: array
-                            items: {}
                             example: []
                           service_chain:
                             type: array
-                            items: {}
                             example: []
                       response_meta:
                         type: object
@@ -1275,7 +1353,7 @@ paths:
                       system:
                         type: string
         '400':
-          description: Bad request
+          description: Wrong inputs or parameters
           content:
             application/json:
               schema:
@@ -1309,8 +1387,9 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '404':
-          description: WASM not found
+          description: WASM bundle not found
           content:
             application/json:
               schema:
@@ -1342,6 +1421,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '413':
           description: Payload too large
           content:
@@ -1377,6 +1457,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '422':
           description: Unable to execute WASM bundle
           content:
@@ -1410,11 +1491,12 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - services
-  /v1/services/{version_id}/validate:
+  /v1/services/{version_id}/validation:
     post:
-      operationId: ServicesController_getValidations
+      operationId: ServicesController_getValidations[0]_v1
       parameters:
         - name: version_id
           required: true
@@ -1468,15 +1550,12 @@ paths:
                         description: List of validations
                       warnings:
                         type: array
-                        items: {}
                         nullable: true
                       errors:
                         type: array
-                        items: {}
                         nullable: true
                       service_chain:
                         type: array
-                        items: {}
                         nullable: true
                   response_meta:
                     type: object
@@ -1524,6 +1603,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '404':
           description: WASM not found
           content:
@@ -1557,11 +1637,158 @@ paths:
                             items:
                               type: string
                           - type: string
+
+      tags:
+        - services
+  /v1/services/{version_id}/validate:
+    post:
+      operationId: ServicesController_getValidations[1]_v1
+      parameters:
+        - name: version_id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Request data and metadata
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                inputs:
+                  description: corresponding inputs
+                  type: object
+                  example:
+                    a: 1
+                    b: 2
+                metadata:
+                  description: additional request metadata
+                  type: object
+      responses:
+        '200':
+          description: WASM validations
+          content:
+            application/json:
+              schema:
+                type: object
+                description: WASM validations
+                required:
+                  - response_data
+                  - response_meta
+                additionalProperties: false
+                properties:
+                  status:
+                    type: string
+                    nullable: true
+                  response_data:
+                    type: object
+                    required:
+                      - outputs
+                      - warnings
+                      - errors
+                      - service_chain
+                    properties:
+                      outputs:
+                        type: object
+                        description: List of validations
+                      warnings:
+                        type: array
+                        nullable: true
+                      errors:
+                        type: array
+                        nullable: true
+                      service_chain:
+                        type: array
+                        nullable: true
+                  response_meta:
+                    type: object
+                    required:
+                      - version_id
+                    properties:
+                      version_id:
+                        type: string
+                        description: The version ID of the WASM
+                  error:
+                    type: object
+                    nullable: true
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  error:
+                    type: object
+                    required:
+                      - status
+                      - message
+                    additionalProperties: false
+                    properties:
+                      status:
+                        type: number
+                        description: HTTP status code
+                        example: 400
+                      message:
+                        type: string
+                        description: message describing the failure
+                        example: validation failed
+                      cause:
+                        type: object
+                        description: description of the failure if any
+                        example:
+                          inputs:
+                            - must be a valid object
+                        oneOf:
+                          - type: object
+                          - type: array
+                            items:
+                              type: string
+                          - type: string
+
+        '404':
+          description: WASM not found
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  error:
+                    type: object
+                    required:
+                      - status
+                      - message
+                    additionalProperties: false
+                    properties:
+                      status:
+                        type: number
+                        description: HTTP status code
+                        example: 404
+                      message:
+                        type: string
+                        description: message describing the failure
+                        example: no wasm file found for version_id <id>
+                      cause:
+                        type: object
+                        description: description of the failure if any
+                        example: null
+                        oneOf:
+                          - type: object
+                          - type: array
+                            items:
+                              type: string
+                          - type: string
+
       tags:
         - services
   /v1/services/{version_id}/history:
     get:
-      operationId: ServicesController_getWasmExecHistory
+      operationId: ServicesController_getWasmExecHistory_v1
       parameters:
         - name: version_id
           required: true
@@ -1580,13 +1807,13 @@ paths:
         - name: page
           required: false
           in: query
-          example: 1
-          schema: {}
+          schema:
+            example: 1
         - name: limit
           required: false
           in: query
-          example: 100
-          schema: {}
+          schema:
+            example: 100
         - name: order
           required: false
           in: query
@@ -1794,8 +2021,21 @@ paths:
                   - type: string
                     format: binary
                     description: CSV file
+      tags:
+        - services
+    delete:
+      operationId: ServicesController_deleteWasmExecHistory_v1
+      parameters:
+        - name: version_id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Execution history file deleted successfully
         '404':
-          description: No execution history found
+          description: Execution history content not found
           content:
             application/json:
               schema:
@@ -1827,71 +2067,12 @@ paths:
                             items:
                               type: string
                           - type: string
-            application/octet-stream:
-              schema:
-                type: object
-                additionalProperties: false
-                properties:
-                  error:
-                    type: object
-                    required:
-                      - status
-                      - message
-                    additionalProperties: false
-                    properties:
-                      status:
-                        type: number
-                        description: HTTP status code
-                        example: 404
-                      message:
-                        type: string
-                        description: message describing the failure
-                        example: no execution history file found for version_id <id>
-                      cause:
-                        type: object
-                        description: description of the failure if any
-                        example: null
-                        oneOf:
-                          - type: object
-                          - type: array
-                            items:
-                              type: string
-                          - type: string
-            text/csv:
-              schema:
-                type: object
-                additionalProperties: false
-                properties:
-                  error:
-                    type: object
-                    required:
-                      - status
-                      - message
-                    additionalProperties: false
-                    properties:
-                      status:
-                        type: number
-                        description: HTTP status code
-                        example: 404
-                      message:
-                        type: string
-                        description: message describing the failure
-                        example: no execution history file found for version_id <id>
-                      cause:
-                        type: object
-                        description: description of the failure if any
-                        example: null
-                        oneOf:
-                          - type: object
-                          - type: array
-                            items:
-                              type: string
-                          - type: string
+
       tags:
         - services
   /v1/batch/{service_id}:
     post:
-      operationId: BatchController_createBatch
+      operationId: BatchController_createBatch_v1
       parameters:
         - name: service_id
           required: true
@@ -1931,7 +2112,7 @@ paths:
                       description: >-
                         useful for synchronous batch execution using COLUMNAR
                         data
-                    - items:
+                      items:
                         type: array
                         minItems: 2
                       example:
@@ -1944,8 +2125,12 @@ paths:
                 shared:
                   description: shared data to extend every input of a batch execution
                   oneOf:
-                    - example: null
+                    - type: null
+                      example: null
                     - type: object
+                      example:
+                        a: 1
+                        b: 2
       responses:
         '201':
           description: Batch operation created successfully
@@ -2038,6 +2223,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '404':
           description: WASM bundle not found
           content:
@@ -2071,6 +2257,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '413':
           description: Payload too large
           content:
@@ -2106,6 +2293,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '422':
           description: Unable to create batch
           content:
@@ -2139,6 +2327,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '429':
           description: Batch limit exceeded
           content:
@@ -2172,11 +2361,12 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - batch
   /v1/batch/{batch_id}/status:
     get:
-      operationId: BatchController_getBatchStatus
+      operationId: BatchController_getBatchStatus_v1
       parameters:
         - name: batch_id
           required: true
@@ -2274,11 +2464,12 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - batch
   /v1/batch/{batch_id}/results:
     get:
-      operationId: BatchController_getBatchResults
+      operationId: BatchController_getBatchResults_v1
       parameters:
         - name: batch_id
           required: true
@@ -2420,6 +2611,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
             application/octet-stream:
               schema:
                 type: object
@@ -2450,6 +2642,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
             text/csv:
               schema:
                 type: object
@@ -2480,11 +2673,12 @@ paths:
                             items:
                               type: string
                           - type: string
+
       tags:
         - batch
   /v1/batch:
     delete:
-      operationId: BatchController_deleteFiles
+      operationId: BatchController_deleteFiles_v1
       parameters: []
       requestBody:
         required: true
@@ -2544,6 +2738,7 @@ paths:
                             items:
                               type: string
                           - type: string
+
         '429':
           description: Batch limit exceeded
           content:
@@ -2595,4 +2790,10 @@ tags:
     description: manages batch operations
 servers: []
 components:
-  schemas: {}
+  schemas:
+    WasmFile:
+      type: string
+      format: binary
+      description: WASM file as zip
+      example: |
+        <WASM file as zip>

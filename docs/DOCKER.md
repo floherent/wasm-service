@@ -20,7 +20,7 @@ This Docker image isn't officially supported by Coherent. It originally started 
 a sample API service I built for demo purposes. I then thought, "Why not share it
 with the community?" So, here we are!
 
-If you encounter any bumps while using it, please report them [by creating a new issue][github-issue].
+If you encounter any bumps while using it, please report them [by creating a GitHub issue][github-issue].
 
 ## Usage
 
@@ -55,28 +55,29 @@ the API documentation (OpenAPI 3.0 - Swagger UI) at `http://localhost:8080/docs`
 The service is also shipped with a built-in WASM bundle (volume of cylinder) that
 you may use to test the service.
 
-| Use Cases                  | Resources                                 |
-| -------------------------- | ----------------------------------------- |
-| API Documentation          | `GET /docs` or `GET /docs-json`           |
-| Health check               | `GET /health`                             |
-| Get current configuration  | `GET /v1/config`                          |
-| List all WASM modules      | `GET /v1/services`                        |
-| Upload a WASM module       | `PUT /v1/services[/{version_id}]`         |
-| Add WASM module by URL     | `PATCH /v1/services[/{version_id}]`       |
-| Execute a WASM module      | `POST /v1/services/{version_id}/execute`  |
-| Fetch WASM validations     | `POST /v1/services/{version_id}/validate` |
-| Get WASM execution history | `GET /v1/services/{version_id}/history`   |
-| Download a WASM module     | `GET /v1/services/{version_id}`           |
-| Delete a WASM module       | `DELETE /v1/services/{version_id}`        |
+| Use Cases                  | Resources                                  |
+| -------------------------- | ------------------------------------------ |
+| API Documentation          | `GET /docs` or `GET /docs-json`            |
+| Health check               | `GET /health`                              |
+| Get current configuration  | `GET /v1/config`                           |
+| List all WASM modules      | `GET /v1/services`                         |
+| Upload a WASM module       | `PUT /v1/services[/{version_id}]`          |
+| Add WASM module by URL     | `PATCH /v1/services[/{version_id}]`        |
+| Execute a WASM module      | `POST /v1/services/{version_id}/execute`   |
+| Fetch WASM validations     | `POST /v1/services/{version_id}/validate`  |
+| Get WASM execution history | `GET /v1/services/{version_id}/history`    |
+| Delete execution history   | `DELETE /v1/services/{version_id}/history` |
+| Download a WASM module     | `GET /v1/services/{version_id}`            |
+| Delete a WASM module       | `DELETE /v1/services/{version_id}`         |
 
 For batch operations, use the following endpoints:
 
-| Use Cases           | Resources                          |
-| ------------------- | ---------------------------------- |
-| Create a batch      | `POST /v1/batch/{service_id}`      |
-| Get a batch status  | `GET /v1/batch/{batch_id}/status`  |
-| Get a batch result  | `GET /v1/batch/{batch_id}/results` |
-| Delete 1+ batch(es) | `DELETE /v1/batch`                 |
+| Use Cases               | Resources                          |
+| ----------------------- | ---------------------------------- |
+| Create a batch          | `POST /v1/batch/{service_id}`      |
+| Get a batch status      | `GET /v1/batch/{batch_id}/status`  |
+| Get a batch result      | `GET /v1/batch/{batch_id}/results` |
+| Delete 1+ batch results | `DELETE /v1/batch`                 |
 
 **NOTE:** Keep in mind that batch operations are asynchronous and memory-intensive.
 You should use them with caution.
@@ -106,8 +107,12 @@ service:
   contextPath: /
   uploadPath: uploads
   bodyLimit: 50mb
+  connectivity:
+    enabled: false
 
 performance:
+  history:
+    enabled: false
   spark:
     cacheSize: 8
     threads: 1
