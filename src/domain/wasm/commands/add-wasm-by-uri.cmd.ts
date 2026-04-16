@@ -8,12 +8,19 @@ import { WasmFileDto, AddWasmByUriDto, IWasmRepo } from '@domain/wasm';
 import { WasmModel } from '@infra/wasm';
 
 export class AddWasmByUriCommand {
-  constructor(readonly dto: AddWasmByUriDto, readonly versionId?: string, readonly preload = true) {}
+  constructor(
+    readonly dto: AddWasmByUriDto,
+    readonly versionId?: string,
+    readonly preload = true,
+  ) {}
 }
 
 @CommandHandler(AddWasmByUriCommand)
 export class AddWasmByUriCommandHandler implements ICommandHandler<AddWasmByUriCommand, Result<Error, WasmModel>> {
-  constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo, private wasmService: WasmService) {}
+  constructor(
+    @Inject('IWasmRepo') private readonly repo: IWasmRepo,
+    private wasmService: WasmService,
+  ) {}
 
   async execute(cmd: AddWasmByUriCommand): Promise<Result<Error, WasmModel>> {
     return Result.safe(async () => {

@@ -18,7 +18,10 @@ export class BatchCreatedEvent implements IEvent {
 
 @EventsHandler(BatchCreatedEvent)
 export class BatchCreatedEventHandler implements IEventHandler<BatchCreatedEvent> {
-  constructor(private readonly commandBus: CommandBus, private socketService: SocketService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private socketService: SocketService,
+  ) {}
 
   async handle(event: BatchCreatedEvent) {
     try {

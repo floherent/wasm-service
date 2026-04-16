@@ -96,7 +96,7 @@ export class WasmRepo implements IWasmRepo {
       const metadata = { ...(dto.metadata ?? {}), version_id: versionId, __api_meta: { api: 'dynamic_validation' } };
       const input = Spark.buildRequest(dto.inputs, metadata);
       return await wasm.execute(input);
-    } catch (cause) {
+    } catch {
       return await this.getStaticValidations(versionId);
     }
   }

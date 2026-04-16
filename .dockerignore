@@ -1,9 +1,11 @@
+.DS_Store
 .git
 .github
 .husky
 .vscode
 .dockerignore
 .eslintcache
+.eslintrc.js
 .gitignore
 .nvmrc
 .prettierrc
@@ -12,7 +14,8 @@ dist
 docs
 examples
 node_modules
-temp
+.temp
+test
 uploads
 CHANGELOG.md
 Dockerfile*
@@ -20,3 +23,4 @@ LICENSE
 README.md
 npm-debug.log
 yarn.lock
+pnpm-lock.yaml

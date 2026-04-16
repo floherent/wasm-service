@@ -6,7 +6,10 @@ import { getFolderSize, toFileSize } from '@shared/utils';
 
 @Injectable()
 export class WasmDataHealthIndicator {
-  constructor(private readonly healthIndicatorService: HealthIndicatorService, private readonly appConfig: AppConfig) {}
+  constructor(
+    private readonly healthIndicatorService: HealthIndicatorService,
+    private readonly appConfig: AppConfig,
+  ) {}
 
   async checkSize(key: string, threshold: number): Promise<HealthIndicatorResult> {
     const indicator = this.healthIndicatorService.check(key);

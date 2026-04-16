@@ -7,12 +7,19 @@ import { WasmFileDto, UploadWasmDto, IWasmRepo } from '@domain/wasm';
 import { WasmModel } from '@infra/wasm';
 
 export class UploadWasmCommand {
-  constructor(readonly dto: UploadWasmDto, readonly file: Express.Multer.File, readonly preload = true) {}
+  constructor(
+    readonly dto: UploadWasmDto,
+    readonly file: Express.Multer.File,
+    readonly preload = true,
+  ) {}
 }
 
 @CommandHandler(UploadWasmCommand)
 export class UploadWasmCommandHandler implements ICommandHandler<UploadWasmCommand, Result<Error, WasmModel>> {
-  constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo, private wasmService: WasmService) {}
+  constructor(
+    @Inject('IWasmRepo') private readonly repo: IWasmRepo,
+    private wasmService: WasmService,
+  ) {}
 
   async execute(cmd: UploadWasmCommand): Promise<Result<Error, WasmModel>> {
     return Result.safe(async () => {

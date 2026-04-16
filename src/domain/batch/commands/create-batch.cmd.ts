@@ -6,12 +6,19 @@ import { IBatchRepo, Batch, ExecuteBatchDto, BatchCreatedEvent } from '@domain/b
 import { JsonValue, Spark } from '@shared/utils';
 
 export class CreateBatchCommand {
-  constructor(readonly versionId: string, readonly clientId: string, readonly dto: ExecuteBatchDto) {}
+  constructor(
+    readonly versionId: string,
+    readonly clientId: string,
+    readonly dto: ExecuteBatchDto,
+  ) {}
 }
 
 @CommandHandler(CreateBatchCommand)
 export class CreateBatchCommandHandler implements ICommandHandler<CreateBatchCommand, Result<Error, Batch>> {
-  constructor(@Inject('IBatchRepo') private readonly repo: IBatchRepo, private readonly eventBus: EventBus) {}
+  constructor(
+    @Inject('IBatchRepo') private readonly repo: IBatchRepo,
+    private readonly eventBus: EventBus,
+  ) {}
 
   async execute(cmd: CreateBatchCommand): Promise<Result<Error, Batch>> {
     const { versionId, clientId, dto } = cmd;

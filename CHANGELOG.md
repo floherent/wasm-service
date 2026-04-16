@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file. See
 [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 0.2.5 (2026-04-16)
+
+- Apply security fixes and improvements.
+  - 23 vulnerabilities (1 critical, 11 high, 11 moderate)
+- Update Dockerfile:
+  - Updated base image from node:20.12-alpine3.19 to node:20-alpine (auto-resolves to latest patch)
+  - Removed explicit npm install -g npm@^10.5 (Alpine image ships with current npm)
+  - Added non-root user (appuser) to run the container
+
 ## 0.2.4 (2026-03-04)
 
 - Add delete execution history endpoint.

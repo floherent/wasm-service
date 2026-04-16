@@ -15,7 +15,10 @@ import { QueryType } from '@shared/utils';
 export class BatchController {
   private readonly logger = new Logger(BatchController.name);
 
-  constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post(':service_id')
   @CreateBatch()

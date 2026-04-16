@@ -27,7 +27,10 @@ import { BadUploadWasmData } from '@shared/errors';
 export class ServicesController {
   private readonly logger = new Logger(ServicesController.name);
 
-  constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get()
   @FindWasmData()

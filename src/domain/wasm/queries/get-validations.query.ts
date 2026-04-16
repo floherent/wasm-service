@@ -5,13 +5,17 @@ import { Result } from 'typescript-result';
 import { IWasmRepo, ExecData, WasmValidations, WasmValidationDto } from '@domain/wasm';
 
 export class GetValidationsQuery {
-  constructor(readonly versionId: string, readonly dto: WasmValidationDto) {}
+  constructor(
+    readonly versionId: string,
+    readonly dto: WasmValidationDto,
+  ) {}
 }
 
 @QueryHandler(GetValidationsQuery)
-export class GetValidationsQueryHandler
-  implements IQueryHandler<GetValidationsQuery, Result<Error, ExecData | WasmValidations>>
-{
+export class GetValidationsQueryHandler implements IQueryHandler<
+  GetValidationsQuery,
+  Result<Error, ExecData | WasmValidations>
+> {
   constructor(@Inject('IWasmRepo') private readonly repo: IWasmRepo) {}
 
   async execute(query: GetValidationsQuery): Promise<Result<Error, ExecData | WasmValidations>> {
