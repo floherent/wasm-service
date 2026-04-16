@@ -14,7 +14,10 @@ export class WasmService {
   private readonly bucket: string[] = [];
   private readonly wasms: Map<string, Spark> = new Map(); // could use redis or something else.
 
-  constructor(private readonly appConfig: AppConfig, readonly saasService: SaasService) {}
+  constructor(
+    private readonly appConfig: AppConfig,
+    readonly saasService: SaasService,
+  ) {}
 
   getWasm(versionId: string): Spark | undefined {
     const wasm = this.wasms.get(versionId);

@@ -1,5 +1,8 @@
 export class Paginated<T> {
-  private constructor(public content: T[], public pagination: Pagination) {}
+  private constructor(
+    public content: T[],
+    public pagination: Pagination,
+  ) {}
 
   static empty<P>(pagination: { page: number; limit: number; total: number }): Paginated<P> {
     return Paginated.from([], pagination);

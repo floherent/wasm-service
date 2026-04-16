@@ -7,7 +7,10 @@ import { IBatchRepo } from '@domain/batch';
 import { ExecResponseData, Spark } from '@shared/utils';
 
 export class ExecuteWasmCommand {
-  constructor(readonly versionId: string, readonly dto: ExecuteWasmDto) {}
+  constructor(
+    readonly versionId: string,
+    readonly dto: ExecuteWasmDto,
+  ) {}
 }
 
 @CommandHandler(ExecuteWasmCommand)

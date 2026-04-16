@@ -1,5 +1,5 @@
 import { SortOrder, QueryType } from '@shared/utils';
-import { getErrorSchema, getPaginationSchema, EndpointOptions, getSwaggerModule, type Swagger } from '../utils';
+import { getPaginationSchema, EndpointOptions, getSwaggerModule, type Swagger } from '../utils';
 
 /**
  * Documents the "Get WASM execution history" endpoint using Swagger.

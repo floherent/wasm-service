@@ -9,9 +9,10 @@ export class DeleteBatchResultsCommand {
 }
 
 @CommandHandler(DeleteBatchResultsCommand)
-export class DeleteBatchResultsCommandHandler
-  implements ICommandHandler<DeleteBatchResultsCommand, Result<Error, number>>
-{
+export class DeleteBatchResultsCommandHandler implements ICommandHandler<
+  DeleteBatchResultsCommand,
+  Result<Error, number>
+> {
   constructor(@Inject('IBatchRepo') private readonly repo: IBatchRepo) {}
 
   async execute(cmd: DeleteBatchResultsCommand): Promise<Result<Error, number>> {

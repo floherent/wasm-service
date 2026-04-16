@@ -6,7 +6,10 @@ import { ExecHistory, IWasmRepo } from '@domain/wasm';
 import { PaginationQueryParams, Paginated } from '@shared/utils';
 
 export class GetHistoryQuery {
-  constructor(readonly versionId: string, readonly params: PaginationQueryParams) {}
+  constructor(
+    readonly versionId: string,
+    readonly params: PaginationQueryParams,
+  ) {}
 }
 
 @QueryHandler(GetHistoryQuery)
