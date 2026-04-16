@@ -7,15 +7,9 @@ import { Result } from 'typescript-result';
 import { Response } from 'express';
 
 import { UploadWasmDto, AddWasmByUriDto, ExecuteWasmDto, ExecHistory, WasmData, ExecData } from '@domain/wasm';
-import {
-  UploadWasmCommand,
-  ExecuteWasmCommand,
-  DeleteWasmCommand,
-  AddWasmByUriCommand,
-  DeleteHistoryCommand,
-} from '@domain/wasm';
+import { UploadWasmCommand, ExecuteWasmCommand, DeleteWasmCommand, AddWasmByUriCommand } from '@domain/wasm';
 import { GetHistoryQuery, DownloadWasmQuery, DownloadHistoryQuery, GetWasmDataQuery } from '@domain/wasm';
-import { GetValidationsQuery, WasmValidationDto, WasmValidations } from '@domain/wasm';
+import { GetValidationsQuery, WasmValidationDto, WasmValidations, DeleteHistoryCommand } from '@domain/wasm';
 import { ExecResponseData, Paginated, PaginationParams, PaginationQueryParams } from '@shared/utils';
 import { UploadWasmFile, AddWasmFileByUri, DownloadWasmFile, DeleteWasmFile, DeleteHistoryFile } from '@shared/docs';
 import { FindWasmData, ExecuteWasm, GetWasmExecHistory, GetWasmValidations } from '@shared/docs';

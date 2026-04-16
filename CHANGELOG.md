@@ -12,6 +12,7 @@ for commit guidelines.
   - Updated base image from node:20.12-alpine3.19 to node:20-alpine (auto-resolves to latest patch)
   - Removed explicit npm install -g npm@^10.5 (Alpine image ships with current npm)
   - Added non-root user (appuser) to run the container
+- Add more test coverage for the services controller.
 
 ## 0.2.4 (2026-03-04)
 
