@@ -8,6 +8,7 @@ for commit guidelines.
 
 - Apply security fixes and improvements.
   - 23 vulnerabilities (1 critical, 11 high, 11 moderate)
+  - Drop unused axios dependency
 - Upgrade dependencies to fix vulnerabilities.
 
 ## 0.2.5 (2026-04-16)

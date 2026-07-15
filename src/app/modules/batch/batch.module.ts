@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { HttpModule } from '@nestjs/axios';
 
 import { AppConfigModule } from '@app/modules/config';
 import { SocketModule } from '@app/modules/socket';
@@ -11,7 +10,7 @@ import { CqrsHandlers } from '@domain/batch';
 import { BatchController } from './batch.controller';
 
 @Module({
-  imports: [AppConfigModule, SocketModule, CqrsModule, HttpModule],
+  imports: [AppConfigModule, SocketModule, CqrsModule],
   controllers: [BatchController],
   providers: [
     WasmService,
